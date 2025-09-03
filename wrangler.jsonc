@@ -4,12 +4,22 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "dispatch",
+	"name": "tracked-dispatcher",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-03",
 	"observability": {
-		"enabled": true
-	}
+		"enabled": false
+	},
+	"placement": { 
+		"mode": "smart" 
+	},
+    "kv_namespaces": [
+        {
+            "binding": "KV",
+            "id": "28dd0b8816c449998ebc69f808d43399"
+        }
+    ],
+	"assets": { "directory": "./public", "binding": "ASSETS" }
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
