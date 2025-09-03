@@ -958,6 +958,59 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<K
   return null;
 }
 
+function serveNotFoundPage(reason: string): Response {
+  console.log(reason);
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background-color: #0a0a0a;
+      color: #fafafa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      font-size: 16px;
+    }
+    div {
+      padding: 2rem;
+    }
+    p {
+      margin: 0 0 1rem 0;
+    }
+    a {
+      color: #9e9e9e;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p>this page does not exist</p>
+    <a href="https://tracked.it">https://tracked.it</a>
+  </div>
+</body>
+</html>`;
+
+  return new Response(html, {
+    status: 404,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+}
+
 export interface WorkerRule {
   condition: (request: RequestData) => boolean;
   action: (c: any, data: RequestData) => Promise<Response>;
@@ -1009,7 +1062,7 @@ export const rules: WorkerRule[] = [
       // This part of the code (KVRule is null) might need to be re-evaluated
       // if 'c/' is not guaranteed to exist.
       // For now, assuming 'c/' is the ultimate safe fallback.
-      return servePublicFile(c, 'c/', data, reason);
+      return serveNotFoundPage(reason);
     },
   },
 ];
