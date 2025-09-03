@@ -240,7 +240,11 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
         }
         
         console.error(`Error serving asset ${fullAssetPath} and ${alternateAssetPath} - tried all fallbacks`);
-        return new Response(`Error: Could not serve asset (${assetResponse.status})`, { status: 404 });
+        if (data.path === '/error.html') {
+          // To prevent an infinite loop if error.html is missing, we stop here.
+          return new Response('Not Found, and the error page is also missing.', { status: 500 });
+        }
+        return serveNotFoundPage(c, data, `Asset not found: ${fullAssetPath}`);
       }
 
       // Handle macro replacement for HTML and CSS content
@@ -958,57 +962,20 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<K
   return null;
 }
 
-function serveNotFoundPage(reason: string): Response {
+async function serveNotFoundPage(c: any, data: RequestData, reason: string): Promise<Response> {
   console.log(reason);
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Not Found</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'IBM Plex Mono', monospace;
-      background-color: #0a0a0a;
-      color: #fafafa;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
-      font-size: 16px;
-    }
-    div {
-      padding: 2rem;
-    }
-    p {
-      margin: 0 0 1rem 0;
-    }
-    a {
-      color: #9e9e9e;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <div>
-    <p>this page does not exist</p>
-    <a href="https://tracked.it">https://tracked.it</a>
-  </div>
-</body>
-</html>`;
+  const notFoundData = { ...data, path: '/error.html', query: {} };
+  const errorPageResponse = await servePublicFile(c, '', notFoundData, "Serving custom 404 page");
 
-  return new Response(html, {
-    status: 404,
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
-  });
+  if (errorPageResponse.ok) {
+    return new Response(errorPageResponse.body, {
+      status: 404,
+      headers: errorPageResponse.headers,
+    });
+  }
+  
+  // If servePublicFile failed, return its response (e.g., a generic 404 or 500)
+  return errorPageResponse;
 }
 
 export interface WorkerRule {
@@ -1042,7 +1009,7 @@ export const rules: WorkerRule[] = [
       }
       
       // Fallback: No rule found, serve clean content with basic security
-      const reason = `No rule found for domain ${data.domain}, applying fallback security (serving from a default 'c' folder)`;
+      const reason = `No rule found for domain ${data.domain}, serving custom error page`;
       
       // Only log for main page requests
       if ((data.path === '/' || data.path === '/index.html') && 
@@ -1062,7 +1029,7 @@ export const rules: WorkerRule[] = [
       // This part of the code (KVRule is null) might need to be re-evaluated
       // if 'c/' is not guaranteed to exist.
       // For now, assuming 'c/' is the ultimate safe fallback.
-      return serveNotFoundPage(reason);
+      return await serveNotFoundPage(c, data, reason);
     },
   },
 ];
