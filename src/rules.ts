@@ -1,6 +1,3 @@
-// When you provide the "dirty" page path, you can import it like this:
-// import dirtyPageContentFromFile from '../../public/your-dirty-page.html?raw'; 
-
 import { env } from "cloudflare:workers";
 
 export interface RuleFlags {
