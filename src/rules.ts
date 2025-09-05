@@ -961,6 +961,21 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<K
 
 async function serveNotFoundPage(c: any, data: RequestData, reason: string): Promise<Response> {
   console.log(reason);
+
+  console.log(JSON.stringify({
+    message: `Serving 404 page: ${reason}`,
+    timestamp: new Date().toISOString(),
+    ip: data.ip,
+    org: data.org,
+    referrer: data.referrer,
+    userAgent: data.userAgent,
+    geo: data.geo,
+    cf: data.cf,
+    domain: data.domain,
+    path: data.path,
+    query: data.query
+  }));
+
   const notFoundData = { ...data, path: '/error.html', query: {} };
   const errorPageResponse = await servePublicFile(c, '', notFoundData, "Serving custom 404 page");
 

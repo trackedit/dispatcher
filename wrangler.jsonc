@@ -19,6 +19,9 @@
             "id": "28dd0b8816c449998ebc69f808d43399"
         }
     ],
+	"vars": {
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare, inside React Router!"
+	},
 	"assets": { "directory": "./public", "binding": "ASSETS" }
 	/**
 	 * Smart Placement
