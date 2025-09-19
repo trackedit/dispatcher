@@ -1,830 +1,1106 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tracked | Global Content Delivery & Personalization</title>
-  <meta name="description" content="Deliver personalized content worldwide with unparalleled speed. Tracked offers smart targeting, dynamic content, and real-time analytics for marketers.">
   
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="styles.css">
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 128 128%27><text y=%271.2em%27 font-size=%27104%27>🚀</text></svg>">
+<head>
+  <title>Tracked | Tracking, Delivery & Decision Platform</title>
+  
+  
+  
+  <link rel="preload" href="https://www.statsig.com/images/page/home/hero-animation.svg" as="image" />
+     
+  
+  <link href="new-styles.css" rel="stylesheet" />
+  
+  
+  
+  
+  
+  <meta name="viewport" content="width=device-width,initial-scale = 1.0" />
+  <meta name="title" content="Tracked | Tracking, Delivery & Decision Platform" />
+  <meta name="description" property="description" content="Tracked is the unified platform for performance marketing and product teams. Get cookieless tracking, user attribution, session replays, event tracking, powerful A/B testing, and a global content delivery & decision engine." />
+  <meta name="apple-mobile-web-app-title" content="Tracked" />
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://tracked.it/">
-  <meta property="og:title" content="Tracked | Global Content Delivery & Personalization">
-  <meta property="og:description" content="Deliver personalized content worldwide with unparalleled speed. Tracked offers smart targeting, dynamic content, and real-time analytics for marketers.">
-  <meta property="og:image" content="https://tracked.it/og-cover-v2.jpg">
+  <!-- OG & Twitter Tags -->
+  <meta charset="utf-8" />
+  <meta property="og:title" content="Tracked | Tracking, Delivery & Decision Platform" />
+  <meta property="og:description" content="Tracked is the unified platform for performance marketing and product teams. Get cookieless tracking, user attribution, session replays, event tracking, powerful A/B testing, and a global content delivery & decision engine." />
+  <meta property="og:image" content="https://tracked.it/og.jpg" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:url" content="https://www.tracked.it/" />
+  <meta property="og:type" content="website" />
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://tracked.it/">
-  <meta name="twitter:title" content="Tracked | Global Content Delivery & Personalization">
-  <meta name="twitter:description" content="Deliver personalized content worldwide with unparalleled speed. Tracked offers smart targeting, dynamic content, and real-time analytics for marketers.">
-  <meta name="twitter:image" content="https://tracked.it/og-cover-v2.jpg">
+  
+
+  <meta name="twitter:site" content="@Tracked" />
+  <meta name="twitter:title" content="Tracked | Tracking, Delivery & Decision Platform" />
+  <meta name="twitter:description" content="The unified platform for Tracking, Delivery, and Decisions. Get cookieless tracking, session replays, event attribution, and a powerful delivery & decision engine." />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  
+
+  
+
+  <link rel="icon" href="mark.svg" type="image/svg+xml" sizes="any" />
+  <!-- icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap"></noscript>
+
+  <link rel="canonical" href="https://www.tracked.it/" />
+  <script src="site.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800">
 
-  <!-- Header -->
-  <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        <a href="#" class="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          <svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-          <span>Tracked</span>
-        </a>
-        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-          <a href="#features" class="hover:text-blue-600 transition-colors">Features</a>
-          <a href="#how-it-works" class="hover:text-blue-600 transition-colors">How It Works</a>
-          <a href="#pricing" class="hover:text-blue-600 transition-colors">Pricing</a>
-          <a href="#faq" class="hover:text-blue-600 transition-colors">FAQ</a>
-      </nav>
-        <div class="flex items-center gap-4">
-          <a href="#get-started" class="hidden sm:inline-block px-5 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all transform hover:scale-105">
-            Get Started
+<body>
+  <div id="pageBody">
+    <div id="headerFixedModal" class="headerFixedModal">
+      <div class="headerBar pageContainer desktopMenuStrip">
+        <div class="logo">
+          <a href="/">
+            <img src="mark.svg" alt="Tracked" width="32" height="32" />
+            <span class="logoText marginLeftSmall">Tracked</span>
           </a>
-          <button class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100" id="mobile-menu-button">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-          </button>
+        </div>
+        <div class="headerLinks">
+      <div
+        class="headerLink"
+        data-target-element="Products"
+        data-event-value="platform_dropdown"
+      >
+            Products
+          </div>
+      <div
+        class="headerLink"
+        data-target-element="Solutions"
+        data-event-value="solutions_dropdown"
+      >
+            Solutions
+          </div>
+      <div
+        class="headerLink"
+        data-target-element="Resources"
+        data-event-value="resources_dropdown"
+      >
+            Resources
+          </div>
+      <a
+        class="headerLink passthrough"
+        href="/docs"
+        data-event-value="docs"
+      >
+            Docs
+          </a>
+      <a
+        class="headerLink passthrough"
+        href="/pricing"
+        data-event-value="pricing"
+      >
+            Pricing
+          </a>
+        </div>
+        <div class="headerCtas">
+      <a
+        class="button buttonWhite" 
+        href="/login"
+        data-event-value="sign_in"
+      >
+            Sign In
+          </a>
+      <a
+        id="liveDemoButton"
+        class="button buttonAccent"
+        href="app.tracked.it?register"
+        data-event-value="new_user"
+      >
+            Sign Up
+          </a>
         </div>
       </div>
-    </div>
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 border-t border-slate-200">
-        <a href="#features" class="block px-4 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-100 hover:text-blue-600">Features</a>
-        <a href="#how-it-works" class="block px-4 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-100 hover:text-blue-600">How It Works</a>
-        <a href="#pricing" class="block px-4 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-100 hover:text-blue-600">Pricing</a>
-        <a href="#faq" class="block px-4 py-2 text-sm text-slate-600 rounded-md hover:bg-slate-100 hover:text-blue-600">FAQ</a>
-    </div>
-  </header>
-
-  <main>
-    <!-- Hero Section -->
-    <section class="relative py-24 md:py-32 text-center overflow-hidden">
-      <div class="absolute inset-0 bg-grid-slate-200/40 [mask-image:linear-gradient(to_bottom,white_50%,transparent_100%)]"></div>
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-slate-900 mb-6">
-          <span class="text-blue-600">Deliver Content</span> That Converts, Globally.
-      </h1>
-        <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 mb-10">
-          Upload your pages, create smart targeting rules, and serve personalized content worldwide. No servers, no redirects, just lightning-fast pages that boost conversions.
-        </p>
-        <div class="flex justify-center gap-4">
-          <a href="#get-started" class="px-8 py-3.5 text-base font-semibold bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all transform hover:scale-105">
-            Get Started Today
+      <div class="headerBar pageContainer mobileMenuStrip flexJustifySpaceBetween">
+        <div class="logo">
+          <a id="mobileLogo" href="/">
+        <img src="mark.svg" alt="Tracked" width="28" height="28" />
+        <span class="logoText marginLeftSmall">Tracked</span>
           </a>
-          <a href="#how-it-works" class="px-8 py-3.5 text-base font-semibold bg-white text-slate-700 rounded-lg shadow-md border border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-all">
-          See How It Works
-        </a>
+      <div id="backProducts" class="mobileBackLink textLarger">
+        <h4><span class="arrowLeft"></span> Products</h4>
       </div>
-    </div>
-  </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-24 bg-white fade-in-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-                <span class="section-badge">Core Features</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4">Everything You Need to Scale</h2>
-                <p class="text-lg text-slate-600 max-w-2xl mx-auto mt-4">Powerful tools designed for performance marketers and agencies.</p>
+      <div id="backSolutions" class="mobileBackLink textLarger">
+        <h4><span class="arrowLeft"></span> Solutions</h4>
       </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1: Global Edge Network -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20 15.3 15.3 0 000-20"/></svg>
-              </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Global Edge Network</h3>
-                    <p class="text-slate-600">Serve content from 300+ locations worldwide, ensuring the lowest latency for every visitor.</p>
-              </div>
-                <!-- Feature 2: Advanced Targeting -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Advanced Targeting</h3>
-                    <p class="text-slate-600">Create granular rules based on geo, device, browser, URL parameters, and more with our visual builder.</p>
-              </div>
-                <!-- Feature 3: Dynamic Content -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"/></svg>
-            </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Dynamic Content</h3>
-                    <p class="text-slate-600">Personalize every element of your page using variables for location, campaign details, and more.</p>
-              </div>
-                <!-- Feature 4: Real-Time Analytics -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Real-Time Analytics</h3>
-                    <p class="text-slate-600">Get instant insights with a live dashboard tracking visitors, conversions, and rule performance.</p>
-            </div>
-                <!-- Feature 5: Bot Protection -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Bot Protection</h3>
-                    <p class="text-slate-600">Keep your data clean and campaigns safe with our AI-powered bot and fraud detection.</p>
-            </div>
-                <!-- Feature 6: Developer Friendly -->
-                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-              </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">Developer Friendly</h3>
-                    <p class="text-slate-600">Full API access, custom instance options, and white-labeling for agencies and enterprises.</p>
+      <div id="backResources" class="mobileBackLink textLarger">
+        <h4><span class="arrowLeft"></span> Resources</h4>
+      </div>
+        </div>
+        <div class="headerCtas">
+          <div class="hamburger">
+            <div id="navicon">
+              <span></span><span></span><span></span><span></span>
             </div>
           </div>
-    </div>
-  </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-24 fade-in-section">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <span class="section-badge">How It Works</span>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4">Launch in Three Simple Steps</h2>
-          <p class="text-lg text-slate-600 max-w-2xl mx-auto mt-4">Go from setup to live campaign in minutes, no technical skills required.</p>
         </div>
+      </div>
+    </div>
+    <div id="mobileMenuContainer" class="mobileMenuModal" style="display: none;">
+        <div class="textLarger flex1">
+            <a class="mobileMenuItem block passthrough" href="/products"><h4>Products</h4></a>
+            <a class="mobileMenuItem block passthrough" href="/solutions"><h4>Solutions</h4></a>
+            <a class="mobileMenuItem block passthrough" href="/resources"><h4>Resources</h4></a>
+            <a class="mobileMenuItem block passthrough" href="/docs"><h4>Docs</h4></a>
+            <a class="mobileMenuItem block passthrough" href="/pricing"><h4>Pricing</h4></a>
+            <div class="flexStack flexGapSmall hr paddingMedium" style="position: absolute; bottom: 0; width: 100%; background: var(--color-background);">
+                <a class="button buttonWhite" href="/login" data-event-value="sign_in">Sign In</a>
+                <a class="button buttonAccent" href="/signup" data-event-value="sign_up">Sign Up</a>
+            </div>
+        </div>
+    </div>
+  </div>
+
+    <div class="headerDivider"></div>
+    <div id="pageContent">
+      <section-row class="sectionHero">
+        <div class="pageContainer flexStack flexGapSmall">
+          <h1 class="heroTitle">
+            The platform for <strong>tracking</strong>, <br /><strong>delivery</strong>, and <strong>decisions</strong>
+          </h1>
+          <div>
+            <div class="sectionSubtitle textLarger">
+              Get a complete view of your users with cookieless tracking, session replays, and event attribution.
+              Deliver targeted content at scale or use our decision engine to power your own apps.
+            </div>
+
+            <div class="marginTopMedium flexContainer flexJustifyContentCenter flexGapExtraSmall desktopOnly">
+        <a
+          href="/signup"
+          class="button buttonAccent"
+          data-event-value="sign_up"
+        >
+                Create a free account
+              </a>
+        <a
+          href="https://www.tracked.it/videos/how-it-works.html"
+          class="button buttonWhite"
+          data-event-value="how_it_works"
+        >
+                See how it works
+              </a>
+            </div>
+            <div class="marginTopMedium flexStack flexGapSmall mobileOnly">
+        <a
+          href="/signup"
+          class="button buttonAccent"
+          data-event-value="sign_up"
+        >
+                Create a free account
+              </a>
+        <a
+          href="https://www.tracked.it/videos/how-it-works.html"
+          class="button buttonWhite"
+          data-event-value="how_it_works"
+        >
+                See how it works
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="homePageHeroImageContainer">
+    <img
+      class="homePageHeroImage"
+      src="https://www.statsig.com/images/page/home/hero-animation.svg"
+      alt="Tracked hero animation"
+    />
+        </div>
+      </section-row>
+
+
+
+  <section-row class="paddingYSmall">
+        <div class="pageContainer flexStack flexGapSmall">
+          
+            Compatible with your favorite platforms
+         
         
-        <!-- Interactive Steps -->
-        <div class="max-w-5xl mx-auto">
-            <div class="flex justify-center border-b border-slate-200">
-                <button data-step="1" class="step-btn p-4 px-6 text-lg font-semibold border-b-2 border-blue-600 text-blue-600">Step 1: Point Domain</button>
-                <button data-step="2" class="step-btn p-4 px-6 text-lg font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600">Step 2: Create Rules</button>
-                <button data-step="3" class="step-btn p-4 px-6 text-lg font-semibold border-b-2 border-transparent text-slate-500 hover:text-blue-600">Step 3: Personalize</button>
+          <div class="logo-scroller">
+            <div class="logo-scroller-inner">
+              <img src="outbrain.png" alt="Outbrain" />
+              <img src="tab.png" alt="Taboola" />
+              <img src="meta.png" alt="Facebook" />
+              <img src="google.png" alt="Google" />
+              <img src="micosoft.png" alt="Microsoft" />
+              <img src="tiktok.png" alt="TikTok" />
+              <img src="snap.png" alt="Snapchat" />
+              <img src="x-black.png" alt="X" />
+              <img src="cloudflare.png" alt="Cloudflare" />
+              <img src="aws.png" alt="AWS" />
+              <img src="vercel.png" alt="Vercel" />
+              <!-- Duplicate logos for seamless scroll -->
+              <img src="outbrain.png" alt="Outbrain" />
+              <img src="tab.png" alt="Taboola" />
+              <img src="meta.png" alt="Facebook" />
+              <img src="google.png" alt="Google" />
+              <img src="micosoft.png" alt="Microsoft" />
+              <img src="tiktok.png" alt="TikTok" />
+              <img src="snap.png" alt="Snapchat" />
+              <img src="x-black.png" alt="X" />
+              <img src="cloudflare.png" alt="Cloudflare" />
+              <img src="aws.png" alt="AWS" />
             </div>
-            <div class="pt-12">
-                <!-- Step 1 Content -->
-                <div id="step-1-content" class="step-content">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-4">Connect Your Domain</h3>
-                        <p class="text-slate-600 max-w-2xl mx-auto">Point your domain to our global network by adding a single DNS record. This works for subdomains (e.g., pages.yourdomain.com) and root domains (e.g., yourdomain.com).</p>
-                        
-                        <div class="mt-8 max-w-2xl mx-auto text-left">
-                            <div class="bg-white border border-slate-200 rounded-xl p-6">
-                                <h4 class="text-lg font-semibold text-slate-800 mb-4">How to Add a DNS Record</h4>
-                                <ol class="list-decimal list-inside space-y-4 text-slate-700">
-                                    <li>
-                                        <strong>Log in to your DNS provider.</strong>
-                                    </li>
-                                    <li>
-                                        <strong>Create a new record with the following values:</strong>
-                                        <div class="mt-3 p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3 text-sm">
-                                            <div>
-                                                <div class="font-semibold text-slate-800">Host/Name:</div>
-                                                <p class="mt-1 text-slate-700">Enter <code class="bg-white text-xs px-1.5 py-0.5 rounded">pages</code> for a subdomain, or <code class="bg-white text-xs px-1.5 py-0.5 rounded">@</code> for the root domain.</p>
-                                            </div>
-                                            <hr class="border-slate-200">
-                                            <div>
-                                                <div class="font-semibold text-slate-800">Type:</div>
-                                                <p class="mt-1 text-slate-700">Use <code class="bg-white text-xs px-1.5 py-0.5 rounded">CNAME</code> for a subdomain. For a root domain, use <code class="bg-white text-xs px-1.5 py-0.5 rounded">ALIAS</code>, <code class="bg-white text-xs px-1.5 py-0.5 rounded">ANAME</code>, or CNAME Flattening.</p>
-                                            </div>
-                                            <hr class="border-slate-200">
-                                            <div>
-                                                <div class="font-semibold text-slate-800">Target/Value:</div>
-                                                <p class="mt-1 font-mono text-slate-900">c.tracked.it</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <strong>Save the record.</strong> DNS changes usually take effect within a few minutes.
-                                    </li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Step 2 Content: Rule Builder -->
-                <div id="step-2-content" class="step-content hidden">
-                    <div class="max-w-5xl mx-auto">
-                        <div class="bg-slate-50 rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-                            <div class="bg-slate-100 px-6 py-4 border-b border-slate-200">
-                                <h3 class="text-lg font-semibold text-slate-800">Live Rule Builder</h3>
-                            </div>
-                            <div class="p-6">
-                                <!-- IF Row -->
-                                <div class="space-y-4 mb-6">
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-sm font-medium text-slate-600 w-20 pt-2">RULES</span>
-                                        <div class="flex-1 space-y-4" id="rule-groups-container">
-                                            <!-- Rule groups are dynamically rendered here -->
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <button id="add-rule-group-btn" class="ml-[92px] text-sm font-medium text-blue-600 hover:text-blue-700 transition">+ Add Rule Group (OR)</button>
-                                    </div>
-                                </div>
-
-                                <!-- Quick Add + Advanced -->
-                                <div class="mt-4">
-                                    <div class="p-4 bg-white rounded-lg border border-slate-200">
-                                        <div class="text-xs font-medium text-slate-500 mb-2">Available Conditions</div>
-                                        <div id="quick-add" class="flex flex-wrap gap-2"></div>
-                                        <p class="mt-3 text-xs text-slate-500">Click a button to start building a new condition.</p>
-                                    </div>
-                                    <div class="mt-3 flex items-center justify-between">
-                                        <div class="text-xs text-slate-500">Advanced options</div>
-                                        <button id="toggle-advanced" class="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50">Show</button>
-                                    </div>
-                                    <div id="rule-advanced" class="mt-3 hidden">
-                                        <div class="p-4 bg-white rounded-lg border border-slate-200">
-                                            <div class="text-xs font-medium text-slate-500 mb-2">Rule JSON</div>
-                                            <pre id="rule-json" class="text-xs bg-slate-50 p-3 rounded border border-slate-200 overflow-auto"></pre>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Step 3 Content: Personalization -->
-                <div id="step-3-content" class="step-content hidden">
-                     <div class="max-w-6xl mx-auto">
-                        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
-                            <div class="grid lg:grid-cols-2">
-                                <!-- Editor side -->
-                                <div class="p-6 border-r border-slate-200">
-                                    <h3 class="font-semibold text-slate-900 mb-4">Edit Your Page</h3>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Headline</label>
-                                            <input type="text" id="headline-input" value="Welcome West Babylon Shoppers!" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onkeyup="updatePreview()">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Subheadline</label>
-                                            <input type="text" id="subheadline-input" value="Deals for Desktop users" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onkeyup="updatePreview()">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">CTA Button</label>
-                                            <input type="text" id="cta-input" value="Get 25% Off Now" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onkeyup="updatePreview()">
-                                        </div>
-                                    </div>
-                                    <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                                        <p class="text-xs font-medium text-slate-700 mb-2">Using the following variables:</p>
-                                        <div class="space-y-1 text-xs">
-                                            <div class="flex items-center gap-2"><code class="bg-white px-1 py-0.5 rounded border">West Babylon</code><span class="text-slate-500">→</span><span class="font-mono text-blue-700">(e.g., New York)</span></div>
-                                            <div class="flex items-center gap-2"><code class="bg-white px-1 py-0.5 rounded border">Desktop</code><span class="text-slate-500">→</span><span class="font-mono text-blue-700">(e.g., Desktop)</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Preview side -->
-                                <div class="p-6 bg-slate-100">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-semibold text-slate-900">Live Preview</h3>
-                                        <div class="inline-flex rounded-md border border-slate-300 overflow-hidden">
-                                            <button id="view-mobile" class="px-3 py-1.5 text-xs bg-white hover:bg-slate-50">Mobile</button>
-                                            <button id="view-desktop" class="px-3 py-1.5 text-xs bg-slate-100 border-l border-slate-300">Desktop</button>
-                                        </div>
-                                    </div>
-                                    <div id="preview-frame" class="mx-auto transition-all duration-300 w-full lg:w-full">
-                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200">
-                                            <div class="bg-slate-200 px-4 py-2 border-b border-slate-300">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
-                                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                                                </div>
-                                            </div>
-                                            <div class="p-8 text-center">
-                                                <h1 class="text-3xl font-bold text-slate-900 mb-2" id="preview-headline">Welcome <span class="text-blue-600">West Babylon</span> Shoppers!</h1>
-                                                <p class="text-slate-600 mb-6" id="preview-subheadline">Deals for <span class="text-blue-600">Desktop</span> users</p>
-                                                <button class="bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 transition" id="preview-cta">Get 25% Off Now</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-24 bg-white fade-in-section">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <span class="section-badge">Simple Pricing</span>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4">Plans for Every Scale</h2>
-          <p class="text-lg text-slate-600 max-w-2xl mx-auto mt-4">Choose a plan that fits your needs. Simple, transparent pricing.</p>
-        </div>
-
-        <div class="grid lg:grid-cols-3 gap-8 items-stretch">
-          <!-- Starter Plan -->
-          <div class="border border-slate-200 rounded-xl p-8 flex flex-col">
-            <h3 class="text-xl font-semibold text-slate-900">Starter</h3>
-            <p class="text-slate-500 mt-2">For individuals and small projects.</p>
-            <p class="text-4xl font-bold text-slate-900 mt-6">$58<span class="text-lg font-medium text-slate-500">/mo</span></p>
-            <a href="#get-started" class="w-full text-center mt-8 px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg border border-blue-300 hover:bg-blue-50 transition-colors">Choose Plan</a>
-            <ul class="space-y-4 text-slate-600 mt-8 flex-1">
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>1,000,000 events/mo</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>3 Custom Domains</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>6-Month Log Retention</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Email Support</li>
-          </ul>
-        </div>
-
-        <!-- Growth Plan (Most Popular) -->
-          <div class="border-2 border-blue-600 rounded-xl p-8 flex flex-col relative shadow-2xl">
-          <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold bg-blue-600 text-white">Most Popular</span>
-          </div>
-            <h3 class="text-xl font-semibold text-slate-900 mt-4">Growth</h3>
-            <p class="text-slate-500 mt-2">For growing businesses and marketers.</p>
-            <p class="text-4xl font-bold text-slate-900 mt-6">$148<span class="text-lg font-medium text-slate-500">/mo</span></p>
-            <a href="#get-started" class="w-full text-center mt-8 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors">Choose Plan</a>
-            <ul class="space-y-4 text-slate-600 mt-8 flex-1">
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>3,000,000 events/mo</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>8 Custom Domains</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>12-Month Log Retention</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Priority Email Support</li>
-          </ul>
-        </div>
-
-        <!-- Pro Plan -->
-          <div class="border border-slate-200 rounded-xl p-8 flex flex-col">
-            <h3 class="text-xl font-semibold text-slate-900">Pro</h3>
-            <p class="text-slate-500 mt-2">For high-volume advertisers.</p>
-            <p class="text-4xl font-bold text-slate-900 mt-6">$329<span class="text-lg font-medium text-slate-500">/mo</span></p>
-            <a href="#get-started" class="w-full text-center mt-8 px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg border border-blue-300 hover:bg-blue-50 transition-colors">Choose Plan</a>
-            <ul class="space-y-4 text-slate-600 mt-8 flex-1">
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>6,000,000 events/mo</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>20 Custom Domains</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Full API Access</li>
-              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Dedicated Support</li>
-            </ul>
           </div>
         </div>
+        </section-row>
 
-        <!-- Enterprise Plan -->
-        <div class="mt-12 bg-slate-100 border-t border-slate-200">
-            <div class="max-w-4xl mx-auto text-center py-12 px-4 sm:px-6 lg:px-8">
-                <h3 class="text-2xl md:text-3xl font-bold text-slate-900">Agency & Enterprise</h3>
-                <p class="text-slate-600 max-w-2xl mx-auto mt-4">Custom solutions for agencies and large-scale clients requiring maximum control, scale, and dedicated support. Get in touch for a personalized plan.</p>
-                <a href="mailto:sales@tracked.it" class="mt-8 inline-block px-8 py-3.5 text-base font-semibold bg-slate-800 text-white rounded-lg shadow-md hover:bg-slate-900 transition-colors">
-                    Contact Sales
-                </a>
+      <section-row>
+        <section-box class="accentPanel">
+          <div class="pageContainer flexStack flexGapSmall">
+            <span class="textSecondary">How it works</span>
+            <h2>Launch in minutes</h2>
+            <div class="accentStripe"></div>
+            <div class="grid4column marginTopMedium">
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">1</span>
+                  <h4 class="marginZero">Connect</h4>
+                </div>
+                <div class="marginTopSmall">Point your domain or paste our JS snippet to start.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">2</span>
+                  <h4 class="marginZero">Track</h4>
+                </div>
+                <div class="marginTopSmall">Cookieless event tracking and session replays out of the box.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">3</span>
+                  <h4 class="marginZero">Target</h4>
+                </div>
+                <div class="marginTopSmall">Run experiments, personalize content, and route traffic.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">4</span>
+                  <h4 class="marginZero">Decide</h4>
+                </div>
+                <div class="marginTopSmall">Use our decision engine via SDKs or API to power features.</div>
+              </div>
             </div>
-        </div>
-      </div>
-    </section>
+           
+          </div>
+        </section-box>
+      </section-row>
 
-    <!-- FAQ Section -->
-    <section id="faq" class="py-24 fade-in-section">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <span class="section-badge">FAQ</span>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-4">Frequently Asked Questions</h2>
-        </div>
-        <div class="space-y-4">
-          <details class="p-6 border border-slate-200 rounded-lg bg-white group" open>
-            <summary class="font-medium text-slate-900 cursor-pointer flex justify-between items-center group-open:text-blue-600">
-              What kind of targeting can I use?
-              <svg class="w-5 h-5 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </summary>
-            <p class="mt-4 text-slate-600">Our platform lets you target visitors based on location, device, browser, OS, traffic source parameters, referrer, and more. This allows you to show the right content to the right audience without managing multiple landing pages.</p>
-        </details>
-          <details class="p-6 border border-slate-200 rounded-lg bg-white group">
-            <summary class="font-medium text-slate-900 cursor-pointer flex justify-between items-center group-open:text-blue-600">
-              Will this slow down my pages?
-              <svg class="w-5 h-5 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </summary>
-            <p class="mt-4 text-slate-600">No, in fact, most users see faster load times. Your content is distributed globally and served from 300+ locations close to your visitors. All targeting decisions happen in milliseconds at the edge before the page is delivered.</p>
-        </details>
-          <details class="p-6 border border-slate-200 rounded-lg bg-white group">
-            <summary class="font-medium text-slate-900 cursor-pointer flex justify-between items-center group-open:text-blue-600">
-              How does bot filtering work?
-              <svg class="w-5 h-5 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </summary>
-            <p class="mt-4 text-slate-600">Our system automatically detects and filters suspicious traffic, ensuring your analytics remain clean and your pages are shown only to real users. This protects your ad spend and gives you more accurate performance data.</p>
-        </details>
-      </div>
+      <section-row>
+        <section-box class="flexContainer flexGapLarge flexCenterAlignItems">
+          <div class="flex1 textAlignLeft">
+            <span class="textSecondary">Unified Platform</span>
+            <h2 class="marginTopSmall">One platform, three powerful solutions</h2>
+            <div class="marginTopSmall">
+              Tracked unifies your stack. Our JS snippet provides cookieless <strong>tracking</strong>, 
+              attribution, and enables client-side A/B testing by modifying your content. Leverage our 
+              global edge network for high-performance content <strong>delivery</strong>. Or integrate our 
+              <strong>decision</strong> engine API to power feature flags and experiments server-side.
+            </div>
+          </div>
+          <div class="flex1 flexContainer">
+      
+<style>
+  .multiProductsGrid {
+    background: none;
+  }
+  .horizontalRail {
+    background-color: var(--color-black);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .horizontalRail:hover .menuItem {
+    opacity: 0.5;
+  }
+  .horizontalRail .menuItem {
+    width: 46px;
+    height: 46px;
+  }
+  .horizontalRail .menuItem:hover {
+    opacity: 1;
+    filter: drop-shadow(0 0 1px var(--color-white));
+  }
+  .productsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .productsGrid .productPill {
+    padding: 3px 12px;
+    text-transform: none;
+    border: 1px solid var(--color-gray);
+    border-radius: 4px;
+    background: var(--color-white);
+    transition: opacity 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+  }
+  .productsGrid .productPill.dim {
+    opacity: 0.2;
+  }
+  .productsGrid .productPill.highlight {
+    opacity: 1;
+    box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.1);
+  }
+  @media screen and (max-width: 840px) {
+    .horizontalRail {
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 50px;
+    }
+    .horizontalRail .menuItem {
+      width: 32px;
+      height: 32px;
+    }
+    .productsGrid {
+      gap: 8px;
+    }
+    .productsGrid .productPill {
+      padding: 2px 8px;
+    }
+  }
+</style>
+<div class="flexStack flexCenterAlignItems widthFull multiProductsGrid">
+  <div class="sdkTabs usecaseTabs">
+    <div class="sdkTab active" data-usecase="all">All</div>
+    <div class="sdkTab" data-usecase="app-dev">App Developers</div>
+    <div class="sdkTab" data-usecase="affiliate">Affiliate Marketing</div>
+    <div class="sdkTab" data-usecase="ecom">E-commerce</div>
+  </div>
+  <div class="productsGrid">
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
+      Content Delivery
     </div>
-  </section>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
+      Global Edge
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="app-dev,affiliate,ecom">
+      Event Tracking
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
+      Cookieless Tracking
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="app-dev,ecom">
+      Session Replays
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
+      User Attribution
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
+      Targeting
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev,ecom">
+      A/B Testing
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
+      Feature Flags
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
+      Decision Engine
+    </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,ecom">
+      Content Personalization
+    </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate">
+      URL Routing
+    </div>
+    <div class="productPill mono" data-group="protection" data-usecases="app-dev,affiliate,ecom">
+      Bot Blocking
+    </div>
+  </div>
+            </div>
+            
+          </div>
+        </section-box>
+      </section-row>
 
-    <!-- CTA Section -->
-    <section id="get-started" class="py-24 bg-slate-900 fade-in-section">
-      <div class="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl md:text-4xl font-bold text-white">Ready to Track Smarter?</h2>
-        <p class="text-lg text-slate-300 max-w-2xl mx-auto mt-4 mb-10">Deploy your first campaign in minutes. No code, no headaches. See the difference that speed and personalization can make.</p>
-        <a href="#" class="px-8 py-3.5 text-base font-semibold bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-all transform hover:scale-105">
-          Get Started Today
-      </a>
-    </div>
-  </section>
-  </main>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-sm text-slate-500">&copy; <span id="year"></span> Tracked LLC – All rights reserved.</p>
-      <div class="flex gap-6 text-sm">
-          <a href="#" class="text-slate-500 hover:text-blue-600 transition-colors">Terms</a>
-          <a href="#" class="text-slate-500 hover:text-blue-600 transition-colors">Privacy</a>
-          <a href="mailto:support@tracked.it" class="text-slate-500 hover:text-blue-600 transition-colors">Contact</a>
-        </div>
+
+<section-row>
+        <section-box class="paddingZero desktopGridTwoColumns flexGapZero textAlignLeft">
+    
+      <div
+        class="flexStack paddingMedium flexGapSmall endBorder"
+        style="padding-bottom: 0;"
+      >
+            <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
+              <span class="textSecondary badge badgeBlue">
+                <img src="https://www.statsig.com/images/icons/icon-heading-experiments.svg" class="icon" alt="Experimentation" />
+                <span>Optimize everything</span>
+              </span>
+            </div>
+            <h4>Targeting & Experiments</h4>
+            <div>
+              Run sophisticated A/B tests with our powerful targeting engine. Personalize content and 
+              optimize conversions by targeting users based on country, device, behavior, and dozens of other attributes.
+            </div>
+            <div>
+              <a class="textSmaller" href="/experiments">
+                Explore Experiments<span class="arrowRight"></span>
+              </a>
+            </div>
+            <div class="textAlignCenter pushToBottom">
+          <img
+            src="https://www.statsig.com/images/sections/multi-products/experiments.png"
+            class="widthFull"
+            alt="Experimentation"
+          />
+            </div>
+          </div>
+
+      <div
+        class="flexStack paddingMedium flexGapSmall endBorder"
+        style="padding-bottom: 0;"
+      >
+            <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
+              <span class="textSecondary badge badgeMint">
+                <img src="https://www.statsig.com/images/icons/icon-heading-analytics.svg" class="icon" alt="Product Analytics" />
+                <span>Data driven</span>
+              </span>
+            </div>
+            <h4>Analytics & Insights</h4>
+            <div>
+              Understand the complete user journey with session replays and detailed attribution. 
+              Our platform automatically captures outbound clicks, scroll depth, and other key events for cookieless tracking.
+            </div>
+            <div>
+              <a class="textSmaller" href="/analytics">
+                Explore Analytics<span class="arrowRight"></span>
+              </a>
+            </div>
+            <div class="textAlignCenter pushToBottom">
+          <img
+            src="https://www.statsig.com/images/sections/multi-products/product-analytics.png"
+            class="widthFull"
+            alt="Product Analytics"
+          />
+            </div>
+          </div>
+
+      <div
+        class="flexStack paddingMedium flexGapSmall endBorder"
+        style="padding-bottom: 0;"
+      >
+            <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
+              <span class="textSecondary badge badgePeach">
+                <img src="https://www.statsig.com/images/icons/icon-heading-flags.svg" class="icon" alt="Decision Engine" />
+                <span>Ship with confidence</span>
+              </span>
+            </div>
+            <h4>Feature Flags & Dynamic Content</h4>
+            <div>
+              Safely roll out new features and instantly change content without a code deploy. All powered by our 
+              central decision engine, allowing you to make changes on the fly.
+            </div>
+            <div>
+              <a class="textSmaller" href="/api">
+                Explore Features<span class="arrowRight"></span>
+              </a>
+            </div>
+            <div class="textAlignCenter pushToBottom">
+          <img
+            src="https://www.statsig.com/images/sections/multi-products/feature-flags.png"
+            class="widthFull"
+            alt="Decision Engine API"
+          />
+            </div>
+          </div>
+
+      <div
+        class="flexStack paddingMedium flexGapSmall endBorder"
+        style="padding-bottom: 0;"
+      >
+            <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
+              <span class="textSecondary badge badgePurple">
+                <img src="https://www.statsig.com/images/icons/icon-heading-replay.svg" class="icon" alt="SDK Integration" />
+                <span>Integrate anywhere</span>
+              </span>
+            </div>
+            <h4>Flexible Integration</h4>
+            <div>
+              Choose the method that fits your stack. <strong>Host</strong> pages directly on our global network, 
+              <strong>connect your existing site</strong> for tracking and A/B testing without code changes, or use our 
+              <strong>JS Snippet</strong> for client-side control. For developers, our <strong>API & SDKs</strong> bring the decision engine right into your application.
+            </div>
+            <div>
+              <a class="textSmaller" href="/sdks">
+                Explore Integrations<span class="arrowRight"></span>
+              </a>
+            </div>
+            <div class="textAlignCenter pushToBottom">
+          <img
+            src="https://www.statsig.com/images/sections/multi-products/session-replay.png"
+            class="widthFull"
+            alt="SDK Integration"
+          />
+            </div>
+          </div>
+    
+        </section-box>
+      </section-row>
+
+
+      
+
+      
+ 
+       <section-row>
+         <section-box>
+           <div id="inline-pricing">
+             <h2>Simple, transparent pricing</h2>
+             <div class="accentStripe marginTopSmall"></div>
+             <div class="pricingGrid marginTopMedium">
+               <div class="pricingCard">
+                 <div class="tierName">Starter</div>
+                 <div class="price marginTopSmall">$0</div>
+                 <div class="textSecondary marginTopSmall">For individuals and small projects getting started.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Cookieless tracking</li>
+                   <li>API & SDKs</li>
+                   <li>Global edge delivery (Starter)</li>
+                   <li>Community support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard highlight">
+                 <div class="highlight-badge">Most popular</div>
+                 <div class="tierName">Business</div>
+                 <div class="price marginTopSmall">$49/mo</div>
+                 <div class="textSecondary marginTopSmall">For teams running experiments and personalizing content.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Everything in Starter</li>
+                   <li>Session replays</li>
+                   <li>Targeting & A/B testing</li>
+                   <li>Email support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard">
+                 <div class="tierName">Agency</div>
+                 <div class="price marginTopSmall">$199/mo</div>
+                 <div class="textSecondary marginTopSmall">For agencies managing multiple clients and campaigns.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Everything in Business</li>
+                   <li>Advanced delivery</li>
+                   <li>Team features</li>
+                   <li>Priority support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard">
+                 <div class="tierName">Enterprise</div>
+                 <div class="price marginTopSmall">Custom</div>
+                 <div class="textSecondary marginTopSmall">For large-scale applications with custom needs.</div>
+                 <hr />
+                 <ul class="checkboxList marginTopSmall">
+                   <li>Everything in Agency</li>
+                   <li>Dedicated SLA</li>
+                   <li>Custom terms</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/contact" class="button buttonAccent widthFullOnMobile">Contact sales</a>
+                 </div>
+               </div>
+             </div>
+             <div class="marginTopSmall textSmaller textSecondary">
+               Need high volume or custom requirements? <a class="anchor" href="/contact">Contact sales</a>.
+             </div>
+           </div>
+         </section-box>
+       </section-row>
+
+      <section-row>
+        <section-box>
+          <div>
+            <h2>Backed by proven infrastructure</h2>
+            <div class="sectionSubtitle">
+              Whether you're using our content delivery platform or decision engine API, 
+              Tracked services are built for massive scale with industry-leading 
+              reliability and performance
+            </div>
+          </div>
+          <div class="grid4column marginTopLarge">
+            <div>
+              <h3>300+</h3>
+              <div>Global edge locations</div>
+            </div>
+            <div>
+              <h3>99.99%</h3>
+              <div>Uptime SLA guarantee</div>
+            </div>
+            <div>
+              <h3>&lt;50ms</h3>
+              <div>Average response time</div>
+            </div>
+            <div>
+              <h3>1B+</h3>
+              <div>Requests served daily</div>
+            </div>
+          </div>
+        </section-box>
+      </section-row>
+
+      <section-row>
+        <section-box>
+          <div>
+      <h2>
+        Loved by performance marketers worldwide
+      </h2>
+            <div class="sectionSubtitle">
+              See what our users have to say about building with Tracked
+            </div>
+          </div>
+          <div class="testimonial-scroller marginTopLarge" id="voiceOfCustomer">
+            <div class="testimonial-scroller-inner">
+              <div class="testimonial-card">
+                <div class="mono">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Sarah Chen</div>
+                    <div class="textSmaller">Performance Marketing Director</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">Alex Kumar</div>
+                    <div class="textSmaller">Frontend Engineer</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-medium-blue);"></div>
+                  <div>
+                    <div class="strong">Marcus Rodriguez</div>
+                    <div class="textSmaller">Growth Marketing Lead</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"We evaluated multiple platforms, but Tracked's combination of speed, targeting, and analytics made it the clear winner for our agency."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-light-blue);"></div>
+                  <div>
+                    <div class="strong">Emma Thompson</div>
+                    <div class="textSmaller">Agency Owner</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"We use Tracked's feature flags to safely roll out new features. The ability to target specific user segments has been game-changing."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">James Wilson</div>
+                    <div class="textSmaller">Product Manager</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"Setting up campaigns is incredibly fast. What used to take hours now takes minutes. The visual rule builder is intuitive and powerful."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Lisa Park</div>
+                    <div class="textSmaller">Digital Marketing Specialist</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Duplicates for seamless scroll -->
+              <div class="testimonial-card">
+                <div class="mono">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Sarah Chen</div>
+                    <div class="textSmaller">Performance Marketing Director</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">Alex Kumar</div>
+                    <div class="textSmaller">Frontend Engineer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section-box>
+      </section-row>
+
+    <div id="cookieConsent" class="cookieConfirm">
+      <div>
+        We use cookies to ensure you get the best experience on our website.
+            </div>
+      <div class="cookieUfi marginTopSmall">
+        <a class="textSmaller" href="/privacy">Privacy Policy</a>
+        <button class="button buttonAccent" onclick="setCookieConsent();">
+          Got it!
+        </button>
+            </div>
+    </div> <!-- id="cookieConsent" -->
+  </div> <!-- id="pageContent" -->
+</div> <!-- id="pageBody" -->
+
+    <footer id="footer" data-event-section="footer">
+      <section-row style="border: none;">
+        <section-box style="padding-bottom: 0;">
+          <div class="flexContainer">
+            <div class="flex3 footerLinksGrid">
+        
+              <div class="flex1">
+                <h6>Platform</h6>
+                <hr class="mobileOnly" />
+                <ul>
+            
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/delivery" 
+                    data-event-value="content_delivery"
+                    
+                  >
+                    Content Delivery
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/targeting" 
+                    data-event-value="targeting"
+                    
+                  >
+                    Smart Targeting
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/analytics" 
+                    data-event-value="analytics"
+                    
+                  >
+                    Analytics
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/protection" 
+                    data-event-value="protection"
+                    
+                  >
+                    Bot Protection
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/api" 
+                    data-event-value="api"
+                    
+                  >
+                    API Access
+                  </a>
+                </li>
+              
+               
+              
+                </ul>
+              </div>
+              
+              <div class="flex1">
+                <h6>Solutions</h6>
+                <hr class="mobileOnly" />
+                <ul>
+            
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/agencies" 
+                    data-event-value="agencies"
+                    
+                  >
+                    For Agencies
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/ecommerce" 
+                    data-event-value="ecommerce"
+                    
+                  >
+                    E-commerce
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/lead-gen" 
+                    data-event-value="lead_gen"
+                    
+                  >
+                    Lead Generation
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/enterprise" 
+                    data-event-value="enterprise"
+                    
+                  >
+                    Enterprise
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/pricing" 
+                    data-event-value="pricing"
+                    
+                  >
+                    Pricing
+                  </a>
+                </li>
+              
+                </ul>
+              </div>
+              
+              <div class="flex1">
+                <h6>Resources</h6>
+                <hr class="mobileOnly" />
+                <ul>
+            
+                <li>
+                  <a
+                    class="footerLink"
+                    href="https://docs.tracked.it" 
+                    data-event-value="docs"
+                  >
+                    Documentation
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/blog" 
+                    data-event-value="blog"
+                    
+                  >
+                    Blog
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/case-studies" 
+                    data-event-value="case_studies"
+                    
+                  >
+                    Case Studies
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="https://support.tracked.it" 
+                    data-event-value="support"
+                    
+                  >
+                    Support
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="https://status.tracked.it" 
+                    data-event-value="status"
+                    
+                  >
+                    Status
+                  </a>
+                </li>
+              
+                </ul>
+              </div>
+              
+              <div class="flex1">
+                <h6>Company</h6>
+                <hr class="mobileOnly" />
+                <ul>
+            
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/about" 
+                    data-event-value="about"
+                    
+                  >
+                    About
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/careers" 
+                    data-event-value="careers"
+                    
+                  >
+                    Careers
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/contact" 
+                    data-event-value="contact"
+                    
+                  >
+                    Contact
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/privacy" 
+                    data-event-value="privacy"
+                    
+                  >
+                    Privacy
+                  </a>
+                </li>
+              
+                <li>
+                  <a
+                    class="footerLink"
+                    href="/terms" 
+                    data-event-value="terms"
+                    
+                  >
+                    Terms
+                  </a>
+                </li>
+              
+                </ul>
+            </div>
+            
       </div>
-    </div>
-  </footer>
+            <div class="flex1 textAlignCenter">
+              <div class="flexCenterAlignItems">
+                <img src="mark.svg" alt="Tracked" width="48" height="48" />
+                <span class="logoTextFooter marginLeftSmall">Tracked</span>
+              </div>
+            </div>
+          </div>
+          <div class="flexContainer marginTopMedium flexJustifySpaceBetween">
+            <div class="flexContainer keepFlexOnMobile flexGapSmall flexJustifyContentCenter flexCenterAlignItems">
+              <div class="copyright">
+                © 2025 Tracked, Inc.
+                <span class="marginLeftSmall">Track, deliver, decide.<span class="animated-words-container">
+              </div>
+            </div>
+            <div class="flexContainer keepFlexOnMobile flexGapSmall flexJustifyContentCenter flexCenterAlignItems">
+              <a href="https://twitter.com/tracked" rel="noopener" class="socialIcon">
+    <img src="https://api.iconify.design/simple-icons/x.svg?color=black" alt="X" width="24" height="24" />
+              </a>
+              <a href="https://discord.gg/tracked" rel="noopener" class="socialIcon">
+    <img src="https://api.iconify.design/simple-icons/discord.svg?color=black" alt="Discord" width="24" height="24" />
+              </a>
+            </div>
+          </div>
+        </section-box>
+      </section-row>
+    </footer>
+  </div>
 
   <script>
-    // Set dynamic year in footer
-    document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      // Use-case tab filtering: highlight only pills that list the selected usecase
+      const tabs = Array.from(document.querySelectorAll('.sdkTab'));
+      const pills = Array.from(document.querySelectorAll('.productPill'));
 
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+      function normalizeList(s) {
+        return (s || '').split(',').map(x => x.trim()).filter(Boolean);
+      }
 
-    // Intersection Observer for fade-in animations
-    const sections = document.querySelectorAll('.fade-in-section');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-            }
+      function updateForUsecase(usecase) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.usecase === usecase));
+
+        if (usecase === 'all') {
+          pills.forEach(p => {
+            p.classList.remove('dim');
+            p.classList.remove('highlight');
+          });
+          return;
+        }
+
+        pills.forEach(p => {
+          const usecases = normalizeList(p.dataset.usecases);
+          if (usecases.includes(usecase)) {
+            p.classList.remove('dim');
+            p.classList.add('highlight');
+          } else {
+            p.classList.add('dim');
+            p.classList.remove('highlight');
+          }
         });
-    }, {
-        threshold: 0.1
-    });
-    sections.forEach(section => {
-        observer.observe(section);
-    });
+      }
 
-    // Interactive "How It Works" Section
-    const stepButtons = document.querySelectorAll('.step-btn');
-    const stepContents = document.querySelectorAll('.step-content');
-
-    stepButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const step = button.dataset.step;
-
-            stepButtons.forEach(btn => {
-                btn.classList.remove('border-blue-600', 'text-blue-600');
-                btn.classList.add('border-transparent', 'text-slate-500');
-            });
-
-            button.classList.add('border-blue-600', 'text-blue-600');
-            button.classList.remove('border-transparent', 'text-slate-500');
-
-            stepContents.forEach(content => {
-                content.classList.add('hidden');
-                if (content.id === `step-${step}-content`) {
-                    content.classList.remove('hidden');
-                }
-            });
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          updateForUsecase(tab.dataset.usecase || 'all');
         });
-    });
-
-    // ---- Step 3: Personalization Preview ----
-    // Live Preview Update Function
-    function updatePreview() {
-        const headlineInput = document.getElementById('headline-input');
-        const subheadlineInput = document.getElementById('subheadline-input');
-        const ctaInput = document.getElementById('cta-input');
-
-        const previewHeadline = document.getElementById('preview-headline');
-        const previewSubheadline = document.getElementById('preview-subheadline');
-        const previewCta = document.getElementById('preview-cta');
-
-        if (headlineInput && previewHeadline) {
-            let text = headlineInput.value;
-            // Style the macro for the preview
-            text = text.replace(/West Babylon/g, '<span class="text-blue-600">West Babylon</span>');
-            previewHeadline.innerHTML = text;
-        }
-
-        if (subheadlineInput && previewSubheadline) {
-            let text = subheadlineInput.value;
-            // Style the macro for the preview
-            text = text.replace(/Desktop/g, '<span class="text-blue-600">Desktop</span>');
-            previewSubheadline.innerHTML = text;
-        }
-
-        if (ctaInput && previewCta) {
-            previewCta.textContent = ctaInput.value;
-        }
-    }
-
-    // Device viewport toggle
-    const viewMobileBtn = document.getElementById('view-mobile');
-    const viewDesktopBtn = document.getElementById('view-desktop');
-    const previewFrame = document.getElementById('preview-frame');
-    function setViewport(mode) {
-        if (!previewFrame) return;
-        if (mode === 'mobile') {
-            previewFrame.style.maxWidth = '420px';
-        } else {
-            previewFrame.style.maxWidth = '100%';
-        }
-    }
-    if (viewMobileBtn) viewMobileBtn.addEventListener('click', () => setViewport('mobile'));
-    if (viewDesktopBtn) viewDesktopBtn.addEventListener('click', () => setViewport('desktop'));
-
-    // Bind sample user controls to update preview
-    ['headline-input','subheadline-input','cta-input']
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', updatePreview);
       });
-    updatePreview();
 
-    // ---- Step 2: Rule Builder ----
-    const condChips = document.getElementById('cond-chips');
-    const condAttrSelect = document.getElementById('cond-attr-select');
-    const condValueInput = document.getElementById('cond-value-input');
-    const condValueSelect = document.getElementById('cond-value-select');
-    const condAddBtn = document.getElementById('cond-add-btn');
-    const condCancelBtn = document.getElementById('cond-cancel-btn');
-    const condOpSelect = document.getElementById('cond-op-select');
-    const ruleJsonEl = document.getElementById('rule-json');
-    const quickAdd = document.getElementById('quick-add');
-    const toggleAdvanced = document.getElementById('toggle-advanced');
-    const ruleAdvanced = document.getElementById('rule-advanced');
- 
-    const presetValues = {
-        country: ['US','GB','DE','IN','BR','FR','CA','AU'],
-        device: ['Mobile','Desktop','Tablet'],
-        browser: ['Chrome','Safari','Firefox','Edge'],
-        os: ['iOS','Android','Windows','macOS','Linux'],
-        brand: ['Apple', 'Samsung', 'Google', 'Huawei'],
-        region: ['CA', 'NY', 'TX', 'FL', 'IL']
-    };
- 
-    let ruleGroups = [];
-    let editState = { groupIndex: -1, conditionIndex: -1 }; // -1 means adding new
- 
-    function normalizeAttr(attr) {
-        return attr;
-    }
- 
-    function render() {
-        const container = document.getElementById('rule-groups-container');
-        if (!container) return;
-        container.innerHTML = '';
- 
-        ruleGroups.forEach((group, groupIndex) => {
-            const groupEl = document.createElement('div');
-            groupEl.className = 'p-4 bg-slate-100 rounded-lg border border-slate-200 space-y-3';
-            
-            // Header
-            const header = document.createElement('div');
-            header.className = 'flex items-center justify-between';
-            header.innerHTML = `<div class="text-sm font-semibold text-slate-700">Rule ${groupIndex + 1}</div>`;
-            const removeGroupBtn = document.createElement('button');
-            removeGroupBtn.className = 'text-xs text-red-600 hover:text-red-800';
-            removeGroupBtn.textContent = 'Remove Rule';
-            removeGroupBtn.onclick = () => {
-                ruleGroups.splice(groupIndex, 1);
-                render();
-            };
-            header.appendChild(removeGroupBtn);
-            groupEl.appendChild(header);
-
-            // IF (Conditions)
-            const ifRow = document.createElement('div');
-            ifRow.className = 'flex items-start gap-3';
-            ifRow.innerHTML = `<span class="text-sm font-medium text-slate-600 w-20 pt-1.5">IF</span>`;
-            const conditionsContainer = document.createElement('div');
-            conditionsContainer.className = 'flex-1';
-            const chipsContainer = document.createElement('div');
-            chipsContainer.className = 'flex flex-wrap items-center gap-2';
-            group.conditions.forEach((c, condIndex) => {
-                if (condIndex > 0) {
-                    const andEl = document.createElement('span');
-                    andEl.className = 'text-sm font-semibold text-slate-500';
-                    andEl.textContent = 'AND';
-                    chipsContainer.appendChild(andEl);
-                }
-                const chip = document.createElement('div');
-                const chipColor = c.attr.startsWith('param.') ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800';
-                chip.className = `${chipColor} px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2`;
-                chip.innerHTML = `${c.label} <button class="text-current hover:opacity-70" data-remove-cond="${condIndex}">×</button>`;
-                chip.querySelector('button').onclick = () => {
-                    group.conditions.splice(condIndex, 1);
-                    render();
-                };
-                chipsContainer.appendChild(chip);
-            });
-            conditionsContainer.appendChild(chipsContainer);
-            
-            // Add Condition Button
-            const addCondBtn = document.createElement('button');
-            addCondBtn.className = 'mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition';
-            addCondBtn.textContent = '+ Add Condition';
-            addCondBtn.onclick = () => alert('This would open the add condition modal/form, pre-filled with this type.');
-            conditionsContainer.appendChild(addCondBtn);
-
-            ifRow.appendChild(conditionsContainer);
-            groupEl.appendChild(ifRow);
-
-            // THEN (Action)
-            const thenRow = document.createElement('div');
-            thenRow.className = 'flex items-center gap-3';
-            thenRow.innerHTML = `<span class="text-sm font-medium text-slate-600 w-20">THEN</span>`;
-            const actionContainer = document.createElement('div');
-            actionContainer.className = 'flex-1 flex flex-wrap items-center gap-2';
-            
-            const actionSelect = document.createElement('select');
-            actionSelect.className = 'px-2.5 py-2 border border-slate-300 bg-white rounded-md text-sm';
-            actionSelect.innerHTML = `<option value="serve">Serve Page</option><option value="redirect">Redirect To URL</option>`;
-            actionSelect.value = group.action.type;
-            actionSelect.onchange = (e) => {
-                group.action.type = e.target.value;
-                renderRuleJson();
-            };
-            
-            const actionInput = document.createElement('input');
-            actionInput.className = 'px-3 py-2 border border-slate-300 rounded-md text-sm w-full md:w-1/2';
-            actionInput.placeholder = '/folder/ or https://...';
-            actionInput.value = group.action.value;
-            actionInput.oninput = (e) => {
-                group.action.value = e.target.value;
-                renderRuleJson();
-            };
-
-            actionContainer.appendChild(actionSelect);
-            actionContainer.appendChild(actionInput);
-            thenRow.appendChild(actionContainer);
-            groupEl.appendChild(thenRow);
-
-            container.appendChild(groupEl);
-
-            // Add OR separator
-            if (groupIndex < ruleGroups.length - 1) {
-                const orEl = document.createElement('div');
-                orEl.className = 'text-center text-sm font-semibold text-slate-500 py-2';
-                orEl.textContent = 'OR';
-                container.appendChild(orEl);
-            }
-        });
-
-        renderRuleJson();
-    }
- 
-    function renderRuleJson() {
-        if (!ruleJsonEl) return;
-        const json = {
-            rules: ruleGroups.map(group => {
-                const flags = group.conditions.reduce((acc, c) => {
-                    // This simple conversion assumes one value per attribute.
-                    // A real system might need arrays for multiple "equals" or more complex operator handling.
-                    if (c.op === 'equals') acc[c.attr] = c.value;
-                    // notEquals would need backend support for a different flag structure
-                    return acc;
-                }, {});
-                
-                const action = {};
-                if (group.action.type === 'serve') action.folder = group.action.value;
-                if (group.action.type === 'redirect') action.fetchUrl = group.action.value;
- 
-                return { flags, ...action };
-            }),
-            defaultFolder: "lander/",
-            variables: {},
-            blocks: {}
-        };
-        ruleJsonEl.textContent = JSON.stringify(json, null, 2);
-    }
- 
-    function renderQuickAdd() {
-        if (!quickAdd) return;
-        const conditionTypes = [
-            { label: 'Country', attr: 'country' },
-            { label: 'Device', attr: 'device' },
-            { label: 'Browser', attr: 'browser' },
-            { label: 'OS', attr: 'os' },
-            { label: 'URL Parameter', attr: 'param.utm_campaign' },
-            { label: 'Language', attr: 'language' },
-            { label: 'Device Brand', attr: 'brand' },
-            { label: 'Region/State', attr: 'region' },
-            { label: 'Organization', attr: 'org' }
-        ];
-        quickAdd.innerHTML = '';
-        conditionTypes.forEach(t => {
-            const btn = document.createElement('button');
-            const color = t.attr.startsWith('param.') ? 'border-orange-300 hover:bg-orange-50' : 'border-slate-300 hover:bg-slate-100'
-            btn.className = `text-xs bg-white border ${color} px-2 py-1 rounded transition`;
-            btn.textContent = `+ ${t.label}`;
-            btn.addEventListener('click', () => {
-                alert('This would open the add condition modal/form, pre-filled with this type.');
-            });
-            quickAdd.appendChild(btn);
-        });
-    }
- 
-    function addRuleGroup() {
-        ruleGroups.push({
-            conditions: [
-                { attr: 'country', op: 'equals', value: 'US', label: 'Country = US' }
-            ],
-            action: { type: 'serve', value: '/new-folder/' }
-        });
-        render();
-    }
- 
-    function prettyAttr(attr) {
-        if (attr.startsWith('param.')) return `Param: ${attr.substring(6)}`;
-        const map = { country: 'Country', device: 'Device', browser: 'Browser', os: 'OS', language: 'Language', brand: 'Brand', region: 'Region', org: 'Organization' };
-        return map[attr] || attr;
-    }
- 
-    function syncAttrInputs() {
-        if (!condAttrSelect || !condValueInput || !condValueSelect) return;
-        const attr = condAttrSelect.value;
-        const presets = presetValues[attr];
-        if (presets) {
-            condValueSelect.classList.remove('hidden');
-            condValueSelect.innerHTML = presets.map(v => `<option>${v}</option>`).join('');
-            condValueInput.placeholder = 'Value (optional)';
-        } else {
-            condValueSelect.classList.add('hidden');
-            condValueSelect.innerHTML = '';
-            condValueInput.placeholder = attr.startsWith('param.') ? 'e.g., summer_sale' : 'Value';
-        }
-    }
- 
-    if (condAttrSelect) condAttrSelect.addEventListener('change', syncAttrInputs);
-    if (condAddBtn) condAddBtn.addEventListener('click', () => {
-        const attr = condAttrSelect.value;
-        const selectVal = condValueSelect && !condValueSelect.classList.contains('hidden') ? condValueSelect.value : '';
-        const inputVal = condValueInput.value.trim();
-        const value = inputVal || selectVal;
-        if (!value) return;
-        const group = ruleGroups[0]; // Simplified for this example, affects first group
-        if (group) {
-            group.conditions.push({ attr: normalizeAttr(attr), op: 'equals', value: value, label: `${prettyAttr(attr)} = ${value}` });
-            render();
-        }
-        condValueInput.value = '';
-    });
- 
-    if (condCancelBtn) condCancelBtn.addEventListener('click', () => {
-        // This functionality would require a more complex state management
-        // For now, it just cancels the current edit if any.
-        // If you want to revert to a clean state, you'd need to reset ruleGroups
-        // and re-render the entire rule builder.
-    });
-
-    if (toggleAdvanced) toggleAdvanced.addEventListener('click', () => {
-        const isHidden = ruleAdvanced.classList.contains('hidden');
-        ruleAdvanced.classList.toggle('hidden', !isHidden);
-        toggleAdvanced.textContent = isHidden ? 'Hide' : 'Show';
-    });
-
-    // Action controls
-    const thenActionSelect = document.getElementById('then-action-select');
-    const thenPathInput = document.getElementById('then-path-input');
-    function syncAction() {
-        if (!thenActionSelect || !thenPathInput) return;
-        const type = thenActionSelect.value;
-        const group = ruleGroups[0]; // Simplified for this example, affects first group
-        if (group) {
-            group.action.type = type;
-            group.action.value = thenPathInput.value;
-        }
-        renderRuleJson();
-    }
-    
-    // Add Rule Group Button
-    const addRuleGroupBtn = document.getElementById('add-rule-group-btn');
-    if (addRuleGroupBtn) addRuleGroupBtn.addEventListener('click', addRuleGroup);
- 
-    // Initial renders
-    syncAttrInputs();
-    renderQuickAdd();
-    ruleGroups = [
-        {
-            conditions: [
-                { attr: 'country', op: 'equals', value: 'US', label: 'Country = US' },
-                { attr: 'device', op: 'equals', value: 'Mobile', label: 'Device = Mobile' },
-            ],
-            action: { type: 'serve', value: '/us-mobile/' }
-        },
-        {
-            conditions: [
-                { attr: 'country', op: 'equals', value: 'GB', label: 'Country = GB' },
-            ],
-            action: { type: 'redirect', value: 'https://google.co.uk' }
-        }
-    ];
-    render();
-
+      // Initialize based on any pre-set active tab
+      const initial = document.querySelector('.sdkTab.active')?.dataset.usecase || 'all';
+      updateForUsecase(initial);
+    })();
   </script>
 
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9791b68c294c4390',t:'MTc1Njg2NTQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html> 
+</body>
+</html>

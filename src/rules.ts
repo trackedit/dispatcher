@@ -113,6 +113,25 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
   let requestedPath = data.path.replace(/^\/+/, '');
   if (requestedPath === '' || data.path === '/') { // Handle root path explicitly
     requestedPath = 'index.html';
+  } else {
+    // If the path looks like a directory or a non-asset extension, serve its index.html
+    const ASSET_EXTENSIONS = new Set([
+      'css','js','mjs','jsx','ts','tsx','png','jpg','jpeg','gif','svg','webp','ico','json','map','woff','woff2','ttf','otf','eot','mp4','webm','ogg','mp3','wav','pdf','txt','xml','csv','wasm','zip','gz','br','avif','heic','webmanifest'
+    ]);
+    const getPathExtension = (p: string): string => {
+      const clean = p.split('?')[0].split('#')[0];
+      const lastSegment = clean.split('/').pop() || '';
+      const parts = lastSegment.split('.');
+      if (parts.length <= 1) return '';
+      return parts.pop()!.toLowerCase();
+    };
+    const ext = getPathExtension(requestedPath);
+    const endsWithSlash = requestedPath.endsWith('/');
+    const isHtml = requestedPath.endsWith('.html') || requestedPath.endsWith('.htm');
+    const isLikelyPage = isHtml || ext === '' || (ext && !ASSET_EXTENSIONS.has(ext));
+    if (isLikelyPage) {
+      requestedPath = endsWithSlash ? `${requestedPath}index.html` : `${requestedPath}/index.html`;
+    }
   }
   
   // Construct the full asset path
@@ -661,8 +680,26 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
   let ruleVariables = rule.variables; // Start with default variables
   let fetchUrl: string | undefined;
 
-  // Detect if this is an asset request (not the main page)
-  const isAssetRequest = data.path !== '/' && data.path !== '/index.html';
+  // Detect if this is an asset request (not a page). Treat extensionless and non-asset extensions as pages.
+  const ASSET_EXTENSIONS = new Set([
+    'css','js','mjs','jsx','ts','tsx','png','jpg','jpeg','gif','svg','webp','ico','json','map','woff','woff2','ttf','otf','eot','mp4','webm','ogg','mp3','wav','pdf','txt','xml','csv','wasm','zip','gz','br','avif','heic','webmanifest'
+  ]);
+  const getPathExtension = (p: string): string => {
+    const clean = p.split('?')[0].split('#')[0];
+    const lastSegment = clean.split('/').pop() || '';
+    const parts = lastSegment.split('.');
+    if (parts.length <= 1) return '';
+    return parts.pop()!.toLowerCase();
+  };
+  const ext = getPathExtension(data.path);
+  const isPageLike = (
+    data.path === '/' ||
+    data.path.endsWith('.html') ||
+    data.path.endsWith('.htm') ||
+    ext === '' ||
+    (ext && !ASSET_EXTENSIONS.has(ext))
+  );
+  const isAssetRequest = !isPageLike;
 
   // 1. Check blocks first
   if (rule.blocks) {
@@ -931,31 +968,60 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
     return serveRemoteFile(c, fetchUrl, data, reason, ruleVariables);
   }
   if (targetFolder.startsWith('http://') || targetFolder.startsWith('https://')) {
-    return handleInitialProxyRequest(c, targetFolder, data, reason, ruleVariables);
+    // For remote defaults where no rules matched, drop the incoming path and serve origin root
+    const useOriginRoot = !isAssetRequest && reason.startsWith('No rules matched');
+    const dataForProxy = useOriginRoot ? { ...data, path: '/' } : data;
+    return handleInitialProxyRequest(c, targetFolder, dataForProxy, reason, ruleVariables);
   }
   return servePublicFile(c, `${targetFolder}/`, data, reason, ruleVariables);
 }
 
 // Function to get rule from KV storage
-export async function getKVRule(c: any, domain: string, path: string): Promise<KVRule | null> {
+export async function getKVRule(c: any, domain: string, path: string): Promise<{ rule: KVRule, key: string } | null> {
   try {
-    // First try exact domain+path match (for path-specific rules)
-    const keyWithPath = `${domain}${path}`;
-    let ruleJson = await env.KV.get(keyWithPath);
-    
-    // Then try domain only
-    if (!ruleJson) {
-      const keyDomainOnly = domain;
-      ruleJson = await env.KV.get(keyDomainOnly);
+    let currentPath = path;
+
+    // Loop from the full path down to the root
+    while (true) {
+      // Try exact domain+path match
+      const keyWithPath = `${domain}${currentPath}`;
+      const ruleJson = await env.KV.get(keyWithPath);
+      if (ruleJson) {
+        return { rule: JSON.parse(ruleJson) as KVRule, key: keyWithPath };
+      }
+
+      // If path has a trailing slash (and isn't just "/"), try without it
+      if (currentPath.endsWith('/') && currentPath.length > 1) {
+        const keyWithoutSlash = keyWithPath.slice(0, -1);
+        const ruleJsonWithoutSlash = await env.KV.get(keyWithoutSlash);
+        if (ruleJsonWithoutSlash) {
+          return { rule: JSON.parse(ruleJsonWithoutSlash) as KVRule, key: keyWithoutSlash };
+        }
+      }
+
+      if (currentPath === '/') {
+        break;
+      }
+
+      // Move to the parent directory
+      const lastSlash = currentPath.lastIndexOf('/');
+      if (lastSlash > 0) {
+        currentPath = currentPath.substring(0, lastSlash);
+      } else {
+        currentPath = '/';
+      }
     }
-    
-    if (ruleJson) {
-      return JSON.parse(ruleJson) as KVRule;
+
+    // Finally, try domain only
+    const keyDomainOnly = domain;
+    const ruleJsonDomain = await env.KV.get(keyDomainOnly);
+    if (ruleJsonDomain) {
+      return { rule: JSON.parse(ruleJsonDomain) as KVRule, key: keyDomainOnly };
     }
   } catch (error) {
     console.error(`Error fetching rule from KV: ${error}`);
   }
-  
+
   return null;
 }
 
@@ -1005,21 +1071,40 @@ export const rules: WorkerRule[] = [
       }
       
       // Get rule from KV
-      const kvRule = await getKVRule(c, data.domain, data.path);
+      const kvRuleResult = await getKVRule(c, data.domain, data.path);
       
-      if (kvRule) {
+      if (kvRuleResult) {
+        const { rule: kvRule, key: ruleKey } = kvRuleResult;
         // Only log for main page requests
         if (data.path === '/' || data.path === '/index.html') {
           console.log(JSON.stringify({
             action: "RULE_FOUND",
             domain: data.domain,
             path: data.path,
-            ruleKey: data.domain
+            ruleKey: ruleKey
           }));
         }
         return await applyKVRule(c, data, kvRule);
       }
       
+      // Referrer-based proxy fallback for assets loaded by a proxied page
+      if (data.referrer) {
+        try {
+          const refUrl = new URL(data.referrer);
+          // Only attempt if same host as current request
+          if (!data.domain || refUrl.host === data.domain) {
+            const refKv = await getKVRule(c, data.domain || refUrl.host, refUrl.pathname);
+            if (refKv && (refKv.rule.defaultFolder.startsWith('http://') || refKv.rule.defaultFolder.startsWith('https://'))) {
+              const baseUrl = refKv.rule.defaultFolder;
+              const targetUrl = new URL(data.path, baseUrl).toString();
+              return await fetchAndStreamAsset(c, targetUrl, baseUrl);
+            }
+          }
+        } catch (_) {
+          // ignore URL parse errors
+        }
+      }
+
       // Fallback: No rule found, serve clean content with basic security
       const reason = `No rule found for domain ${data.domain}, serving custom error page`;
       

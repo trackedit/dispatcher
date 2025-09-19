@@ -29,26 +29,6 @@ const statsigWWW = {
     }).format(num);
   },
 
-  getClickHandlerQuery: function(useCached = false) {
-    const url = new URL(window.location.href);
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
-    const stmKeys = ['_stm_source', '_stm_medium', '_stm_campaign', '_stm_term', '_stm_content'];
-    for (let ii = 0; ii < utmKeys.length; ii++) {
-      const uk = utmKeys[ii];
-      const sk = stmKeys[ii];
-      const value = url.searchParams.get(uk);
-      if (value) {
-        localStorage.setItem(sk, value);
-      } else if (useCached) {
-        const lv = localStorage.getItem(sk);
-        if (lv) {
-          url.searchParams.set(uk, lv);
-        }
-      }
-    }
-    return url.searchParams.toString();
-  },
-
   getEventSection: function (element) {
     while (element) {
       let eventSection = element.dataset.eventSection;
@@ -60,14 +40,6 @@ const statsigWWW = {
     }
 
     return null;
-  },
-
-  getReferrerUrl: function(useCached = false) {
-    const query = this.getClickHandlerQuery(useCached);
-    const url = new URL(window.location.href);
-    url.search = query;
-    url.searchParams.delete('referrer'); // Prevent recursion
-    return url.toString();
   },
 
   hideDesktopMenu: function(animate = false) {
@@ -95,31 +67,6 @@ const statsigWWW = {
     });
   },
 
-  logEngagementMetrics: function() {
-    window.addEventListener('scroll', () => {
-      const scrollDepth = Math.min(
-        100,
-        Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100),
-      );
-      if (scrollDepth > statsigWWW.deepestScroll) {
-        statsigWWW.deepestScroll = scrollDepth;
-      }
-    });
-    window.addEventListener('beforeunload', () => {
-      const metadata = { url: window.location.href };
-      window.statsigSDK.logEvent({
-        eventName: 'scroll_depth',
-        value: statsigWWW.deepestScroll,
-        metadata: metadata,
-      });
-      window.statsigSDK.logEvent({
-        eventName: 'time_on_page_ms',
-        value: Date.now() - statsigWWW.loadStartTime,
-        metadata: metadata,
-      });
-    });
-  },
-  
   onLoad: function () {
     statsigWWW.deepestScroll = 0;
     statsigWWW.loadStartTime = Date.now();
@@ -128,113 +75,47 @@ const statsigWWW = {
       this.wireClickHandlers('button');
       this.wireClickHandlers('a');
       this.wireClickHandlers('div[data-event-value]');
-      this.prepareConsoleLinks();
+      $d('navicon').addEventListener('click', () => this.toggleHamburgerMenu());
+      this.setupUsecaseHighlights();
     } catch(e) {
       console.error(e);
     }
-    
-    const bootstrapValues = globalThis.statsigInitializeValues ?? '';
-    let bootstrapObject = undefined;
-    if (bootstrapValues !== '') {
-      try {
-        bootstrapObject = JSON.parse(bootstrapValues);
-        bootstrapObject["can_record_session"] = true;
-        bootstrapObject["session_recording_rate"] = 1;
-        bootstrapObject = JSON.stringify(bootstrapObject);
-      } catch(e) {
-        console.error(e);
-      }
+  },
+  setupUsecaseHighlights: function() {
+    const tabs = document.querySelectorAll('.sdkTab[data-usecase]');
+    if (!tabs || tabs.length === 0) {
+      return;
     }
 
-    const { StatsigClient, StatsigSessionReplayPlugin, StatsigAutoCapturePlugin } = window.Statsig;
-    const user = window['statsigUser'] || null;
-    const client = new StatsigClient(
-      'client-XlqSMkAavOmrePNeWfD0fo2cWcjxkZ0cJZz64w7bfHX', 
-      user, 
-      {
-        plugins: [
-          new StatsigSessionReplayPlugin(),
-          new StatsigAutoCapturePlugin({
-            consoleLogAutoCaptureSettings: {
-              enabled: true,
-            }
-          }),
-        ],
-      },
-    );
+    const setActiveTab = (selected) => {
+      tabs.forEach(t => t.classList.toggle('active', t === selected));
+    };
 
-    client.on('error', (event) => {
-      if (event.tag === 'NetworkError') {
-        if (event.requestArgs && event.requestArgs.url) {
-          event.error.stack =
-            `StatsigNetworkError: ${event.requestArgs.url}\n` +
-            event.error.stack;
+    const highlightUsecase = (usecase) => {
+      const pills = document.querySelectorAll('.productPill');
+      pills.forEach(pill => {
+        if (usecase === 'all') {
+          pill.classList.remove('dim');
+          pill.classList.remove('highlight');
+          return;
         }
+        const tags = (pill.dataset.usecases || '').split(',').map(s => s.trim());
+        const match = tags.includes(usecase);
+        pill.classList.toggle('dim', !match);
+        pill.classList.toggle('highlight', match);
+      });
+    };
 
-        client
-          .getContext()
-          .errorBoundary.logError('statig_www:network_error', event.error);
-      }
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        setActiveTab(tab);
+        highlightUsecase(tab.dataset.usecase);
+      });
     });
 
-    // bootstrap
-    client.dataAdapter.setData(bootstrapObject, user);
-    client.initializeSync();
-
-    window.statsigSDK = client;
-    statsigWWW.onSDKInit(client);
-  },
-
-  onSDKInit: function (statsigClient) {
-    statsigClient.logEvent({
-      eventName: 'ga_available',
-      value: !!(window.ga && ga.create)
-    });
-    if (URLSearchParams) {
-      const params = new URLSearchParams(window.location.search);
-      statsigClient.logEvent({
-        eventName: 'page_load',
-        value: window.location.pathname,
-        metadata: Object.fromEntries(params),
-      });
-    } else {
-      statsigClient.logEvent({
-        eventName: 'page_load',
-        value: window.location.pathname
-      });
-    }
-
-    if (
-      window.__ccKey &&
-      statsigClient.checkGate('show_cookie_consent') &&
-      !document.cookie.includes(window.__ccKey)
-    ) {
-      document.getElementById('cookieConsent').style.display = 'unset';
-    }
-
-    statsigWWW.logEngagementMetrics();
-  },
-
-  prepareConsoleLinks: function() {
-    const allAnchors = document.getElementsByTagName('a');
-    const referrer = this.getReferrerUrl(true);
-    for (let ii = 0; ii < allAnchors.length; ii++) {
-      const anchor = allAnchors[ii];
-      if (anchor.href && anchor.href.includes('console.statsig.com') && typeof window.cookieStore !== 'undefined') {
-        let url = new URL(anchor.href);
-
-        url.searchParams.set('referrer', referrer);
-        anchor.href = url.toString();
-
-        window.cookieStore.get('_ga').then(c => {
-          if (!c || !c.value) {
-            return;
-          }
-          url.searchParams.set('_ga', c.value);
-          anchor.href = url.toString();
-        });
-      }
-    }
+    // Ensure default state
+    const active = document.querySelector('.sdkTab[data-usecase].active');
+    highlightUsecase(active ? active.dataset.usecase : 'all');
   },
 
   setupAccordion(containerId, imageId, imageFolder) {
@@ -271,6 +152,8 @@ const statsigWWW = {
       })
     });
   },
+
+  
 
   setupAdsTracking: function () {
     window.dataLayer = window.dataLayer || [];
@@ -416,10 +299,6 @@ const statsigWWW = {
 
       el.addEventListener('click', () => {
         const section = this.getEventSection(el);
-        window.statsigSDK && window.statsigSDK.logEvent('click', el.dataset.eventValue, {
-          section: section,
-          type: el.dataset.eventType,
-        });
         dataLayer.push({
           'event': el.dataset.eventValue,
           'location': section
@@ -430,6 +309,5 @@ const statsigWWW = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  statsigWWW.setupDesktopMenus();
-  statsigWWW.setupMobileMenus();
+  statsigWWW.onLoad();
 });

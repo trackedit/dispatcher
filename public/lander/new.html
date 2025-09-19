@@ -6,14 +6,8 @@
   <title>Tracked | Tracking, Delivery & Decision Platform</title>
   
   
-    <link rel="preload" href="https://www.statsig.com/fonts/gyByhwUxId8gMEwSGFWNOITddY4.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="https://www.statsig.com/fonts/gyByhwUxId8gMEwcGFWNOITd.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="https://www.statsig.com/fonts/or3nQ6H-1_WfwkMZI_qYFrkdmhHkjkotbA.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="https://www.statsig.com/fonts/or3nQ6H-1_WfwkMZI_qYFrcdmhHkjko.woff2" as="font" type="font/woff2" crossorigin />
   
-  
-  
-      <link rel="preload" href="https://www.statsig.com/images/page/home/hero-animation.svg" as="image" />
+  <link rel="preload" href="https://www.statsig.com/images/page/home/hero-animation.svg" as="image" />
      
   
   <link href="new-styles.css" rel="stylesheet" />
@@ -48,19 +42,13 @@
   
 
   <!-- icons -->
-  <link rel="icon" type="image/png" href="https://www.statsig.com/images/favicons/favicon96.png" sizes="96x96" />
-  <link rel="icon" type="image/png" href="https://www.statsig.com/images/favicons/favicon256.png" sizes="256x256" />
-  <link rel="icon" type="image/svg+xml" href="https://www.statsig.com/images/favicons/favicon.svg" />
-  <link rel="apple-touch-icon" sizes="180x180" href="https://www.statsig.com/images/favicons/favicon180.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&display=swap"></noscript>
 
   <link rel="canonical" href="https://www.tracked.it/" />
   <script src="site.js"></script>
-  <script>
-    window['$d'] = document.getElementById.bind(document);
-  </script>
 </head>
 
 <body>
@@ -70,7 +58,7 @@
         <div class="logo">
           <a href="/">
             <svg width="110" height="25" viewBox="0 0 110 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="20" font-family="Poppins" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
+              <text x="0" y="20" font-family="Plus Jakarta Sans" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
             </svg>
           </a>
         </div>
@@ -122,10 +110,10 @@
       <a
         id="liveDemoButton"
         class="button buttonNavyBlack"
-        href="/contact/demo"
-        data-event-value="live_demo"
+        href="app.tracked.it?register"
+        data-event-value="new_user"
       >
-            Book a Live Demo
+            Sign Up
           </a>
         </div>
       </div>
@@ -133,7 +121,7 @@
         <div class="logo">
           <a id="mobileLogo" href="/">
         <svg width="110" height="25" viewBox="0 0 110 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="20" font-family="Poppins" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
+              <text x="0" y="20" font-family="Plus Jakarta Sans" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
             </svg>
           </a>
       <div id="backProducts" class="mobileBackLink textLarger">
@@ -148,7 +136,7 @@
         </div>
         <div class="headerCtas">
           <div class="hamburger">
-            <div id="navicon" onclick="toggleHamburgerMenu()">
+            <div id="navicon">
               <span></span><span></span><span></span><span></span>
             </div>
           </div>
@@ -164,7 +152,7 @@
             <a class="mobileMenuItem block passthrough" href="/pricing"><h4>Pricing</h4></a>
             <div class="flexStack flexGapSmall hr paddingMedium" style="position: absolute; bottom: 0; width: 100%; background: var(--color-background);">
                 <a class="button buttonWhite" href="/login" data-event-value="sign_in">Sign In</a>
-                <a class="button" href="/contact/demo" data-event-value="live_demo" style="background-color: var(--color-blue);">Book a Live Demo</a>
+                <a class="button" href="/signup" data-event-value="sign_up" style="background-color: var(--color-blue);">Sign Up</a>
             </div>
         </div>
     </div>
@@ -192,21 +180,14 @@
                 Create a free account
               </a>
         <a
-          href="/demo"
+          href="https://www.tracked.it/videos/how-it-works.html"
           class="button buttonWhite"
-          data-event-value="sandbox"
+          data-event-value="how_it_works"
         >
                 See how it works
               </a>
             </div>
             <div class="marginTopMedium flexStack flexGapSmall mobileOnly">
-        <a
-          href="/contact/demo"
-          class="button buttonNavyBlack"
-          data-event-value="live_demo"
-        >
-                Book a live demo
-              </a>
         <a
           href="/signup"
           class="button buttonWhite"
@@ -228,7 +209,7 @@
 
 
 
-  <section-row class="paddingYSmall noBorder">
+  <section-row class="paddingYSmall">
         <div class="pageContainer flexStack flexGapSmall">
           
             Compatible with your favorite platforms
@@ -278,11 +259,7 @@
       
 <style>
   .multiProductsGrid {
-    background-image: url('https://www.statsig.com/images/sections/multi-products-v2/grid-bg.png');
-    background-size: contain;
-    background-position: center;
-    background-position-y: -20px;
-    background-repeat: no-repeat;
+    background: none;
   }
   .horizontalRail {
     background-color: var(--color-black);
@@ -312,7 +289,7 @@
   }
   .productsGrid .productPill {
     padding: 3px 12px;
-    text-transform: uppercase;
+    text-transform: none;
     border: 1px solid var(--color-gray);
     border-radius: 4px;
     background: var(--color-white);
@@ -343,93 +320,52 @@
     }
   }
 </style>
-<script>
-  function highlightProducts(group = 'all') {
-    const products = document.querySelectorAll('.productPill');
-    products.forEach(product => {
-      if (group === 'all') {
-        product.classList.remove('dim');
-        product.classList.remove('highlight');
-      } else {
-        product.classList.toggle('dim', product.dataset.group !== group);
-        product.classList.toggle('highlight', product.dataset.group === group);
-      }
-    });
-  }
-</script>
 <div class="flexStack flexCenterAlignItems widthFull multiProductsGrid">
-  <div class="horizontalRail" onmouseleave="highlightProducts('all')">
-    <img
-      src="https://www.statsig.com/images/sections/multi-products-v2/menu-statsig.svg"
-      class="menuItem"
-      onmouseover="highlightProducts('all')"
-      style="width: 32px; height: 32px;"
-      alt="Tracked"
-    />
-    <img
-      src="https://www.statsig.com/images/sections/multi-products-v2/menu-feature-gates.svg"
-      class="menuItem"
-      onmouseover="highlightProducts('feature-gates')"
-      alt="1"
-    />
-    <img
-      src="https://www.statsig.com/images/sections/multi-products-v2/menu-experimentation.svg"
-      class="menuItem"
-      onmouseover="highlightProducts('experimentation')"
-      alt="2"
-    />
-    <img
-      src="https://www.statsig.com/images/sections/multi-products-v2/menu-analytics.svg"
-      class="menuItem"
-      onmouseover="highlightProducts('analytics')"
-      alt="3"
-    />
-    <img 
-      src="https://www.statsig.com/images/sections/multi-products-v2/menu-users.svg"
-      class="menuItem"
-      onmouseover="highlightProducts('users')"
-      alt="4"
-    />
-              </div>
+  <div class="sdkTabs usecaseTabs">
+    <div class="sdkTab active" data-usecase="all">All</div>
+    <div class="sdkTab" data-usecase="app-dev">App Developers</div>
+    <div class="sdkTab" data-usecase="affiliate">Affiliate Marketing</div>
+    <div class="sdkTab" data-usecase="ecom">E-commerce</div>
+  </div>
   <div class="productsGrid">
     
-      <div class="productPill mono" data-group="delivery">
+      <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
         Content Delivery
               </div>
     
-      <div class="productPill mono" data-group="decisions">
+      <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
         Feature Flags
             </div>
     
-      <div class="productPill mono" data-group="decisions">
+      <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
         Smart Targeting
           </div>
     
-      <div class="productPill mono" data-group="decisions">
+      <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
         A/B Testing
             </div>
     
-      <div class="productPill mono" data-group="decisions">
+      <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
         Decision Engine
             </div>
             
-      <div class="productPill mono" data-group="tracking">
+      <div class="productPill mono" data-group="tracking" data-usecases="app-dev,ecom">
         Session Replays
             </div>
             
-      <div class="productPill mono" data-group="tracking">
+      <div class="productPill mono" data-group="tracking" data-usecases="app-dev,affiliate,ecom">
         Event Tracking
             </div>
             
-      <div class="productPill mono" data-group="tracking">
+      <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
         User Attribution
             </div>
             
-      <div class="productPill mono" data-group="tracking">
+      <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
         Cookieless Tracking
             </div>
             
-      <div class="productPill mono" data-group="delivery">
+      <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
         Global Edge
             </div>
             
@@ -1112,7 +1048,7 @@
       </div>
             <div class="flex1 textAlignCenter">
               <svg width="165" height="40" viewBox="0 0 165 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="32" font-family="Poppins" font-size="32" font-weight="700" fill="#1f2328">Tracked</text>
+                <text x="0" y="32" font-family="Plus Jakarta Sans" font-size="32" font-weight="700" fill="#1f2328">Tracked</text>
               </svg>
             </div>
           </div>
@@ -1136,61 +1072,5 @@
       </section-row>
     </footer>
   </div>
-  <script>
-    // Interactive demo functionality
-    function updateDemo() {
-      const country = document.getElementById('demo-country').value;
-      const device = document.getElementById('demo-device').value;
-      const headline = document.getElementById('demo-headline');
-      const subtext = document.getElementById('demo-subtext');
-      const cta = document.getElementById('demo-cta');
-      
-      const countryNames = {
-        'US': 'US',
-        'GB': 'UK', 
-        'DE': 'German',
-        'FR': 'French'
-      };
-      
-      if (headline) {
-        headline.textContent = `Welcome ${countryNames[country]} ${device} Users!`;
-      }
-      if (subtext) {
-        subtext.textContent = `Special offers for your region and device`;
-      }
-      if (cta) {
-        cta.textContent = device === 'Mobile' ? 'Tap to Start' : 'Get Started';
-      }
-    }
-
-    // Mobile menu toggle
-    function toggleHamburgerMenu() {
-      const navicon = document.getElementById('navicon');
-      const mobileMenu = document.getElementById('mobileMenuContainer');
-      
-      if (navicon) {
-        navicon.classList.toggle('open');
-      }
-      
-      if (mobileMenu) {
-        mobileMenu.classList.toggle('open');
-      }
-    }
-
-    // Header interaction
-    document.addEventListener('DOMContentLoaded', function() {
-      const headerLinks = document.querySelectorAll('.headerLink[data-target-element]');
-      
-      headerLinks.forEach(link => {
-        link.addEventListener('click', function() {
-          // Toggle active state
-          headerLinks.forEach(l => l.classList.remove('active'));
-          this.classList.add('active');
-        });
-      });
-      
-    });
-  </script>
-<!-- Animated footer words removed -->
 </body>
 </html>

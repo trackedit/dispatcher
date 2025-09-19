@@ -1,0 +1,5 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-label="Tracked T mark" role="img">
+  <circle cx="512" cy="512" r="336" fill="currentColor"/>
+  <!-- single-path T, no seam -->
+  <path d="M319 317H706V415H563V733H460V415H319Z" fill="#fff" shape-rendering="geometricPrecision"/>
+</svg>

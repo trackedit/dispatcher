@@ -1,39 +1,4 @@
-/* latin-ext */
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url(https://www.statsig.com/fonts/gyByhwUxId8gMEwSGFWNOITddY4.woff2) format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url(https://www.statsig.com/fonts/gyByhwUxId8gMEwcGFWNOITd.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Geist Mono';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url(https://www.statsig.com/fonts/or3nQ6H-1_WfwkMZI_qYFrkdmhHkjkotbA.woff2) format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Geist Mono';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url(https://www.statsig.com/fonts/or3nQ6H-1_WfwkMZI_qYFrcdmhHkjko.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
+/* Fonts loaded via Google Fonts in new.html */
 
 :root {
   --color-white: #fff;
@@ -52,10 +17,6 @@
   --color-text-secondary: #535963;
   --color-input-border: var(--color-gray);
 
-  --font-family-headings: 'Geist', Helvetica, 'Segoe UI', Arial;
-  --font-family-body: 'Geist', Helvetica, 'Segoe UI', Arial;
-  --font-family-mono: 'Geist Mono', monospace;
-
   --font-size-extra-small: 12px;
   --font-size-smaller: 14px;
   --font-size-body: 16px;
@@ -69,17 +30,32 @@
   --font-size-h6: 16px;
   --font-size-h7: 14px;
   
-  --font-weight-headings: 600;
+  --font-weight-headings: 700;
   --font-weight-body: 400;
   --font-weight-button: 600;
   --font-weight-anchor: 600;
-  --font-weight-strong: 600;
+  --font-weight-strong: 700;
 
   --border-sharp-radius: 5px;
   --border-standard-radius: 10px;
   --border-button-radius: 30px;
 
   --shadow-regular: 0 0 20px rgba(27, 37, 40, 0.05);
+
+  /* Pastel accent theme */
+  --accent-blue-50: #f3f8ff;
+  --accent-mint-50: #f2fff8;
+  --accent-peach-50: #fff6f0;
+  --accent-purple-50: #f7f3ff;
+
+  /* Slightly stronger tints for borders */
+  --accent-blue-100: #e6eeff;
+  --accent-mint-100: #def7ea;
+  --accent-peach-100: #ffe6d9;
+  --accent-purple-100: #ece6ff;
+
+  --gradient-accent: linear-gradient(90deg, var(--accent-blue-50), var(--accent-peach-50));
+  --gradient-accent-2: linear-gradient(90deg, var(--accent-mint-50), var(--accent-purple-50));
 }
 
 * {
@@ -96,7 +72,6 @@ body {
   color: var(--color-text-primary);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-body);
-  font-family: var(--font-family-body);
   justify-content: center;
   line-height: 150%;
   margin: 0;
@@ -115,7 +90,6 @@ button,
 input,
 select,
 textarea {
-  font-family: var(--font-family-headings);
   line-height: 125%;
   accent-color: var(--color-text-primary);
 }
@@ -206,6 +180,12 @@ a,
   text-decoration: none;
 }
 
+/* Accent link hover */
+.anchor:hover,
+a:hover {
+  color: var(--color-blue);
+}
+
 a.flex,
 a.flexStack,
 a.block,
@@ -264,7 +244,7 @@ select {
 strong,
 .strong {
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 strong.nowrap,
@@ -399,6 +379,9 @@ button {
   padding: 10px 20px;
   text-align: center;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .buttonOutline {
@@ -407,10 +390,51 @@ button {
   color: var(--color-black)!important;
 }
 
+/* Accent button variant */
+.buttonAccent {
+  position: relative;
+  background: linear-gradient(180deg, #f7faff, #ebf3ff);
+  color: var(--color-black)!important;
+  border: 1px solid var(--color-medium-blue);
+  box-shadow: 0 0 0 2px rgba(54, 126, 237, 0.18), 0 6px 14px rgba(54, 126, 237, 0.12);
+}
+.buttonAccent:hover {
+  box-shadow: 0 0 0 2px rgba(54, 126, 237, 0.28), 0 10px 22px rgba(54, 126, 237, 0.16);
+  transform: translateY(-1px);
+}
+.buttonAccent:active {
+  transform: translateY(0);
+}
+.buttonAccent:focus-visible {
+  outline: 2px solid var(--color-dark-blue);
+  outline-offset: 2px;
+}
+.buttonAccent::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  background-image: url('https://www.statsig.com/images/symbols/arrow-right.svg');
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  transform: translateX(0);
+  transition: transform 0.15s ease;
+  filter: saturate(1%) hue-rotate(250deg) brightness(0%) contrast(101%);
+}
+.buttonAccent:hover::after {
+  transform: translateX(2px);
+}
+
 .buttonWhite {
   background-color: var(--color-white);
   box-shadow: inset 0 0 0 1px var(--color-gray);
   color: var(--color-black)!important;
+}
+/* Subtle accent on hover for white button */
+.buttonWhite:hover {
+  box-shadow: inset 0 0 0 1px var(--color-blue);
 }
 
 .card {
@@ -802,6 +826,35 @@ footer .footerLink {
   display: flex;
 }
 
+/* Ensure the logo mark and text stay on the same line on all screens */
+.logo a {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Ensure logo text stays on one line and matches original sizes */
+.logoText {
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-headings);
+  font-size: 22px;
+  line-height: 32px;
+}
+
+.logoTextFooter {
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-headings);
+  font-size: 32px;
+  line-height: 48px;
+}
+
+/* Ensure logo mark and brand text sit on the same visual baseline */
+.logo img,
+#footer .flexCenterAlignItems > img {
+  display: block;
+}
+
 .headerLinks {
   display: flex;
   gap: 10px;
@@ -840,6 +893,11 @@ footer .footerLink {
   transform: scale(0.8) rotate(-180deg);
 }
 
+/* Accent hover on header links */
+.headerLink:hover {
+  color: var(--color-blue);
+}
+
 .headerCtas {
   display: flex;
   gap: 10px;
@@ -874,9 +932,12 @@ footer .footerLink {
 
 .heroTitle {
   font-size: 65px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 110%;
   margin: auto;
+}
+.heroTitle strong {
+  font-weight: 700;
 }
 .heroTitle.textAlignLeft {
   margin: unset;
@@ -1281,7 +1342,6 @@ section-box {
   font-weight: 700;
   margin-right: 10px;
   padding: 4px 10px;
-  text-transform: uppercase;
 }
 
 .pill.blue {
@@ -1453,65 +1513,45 @@ ul, ol {
   margin-bottom: 20px;
 }
 
-.vocContainer {
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-}
-.vocInnerContainer {
-  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 5%, rgba(0, 0, 0, 1) 95%, rgba(0, 0, 0, 0) 100%);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-height: 700px;
-  justify-content: center;
-  box-shadow: inset 0 0 0px -10px #000;
-}
-.vocContainer .vocColumn {
-  overflow-y: hidden;
-  overflow-x: visible;
-  scroll-behavior: smooth;
-  min-width: 300px;
-  position: relative;
-  height: 600px;
-}
-.vocContainer .vocColumnScroller {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  animation: scroll 120s linear infinite;
-}
-.vocContainer .vocColumnScroller.reverse {
-  animation: scrollReverse 100s linear infinite;
+/* Testimonial Scroller (replaces .voc) */
+.testimonial-scroller {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
 }
 
-.vocContainer:hover .vocColumnScroller {
+.testimonial-scroller-inner {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: horizontal-scroll 120s linear infinite;
+}
+
+.testimonial-scroller:hover .testimonial-scroller-inner {
   animation-play-state: paused;
 }
 
-@keyframes scrollReverse {
-  0% {
-    transform: translateY(-80%);
-  }
-  50% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-80%);
-  }
+.testimonial-card {
+  width: 380px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray);
+  border-radius: var(--border-standard-radius);
+  padding: 24px;
+  box-shadow: var(--shadow-regular);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@keyframes horizontal-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 .widthFull {
@@ -2167,4 +2207,222 @@ ul, ol {
   to {
     transform: translateX(-50%);
   }
+}
+
+/* Badges (shadcn-ish) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: var(--font-size-extra-small);
+  font-weight: 600;
+  color: var(--color-black)!important;
+  background: var(--accent-blue-50);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.badgeBlue { background: var(--accent-blue-50); border-color: var(--accent-blue-100); }
+.badgeMint { background: var(--accent-mint-50); border-color: var(--accent-mint-100); }
+.badgePeach { background: var(--accent-peach-50); border-color: var(--accent-peach-100); }
+.badgePurple { background: var(--accent-purple-50); border-color: var(--accent-purple-100); }
+
+.badge .icon {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+/* SaaS Pricing Grid */
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.pricingCard {
+  background: var(--color-white);
+  border-radius: var(--border-standard-radius);
+  border: 1px solid var(--color-gray);
+  box-shadow: var(--shadow-regular);
+  padding: 30px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pricingCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(27, 37, 40, 0.1);
+}
+
+.pricingCard hr {
+  margin: 20px 0;
+}
+
+.pricingCard > div:last-child {
+  margin-top: auto;
+}
+
+.pricingCard .button {
+  width: 100%;
+}
+
+.pricingCard.highlight {
+  border: 2px solid var(--color-blue);
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(54, 126, 237, 0.15);
+  position: relative;
+  z-index: 1;
+}
+.pricingCard.highlight:hover {
+  transform: scale(1.05) translateY(-5px);
+}
+
+.pricingCard .highlight-badge {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-blue);
+  color: var(--color-white);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: var(--font-size-extra-small);
+  font-weight: 600;
+}
+
+.pricingCard .tierName {
+  font-weight: 700;
+}
+.pricingCard .price {
+  font-family: var(--font-family-headings);
+  font-size: var(--font-size-h4);
+}
+
+@media screen and (max-width: 1100px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 840px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+  .pricingCard.highlight {
+    transform: scale(1);
+  }
+  .pricingCard.highlight:hover {
+    transform: translateY(-5px);
+  }
+}
+
+/* Pastel accents and utilities */
+.accentStripe {
+  height: 4px;
+  width: 80px;
+  border-radius: 9999px;
+  background: var(--gradient-accent);
+}
+
+.accentPanel {
+  background: radial-gradient(1200px 400px at 10% -10%, var(--accent-blue-50), transparent 50%),
+              radial-gradient(1200px 400px at 90% 110%, var(--accent-peach-50), transparent 50%);
+  border-radius: var(--border-standard-radius);
+}
+
+/* Product pills: subtle hover accent */
+.productsGrid .productPill:hover {
+  background-color: var(--accent-blue-50);
+  border-color: var(--color-medium-blue);
+  box-shadow: 0 0 0 2px rgba(54, 126, 237, 0.08);
+}
+
+/* How it works */
+.stepBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-mint-50);
+  color: var(--color-black);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-extra-small);
+  box-shadow: var(--shadow-regular);
+}
+
+/* Pricing table */
+.pricingTableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pricingTable {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+  background: var(--color-white);
+  border-radius: var(--border-standard-radius);
+}
+
+.pricingTable thead th {
+  background: var(--accent-blue-50);
+}
+
+.pricingTable th,
+.pricingTable td {
+  border: 1px solid var(--color-gray);
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Striped rows and centered tier columns except feature column */
+.pricingTable tbody tr:nth-child(even) {
+  background-color: var(--accent-blue-50);
+}
+.pricingTable thead th:not(:first-child),
+.pricingTable tbody td:not(:first-child) {
+  text-align: center;
+}
+.pricingTable tbody td:first-child {
+  width: 40%;
+}
+
+.pricingTable .tierHeader {
+  font-weight: 700;
+  text-align: center;
+}
+
+.pricingTable .price {
+  font-family: var(--font-family-headings);
+  font-size: var(--font-size-h4);
+}
+
+.pricingTable .highlight {
+  background: var(--accent-peach-50);
+}
+
+@media screen and (max-width: 840px) {
+  .pricingTable {
+    min-width: 560px;
+  }
+}
+
+.stat-item h3 {
+  font-size: var(--font-size-h1);
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+}
+
+
+@media screen and (max-width: 1100px) {
+}
+
+@media screen and (max-width: 840px) {
 }
