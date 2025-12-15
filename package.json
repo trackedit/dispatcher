@@ -7,21 +7,16 @@
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"test": "vitest",
-		"cf-typegen": "wrangler types",
-		"setup-planetscale": "node setup-planetscale.js"
+		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
 		"@cloudflare/workers-types": "^4.20240712.0",
-		"@types/pg": "^8.16.0",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
-		"wrangler": "^4.44.0"
+		"wrangler": "^4.33.2"
 	},
 	"dependencies": {
-		"@clickhouse/client": "^1.14.0",
-		"hono": "^4.9.5",
-		"pg": "^8.11.3",
-		"uuidv7": "^1.1.0"
+		"hono": "^4.9.5"
 	}
 }
