@@ -17,6 +17,10 @@
   --color-text-secondary: #535963;
   --color-input-border: var(--color-gray);
 
+  --font-family-headings: 'Plus Jakarta Sans', sans-serif;
+  --font-family-body: 'Inter', sans-serif;
+  --font-family-mono: 'IBM Plex Sans', sans-serif;
+
   --font-size-extra-small: 12px;
   --font-size-smaller: 14px;
   --font-size-body: 16px;
@@ -70,6 +74,7 @@ html {
 }
 body {
   color: var(--color-text-primary);
+  font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-body);
   justify-content: center;
@@ -105,6 +110,7 @@ h4,
 h5,
 h6 {
   color: var(--color-text-primary);
+  font-family: var(--font-family-headings);
   font-weight: var(--font-weight-headings);
   margin: 0;
 }

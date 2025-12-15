@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="delegate-ch" content="sec-ch-ua https://insure.autopricecompare.com; sec-ch-ua-mobile https://insure.autopricecompare.com; sec-ch-ua-arch https://insure.autopricecompare.com; sec-ch-ua-model https://insure.autopricecompare.com; sec-ch-ua-platform https://insure.autopricecompare.com; sec-ch-ua-platform-version https://insure.autopricecompare.com; sec-ch-ua-bitness https://insure.autopricecompare.com; sec-ch-ua-full-version-list https://insure.autopricecompare.com; sec-ch-ua-full-version https://insure.autopricecompare.com">
+    <title>Auto Insurance Simulator - AutoPriceCompare.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>.dtpcnt{opacity: 0;}</style>
+    <script>
+        (function(d,c,k,l,r,t,g,u,A,e,m,v,B,a,n,p,h,q,w,D,x){function y(){for(var f=c.querySelectorAll(".dtpcnt"),b=0,a=f.length;b<a;b++)f[b][u]=f[b][u].replace(/(^|\s+)dtpcnt($|\s+)/g,"")}function C(a,b,d,e){var f=new Date;f.setTime(f.getTime()+(e||864E5));c.cookie=a+"="+b+"; "+d+"samesite=Strict; expires="+f.toGMTString()+"; path=/";k.setItem(a,b);k.setItem(a+"-expires",f.getTime())}function z(a){var b=c.cookie.match(new RegExp("(^| )"+a+"=([^;]+)"));return b?b.pop():k.getItem(a+"-expires")&&+k.getItem(a+"-expires")>(new Date).getTime()?k.getItem(a):null}x="https:"===d.location.protocol?"secure; ":"";d[e]||(d[e]=function(){(d[e].q=d[e].q||[]).push(arguments)},p=c[r],c[r]=function(){p&&p.apply(this,arguments);if(d[e]&&!d[e].hasOwnProperty("params")&&/loaded|interactive|complete/.test(c.readyState))for(;a=c[t][m++];)/\/?click\/?($|(\/[0-9]+)?$)/.test(a.pathname)&&(a[g]="javascrip"+d.postMessage.toString().slice(4,5)+":"+e+'.l="'+a[g]+'",void 0')},setTimeout(function(){(q=/[?&]cpid(=([^&#]*)|&|#|$)/.exec(d.location.href))&&q[2]&&(h=q[2],w=z("vl-"+h));var f=z("vl-cep"),b=location[g];if("savedCep"===B&&f&&(!h||"undefined"===typeof h)&&0>b.indexOf("cep=")){var e=-1<b.indexOf("?")?"&":"?";b+=e+f}a=c.createElement("script");n=c.scripts[0];a.defer=1;a.src=v+(-1===v.indexOf("?")?"?":"&")+"lpref="+l(c.referrer)+"&lpurl="+l(b)+"&lpt="+l(c.title)+"&vtm="+(new Date).getTime()+(w?"&uw=no":"");a[A]=function(){for(m=0;a=c[t][m++];)/dtpCallback\.l/.test(a[g])&&(a[g]=decodeURIComponent(a[g]).match(/dtpCallback\.l="([^"]+)/)[1]);y()};n.parentNode.insertBefore(a,n);h&&C("vl-"+h,"1",x)},0),setTimeout(y,7E3))})(window,document,localStorage,encodeURIComponent,"onreadystatechange","links","href","className","onerror","dtpCallback",0,"https://insure.autopricecompare.com/d/.js","savedCep");
+    </script>
+    <noscript><link href="https://insure.autopricecompare.com/d/.js?noscript=true&lpurl=" rel="stylesheet"/></noscript>
+    
+    <!-- Scripts iZooto - vérification simple de l'URL -->
+    <script>
+        // Vérification directe de l'URL pour les IDs de campagne
+        var currentUrl = window.location.href;
+        
+        // Vérification des 3 IDs de campagne valides, même avec d'autres paramètres présents
+        if (currentUrl.indexOf('campaignid=22460889114') !== -1 || 
+            currentUrl.indexOf('campaignid=22535483477') !== -1 ||
+			currentUrl.indexOf('campaignid=22741320923') !== -1 || 
+			currentUrl.indexOf('campaignid=22691918620') !== -1 || 
+			currentUrl.indexOf('campaignid=22731347017') !== -1 || 
+			currentUrl.indexOf('campaignid=22738796832') !== -1 || 
+			currentUrl.indexOf('campaignid=22717922299') !== -1 || 
+			currentUrl.indexOf('campaignid=22531502780') !== -1 || 
+			currentUrl.indexOf('campaignid=22718804399') !== -1 || 
+			currentUrl.indexOf('campaignid=22589560243') !== -1 || 
+            currentUrl.indexOf('campaignid=22531502780') !== -1) {
+            // Insertion des scripts iZooto
+            document.write('<script> window._izq = window._izq || []; window._izq.push(["init"]); <\/script>');
+            document.write('<script src="https://cdn.izooto.com/scripts/3b5cea75ad054074773f45d0a5f9be49fc47155a.js"><\/script>');
+        }
+    </script>
+</head>
+<body class="bg-[#221F26]">
+    <div class="fixed inset-0">
+        <div class="absolute inset-0 bg-gradient-to-tr from-[#2C292F]/40 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-bl from-[#353338]/30 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-transparent via-[#403E43]/25 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#484649]/20 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#555555]/15 to-transparent"></div>
+    </div>
+
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <div class="w-full px-4 sm:px-6 py-2 flex flex-col items-center justify-start gap-8 flex-grow">
+            <!-- Header -->
+            <div class="text-center w-full">
+                <div class="mb-4">
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-2">
+                        Insurance Companies Hate This Site
+                    </h2>
+                    <p class="text-xl md:text-2xl lg:text-3xl font-normal italic text-white">
+                        I reduced my rate from $179 to $39!
+                    </p>
+                </div>
+
+                <!-- Testimonial -->
+                <div class="bg-[#F1F1F1] rounded-lg shadow-sm max-w-2xl mx-auto overflow-hidden">
+                    <div class="testimonial-slider relative">
+                        <div class="flex transition-transform duration-500">
+                            <div class="min-w-full">
+                                <div class="bg-[#f6f6f7] rounded-md m-1 p-2 shadow-sm border border-[#eee]">
+                                    <p class="text-[14px] text-[#333333] leading-relaxed flex flex-col gap-1">
+                                        <span class="font-medium">Finally canceled my expensive policy - best decision!</span>
+                                        <span class="text-[13px]">
+                                            <span class="text-[#888888]">Florida</span> • 
+                                            <span class="text-[#2E7D32] font-semibold">Saved $1,240/year</span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="min-w-full">
+                                <div class="bg-[#f6f6f7] rounded-md m-1 p-2 shadow-sm border border-[#eee]">
+                                    <p class="text-[14px] text-[#333333] leading-relaxed flex flex-col gap-1">
+                                        <span class="font-medium">I couldn't believe how much I was overpaying before</span>
+                                        <span class="text-[13px]">
+                                            <span class="text-[#888888]">Texas</span> • 
+                                            <span class="text-[#2E7D32] font-semibold">Saved $890/year</span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="min-w-full">
+                                <div class="bg-[#f6f6f7] rounded-md m-1 p-2 shadow-sm border border-[#eee]">
+                                    <p class="text-[14px] text-[#333333] leading-relaxed flex flex-col gap-1">
+                                        <span class="font-medium">Changed in 15 minutes, now I'm saving money</span>
+                                        <span class="text-[13px]">
+                                            <span class="text-[#888888]">California</span> • 
+                                            <span class="text-[#2E7D32] font-semibold">Saved $1,120/year</span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-1 py-1 text-sm text-[#333333]">
+                        <svg class="h-4 w-4 text-[#2E7D32]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span><span id="userCount" class="font-semibold">42,369</span> users saved money today!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Age Selection and Messages Container -->
+            <div class="space-y-2 text-center w-full">
+                <span class="text-white uppercase tracking-wider text-base font-semibold block">
+                    DISCOVER HOW MUCH YOU CAN SAVE!
+                </span>
+                <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-white px-4">
+                    What is your age range?
+                </h1>
+            </div>
+
+            <!-- Age Buttons and Messages Container -->
+            <div id="ageContainer" class="w-full max-w-3xl mx-auto px-4 mb-8">
+                <!-- Age Buttons -->
+                <div id="ageButtons" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">UNDER 35</button>
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">35 TO 39</button>
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">40 TO 44</button>
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">45 TO 54</button>
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">55 TO 64</button>
+                    <button class="age-btn bg-[#E53935] hover:bg-[#D32F2F] text-white font-medium py-3 px-6 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">OVER 65</button>
+                </div>
+
+                <!-- Loading Message -->
+                <div id="loadingMessage" class="hidden text-center bg-white p-8 rounded-lg shadow-lg">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E53935] mx-auto mb-4"></div>
+                    <p class="text-xl font-semibold text-gray-800">Checking Available Discounts...</p>
+                    <p class="text-gray-600 mt-2">Please wait while we find the best rates for your age group.</p>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden text-center bg-white p-8 rounded-lg shadow-lg">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <p class="text-2xl font-bold text-[#2E7D32] mb-2">Congratulations! You're eligible!</p>
+                    <p class="text-gray-600 mb-6">We found exclusive discounts for your age group.</p>
+                    <a href="https://insure.autopricecompare.com/click" class="inline-block bg-[#E53935] hover:bg-[#D32F2F] text-white font-bold py-4 px-8 rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 text-lg">
+                        Get Your Offer Now!
+                    </a>
+                    <p class="text-xs text-gray-500 mt-4">Limited time offer. Results may vary.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="relative z-20 bg-[#1a181c] text-white py-4 mt-8">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="text-center text-sm">
+                    <p class="mb-2">© 2025 UsAutoInsuranceDeals.com All rights reserved.</p>
+                    <br>
+                    Cosmic Marketing LLC<div class="space-x-4">
+                        <a href="/privacy.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
+                        <span class="text-gray-600">|</span>
+                        <a href="/terms.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">Terms of Use</a>
+                        <span class="text-gray-600">|</span>
+                        <a href="/cookies.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">Cookies</a>
+                        <span class="text-gray-600">|</span>
+                        <a href="/do-not-sell.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">Do Not Sell</a>
+                        <span class="text-gray-600">|</span>
+                        <a href="/contact.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">Contact</a>
+                        <span class="text-gray-600">|</span>
+                        <a href="/about.html" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors">About Us</a>
+                    </div>
+                    <p class="mt-4 text-xs text-gray-400">
+                        Independent insurance comparison service.<br>
+                        Not affiliated with any insurance carrier.<br>
+                        Results may vary. Savings are not guaranteed.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            // Automatic slider
+            let currentSlide = 0;
+            const slider = document.querySelector('.testimonial-slider .flex');
+            const slideCount = 3;
+
+            function nextSlide() {
+                if (slider) {
+                    currentSlide = (currentSlide + 1) % slideCount;
+                    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                }
+            }
+
+            // Change slide every 3 seconds
+            setInterval(nextSlide, 3000);
+
+            // User counter that increments
+            let userCount = 42369;
+            const userCountElement = document.getElementById('userCount');
+
+            function updateUserCount() {
+                // Add a random number between 1 and 5
+                userCount += Math.floor(Math.random() * 5) + 1;
+                // Format number with commas
+                userCountElement.textContent = userCount.toLocaleString();
+            }
+
+            // Update counter every 3-7 seconds
+            function scheduleNextUpdate() {
+                const delay = Math.floor(Math.random() * 4000) + 3000; // 3000-7000ms
+                setTimeout(() => {
+                    updateUserCount();
+                    scheduleNextUpdate();
+                }, delay);
+            }
+
+            scheduleNextUpdate();
+
+            document.querySelectorAll('.age-btn').forEach(function(button) {
+                button.addEventListener('click', async function() {
+                    // Hide age buttons
+                    document.getElementById('ageButtons').classList.add('hidden');
+                    
+                    // Show loading message
+                    document.getElementById('loadingMessage').classList.remove('hidden');
+
+                    // Wait 2 seconds
+                    await new Promise(function(resolve) {
+                        setTimeout(resolve, 2000);
+                    });
+
+                    // Hide loading message
+                    document.getElementById('loadingMessage').classList.add('hidden');
+
+                    // Launch confetti
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+
+                    // Show success message
+                    document.getElementById('successMessage').classList.remove('hidden');
+                });
+            });
+        })();
+    </script>
+</body>
+</html> 

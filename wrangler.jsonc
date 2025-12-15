@@ -7,22 +7,41 @@
 	"name": "tracked-dispatcher",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-03",
+	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
 		"enabled": false
-	},
-	"placement": { 
-		"mode": "smart" 
 	},
     "kv_namespaces": [
         {
             "binding": "KV",
-            "id": "28dd0b8816c449998ebc69f808d43399"
+            "id": "28dd0b8816c449998ebc69f808d43399",
+			"remote": true,
         }
     ],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "b",
+			"database_id": "15e679f1-978b-48a2-9936-6864247efe68",
+			"remote": true
+		}
+	],
+	"hyperdrive": [
+		{
+		  "binding": "HYPERDRIVE",
+		  "id": "2e0f2776762e4228ba70854a0d194e17",
+	
+		  // Optional. Can be used to connect to a local database for local development
+		  "localConnectionString": "postgresql://user:password@localhost:5432/databasename"
+		}
+	  ],	
 	"vars": {
+		"PLANETSCALE_HOST": "us-east-2.pg.psdb.cloud",
+		"PLANETSCALE_USERNAME": "postgres.3240yxz1dcsc",
+		"PLANETSCALE_API_URL": "",
 		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare, inside React Router!"
 	},
-	"assets": { "directory": "./public", "binding": "ASSETS" }
+	"assets": { "directory": "./public", "binding": "ASSETS" },
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

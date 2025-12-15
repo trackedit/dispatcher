@@ -1,33 +1,502 @@
 import { env } from "cloudflare:workers";
 
+// Type for click data returned from database lookup
+interface ClickDataResult {
+  click_id: string;
+  impression_id: string | null;
+  session_id: string;
+  campaign_id: string;
+}
+
+// Helper to extract landing page info from finalAction
+function extractLandingPageInfo(finalAction: { type: string; payload: string | any[] }): { landingPage: string | null; landingPageMode: 'hosted' | 'proxy' | 'redirect' | null } {
+  if (finalAction.type === 'modifications') {
+    // Modifications use the origin URL as the landing page
+    return { landingPage: null, landingPageMode: null }; // Will be set from origin URL in call site
+  } else if (finalAction.type === 'proxy') {
+    return { landingPage: typeof finalAction.payload === 'string' ? finalAction.payload : null, landingPageMode: 'proxy' };
+  } else if (finalAction.type === 'redirect') {
+    return { landingPage: typeof finalAction.payload === 'string' ? finalAction.payload : null, landingPageMode: 'redirect' };
+  } else if (finalAction.type === 'folder') {
+    return { landingPage: typeof finalAction.payload === 'string' ? finalAction.payload : null, landingPageMode: 'hosted' };
+  }
+  return { landingPage: null, landingPageMode: null };
+}
+
+// Helper to look up landing page from impression (for clicks)
+async function getLandingPageFromImpression(impressionId: string): Promise<{ landingPage: string | null; landingPageMode: 'hosted' | 'proxy' | 'redirect' | null; queryParams: Record<string, string> | null } | null> {
+  const hyperdrive = (env as any).HYPERDRIVE;
+  if (!hyperdrive) {
+    return null; // Can't look up without Hyperdrive
+  }
+  
+  try {
+    const { Client } = await import('pg');
+    const client = new Client({
+      connectionString: hyperdrive.connectionString,
+      ssl: { rejectUnauthorized: false }
+    });
+    await client.connect();
+    
+    try {
+      const result = await client.query(
+        'SELECT landing_page, landing_page_mode, query_params FROM events WHERE event_id = $1 AND is_impression = true LIMIT 1',
+        [impressionId]
+      );
+      
+      await client.end();
+      
+      if (result.rows.length > 0) {
+        const row = result.rows[0];
+        let queryParams: Record<string, string> | null = null;
+        
+        // Parse query_params JSON if it exists
+        if (row.query_params) {
+          try {
+            queryParams = typeof row.query_params === 'string' 
+              ? JSON.parse(row.query_params) 
+              : row.query_params;
+          } catch (e) {
+            console.error(`Failed to parse query_params for impression ${impressionId}:`, e);
+          }
+        }
+        
+        return {
+          landingPage: row.landing_page || null,
+          landingPageMode: row.landing_page_mode || null,
+          queryParams: queryParams || null,
+        };
+      }
+    } catch (queryError: any) {
+      await client.end();
+      throw queryError;
+    }
+  } catch (error: any) {
+    console.error(`Failed to look up landing page for impression ${impressionId}:`, error.message);
+  }
+  return null;
+}
+
+// PlanetScale client helper (using Hyperdrive + pg)
+// Unified events table storage
+async function storeInPlanetScale(data: Record<string, any>): Promise<void> {
+  const hyperdrive = (env as any).HYPERDRIVE;
+  if (!hyperdrive) {
+    console.error('PlanetScale not configured - HYPERDRIVE binding not found');
+    return;
+  }
+  
+  try {
+    const { Client } = await import('pg');
+    const client = new Client({
+      connectionString: hyperdrive.connectionString,
+      ssl: { rejectUnauthorized: false }
+    });
+    await client.connect();
+    
+    try {
+      const eventType = data.is_conversion ? 'conversion' : data.is_click ? 'click' : 'impression';
+      console.log(`[PSQL] inserting ${eventType}`, data.event_id);
+      
+      await client.query(`
+        INSERT INTO events (
+          event_id, session_id, campaign_id, is_impression, is_click, is_conversion,
+          domain, path, ip, country, city, continent, latitude, longitude, region, region_code,
+          postal_code, timezone, device, browser, browser_version, os, os_version, brand,
+          referrer, query_params, rule_key, landing_page, landing_page_mode,
+          user_agent_raw, asn, as_organization, colo, client_trust_score,
+          http_protocol, tls_version, tls_cipher,
+          destination_url, destination_id, matched_flags, platform_id, platform_click_id,
+          click_id, payout, conversion_type, postback_data
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+          $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29,
+          $30, $31, $32, $33, $34, $35, $36, $37,
+          $38, $39, $40, $41, $42, $43, $44, $45, $46
+        )
+        ON CONFLICT (event_id) DO NOTHING
+      `, [
+        data.event_id, data.session_id, data.campaign_id,
+        data.is_impression || false, data.is_click || false, data.is_conversion || false,
+        data.domain || null, data.path, data.ip || null, data.country || null,
+        data.city || null, data.continent || null, data.latitude || null, data.longitude || null,
+        data.region || null, data.region_code || null, data.postal_code || null,
+        data.timezone || null, data.device || null, data.browser || null,
+        data.browser_version || null, data.os || null, data.os_version || null,
+        data.brand || null, data.referrer || null, data.query_params || null,
+        data.rule_key, data.landing_page || null, data.landing_page_mode || null,
+        data.user_agent_raw || null, data.asn || null, data.as_organization || null,
+        data.colo || null, data.client_trust_score || null, data.http_protocol || null,
+        data.tls_version || null, data.tls_cipher || null,
+        data.destination_url || null, data.destination_id || null, data.matched_flags || null,
+        data.platform_id || null, data.platform_click_id || null,
+        data.click_id || null, data.payout || null, data.conversion_type || null,
+        data.postback_data || null
+      ]);
+      
+      await client.end();
+    } catch (queryError: any) {
+      await client.end();
+      throw queryError;
+    }
+  } catch (error: any) {
+    console.error(`Exception storing event in PlanetScale:`, error.message);
+  }
+}
+
+// Unified event storage function
+// Replaces separate storeImpression/storeClick functions
+async function storeEvent(data: {
+  eventId: string;
+  sessionId: string;
+  campaignId: string;
+  isImpression: boolean;
+  isClick: boolean;
+  domain: string | null;
+  path: string;
+  landingPage: string | null;
+  landingPageMode: 'hosted' | 'proxy' | 'redirect' | null;
+  ip: string | null;
+  country: string | null;
+  city: string | null;
+  continent: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  region: string | null;
+  regionCode: string | null;
+  postalCode: string | null;
+  timezone: string | null;
+  device: string | null;
+  browser: string | null;
+  browserVersion: string | null;
+  os: string | null;
+  osVersion: string | null;
+  brand: string | null;
+  referrer: string | null;
+  queryParams: Record<string, string>;
+  ruleKey: string;
+  userAgentRaw: string | null;
+  asn: number | null;
+  asOrganization: string | null;
+  colo: string | null;
+  clientTrustScore: number | null;
+  httpProtocol: string | null;
+  tlsVersion: string | null;
+  tlsCipher: string | null;
+  // Click-specific fields (optional)
+  destinationUrl?: string | null;
+  destinationId?: string | null;
+  matchedFlags?: string[];
+  platformId?: string | null;
+  platformClickId?: string | null;
+}): Promise<void> {
+  // GUARD: Reject orphan events without a valid campaign_id
+  if (!data.campaignId || data.campaignId.trim() === '') {
+    const eventType = data.isClick ? 'click' : 'impression';
+    console.warn(`[STORE] Rejecting orphan ${eventType} - no campaign_id provided`, { eventId: data.eventId, sessionId: data.sessionId });
+    return;
+  }
+  
+  const eventType = data.isImpression && data.isClick ? 'impression+click' : data.isClick ? 'click' : 'impression';
+  console.log(`[STORE] Storing ${eventType} for session`, data.sessionId, 'campaign', data.campaignId, 'eventId', data.eventId);
+  
+  // Store in PlanetScale events table
+  await storeInPlanetScale({
+    event_id: data.eventId,
+    session_id: data.sessionId,
+    campaign_id: data.campaignId,
+    is_impression: data.isImpression,
+    is_click: data.isClick,
+    is_conversion: false,
+    domain: data.domain || null,
+    path: data.path,
+    landing_page: data.landingPage || null,
+    landing_page_mode: data.landingPageMode || null,
+    ip: data.ip || null,
+    country: data.country || null,
+    city: data.city || null,
+    continent: data.continent || null,
+    latitude: data.latitude ? parseFloat(data.latitude) : null,
+    longitude: data.longitude ? parseFloat(data.longitude) : null,
+    region: data.region || null,
+    region_code: data.regionCode || null,
+    postal_code: data.postalCode || null,
+    timezone: data.timezone || null,
+    device: data.device || null,
+    browser: data.browser || null,
+    browser_version: data.browserVersion || null,
+    os: data.os || null,
+    os_version: data.osVersion || null,
+    brand: data.brand || null,
+    referrer: data.referrer || null,
+    query_params: JSON.stringify(data.queryParams),
+    rule_key: data.ruleKey,
+    user_agent_raw: data.userAgentRaw || null,
+    asn: data.asn || null,
+    as_organization: data.asOrganization || null,
+    colo: data.colo || null,
+    client_trust_score: data.clientTrustScore || null,
+    http_protocol: data.httpProtocol || null,
+    tls_version: data.tlsVersion || null,
+    tls_cipher: data.tlsCipher || null,
+    destination_url: data.destinationUrl || null,
+    destination_id: data.destinationId || null,
+    matched_flags: data.matchedFlags ? JSON.stringify(data.matchedFlags) : null,
+    platform_id: data.platformId || null,
+    platform_click_id: data.platformClickId || null,
+  });
+}
+
+export async function storeConversion(data: {
+  conversionId: string;
+  clickId: string;
+  impressionId: string;
+  sessionId: string;
+  campaignId: string;
+  payout: number;
+  conversionType: string;
+  postbackData: Record<string, string>;
+}): Promise<void> {
+  // Store conversion as event in PlanetScale
+  console.log('[PSQL] inserting conversion', data.conversionId, 'for click', data.clickId);
+  await storeInPlanetScale({
+    event_id: data.conversionId,
+    session_id: data.sessionId || null,
+    campaign_id: data.campaignId || null,
+    is_impression: false,
+    is_click: false,
+    is_conversion: true,
+    click_id: data.clickId,  // Links to the click event
+    payout: data.payout,
+    conversion_type: data.conversionType,
+    postback_data: JSON.stringify(data.postbackData),
+    // Minimal metadata - most fields are null for conversions
+    domain: null,
+    path: null,
+    query_params: null,
+    rule_key: null,
+  });
+}
+
+// Query PlanetScale for click data (for postback lookup)
+export async function getClickData(clickId: string): Promise<ClickDataResult | null> {
+  const hyperdrive = (env as any).HYPERDRIVE;
+  if (!hyperdrive) {
+    console.error('PlanetScale not configured - HYPERDRIVE binding not found');
+    return null;
+  }
+
+  try {
+    const { Client } = await import('pg');
+    const client = new Client({
+      connectionString: hyperdrive.connectionString,
+      ssl: { rejectUnauthorized: false }
+    });
+    await client.connect();
+
+    try {
+      // Query events table for click event
+      const result = await client.query(
+        `SELECT event_id, session_id, campaign_id, is_impression, platform_id, platform_click_id 
+         FROM events 
+         WHERE event_id = $1 AND is_click = true
+         LIMIT 1`,
+        [clickId]
+      );
+      await client.end();
+      
+      if (result.rows && result.rows.length > 0) {
+        const row = result.rows[0];
+        // For redirect campaigns: impression and click are same event_id
+        // For folder/proxy campaigns: click is separate event, impression_id would be different
+        return {
+          click_id: row.event_id,
+          impression_id: row.is_impression ? row.event_id : null,  // Same if redirect, null if separate click
+          session_id: row.session_id,
+          campaign_id: row.campaign_id,
+        };
+      }
+      return null;
+    } catch (queryError: any) {
+      await client.end();
+      throw queryError;
+    }
+  } catch (error: any) {
+    console.error(`Exception querying PlanetScale for click ${clickId}:`, error.message);
+    return null;
+  }
+}
+
+// D1 Database functions for campaign lookups
+async function getCampaignIdFromRuleKey(ruleKey: string): Promise<string | null> {
+  try {
+    const db = (env as any).DB; // D1 database binding
+    if (!db) {
+      console.error('D1 database not configured');
+      return null;
+    }
+
+    const result = await db.prepare(
+      'SELECT id FROM campaigns WHERE kv_key = ? LIMIT 1'
+    ).bind(ruleKey).first() as { id: string } | null;
+
+    return result?.id || null;
+  } catch (error: any) {
+    console.error(`Exception looking up campaign for rule key ${ruleKey}:`, error.message);
+    return null;
+  }
+}
+
+// In-memory cache for destination URLs (per-isolate, resets on deploy)
+// Stores url, updated_at timestamp, and cache timestamp for invalidation
+const destinationUrlCache = new Map<string, { url: string | null; updatedAt: number; cacheTimestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL (fallback)
+
+// D1 Database function to lookup destination URL by UUID
+// Cached to reduce D1 lookups, but invalidates immediately if destination was updated
+async function getDestinationUrl(destinationId: string, c?: any): Promise<string | null> {
+  try {
+    const db = (env as any).DB; // D1 database binding
+    if (!db) {
+      console.error('D1 database not configured');
+      return null;
+    }
+
+    // Check cache first
+    const cached = destinationUrlCache.get(destinationId);
+    if (cached) {
+      // Fast path: if cache is very recent (< 100ms), use it without checking updated_at
+      // This handles same-request scenarios (e.g., multiple rules using same destination)
+      const cacheAge = Date.now() - cached.cacheTimestamp;
+      if (cacheAge < 100) {
+        return cached.url;
+      }
+      
+      // Check if destination was updated since we cached it
+      // This ensures changes apply immediately (within ~100ms)
+      // Lightweight query - only fetches updated_at (single integer field)
+      const currentUpdatedAt = await db.prepare(
+        'SELECT updated_at FROM destinations WHERE id = ? LIMIT 1'
+      ).bind(destinationId).first() as { updated_at: number } | null;
+      
+      if (currentUpdatedAt && currentUpdatedAt.updated_at === cached.updatedAt) {
+        // Destination hasn't changed, use cache and refresh cache timestamp
+        cached.cacheTimestamp = Date.now();
+        return cached.url;
+      }
+      // Destination was updated, cache is invalid - will refetch below
+    }
+
+    // Fetch fresh data (either cache miss or cache invalidated)
+    const result = await db.prepare(
+      'SELECT url, updated_at FROM destinations WHERE id = ? AND status = ? LIMIT 1'
+    ).bind(destinationId, 'active').first() as { url: string; updated_at: number } | null;
+
+    const url = result?.url || null;
+    const updatedAt = result?.updated_at || 0;
+    
+    // Cache the result with updated_at timestamp for future invalidation checks
+    destinationUrlCache.set(destinationId, { 
+      url, 
+      updatedAt, 
+      cacheTimestamp: Date.now() 
+    });
+
+    return url;
+  } catch (error: any) {
+    console.error(`Exception looking up destination URL for ${destinationId}:`, error.message);
+    // Cache null result to avoid repeated failures
+    destinationUrlCache.set(destinationId, { 
+      url: null, 
+      updatedAt: 0, 
+      cacheTimestamp: Date.now() 
+    });
+    return null;
+  }
+}
+
 export interface RuleFlags {
-  country?: string;      // Country code that must match
-  language?: string;     // Browser language that must match
+  country?: string | string[];      // Country code(s) that must match (OR if array)
+  language?: string | string[];     // Browser language(s) (OR if array)
   time?: {
-    start: number;       // UTC hour (0-23)
-    end: number;         // UTC hour (0-23)
+    start: number;       // UTC hour (0-23) or decimal (e.g., 9.5 = 9:30)
+    end: number;         // UTC hour (0-23) or decimal (e.g., 17.5 = 17:30)
   };
-  params?: {             // URL parameters that must match
+  params?: {             // URL parameters that must all match (AND)
     [key: string]: string;
   };
-  device?: string;       // Device type that must match
-  browser?: string;      // Browser that must match
-  os?: string;          // OS that must match
-  brand?: string;       // Device brand that must match (Apple, Samsung, etc)
-  region?: string;      // Region/state that must match
-  org?: string;         // Organization wildcard to match (NEW)
+  device?: string | string[];       // Device type(s)
+  browser?: string | string[];      // Browser(s)
+  os?: string | string[];          // OS name(s) (substring match)
+  brand?: string | string[];       // Device brand(s)
+  region?: string | string[];      // Region/state code(s)
+  org?: string | string[];         // Organization wildcard(s)
+  city?: string | string[];        // City name(s)
+  continent?: string | string[];   // Continent(s)
+  asn?: number | number[];         // ASN or list of ASNs
+  colo?: string | string[];        // Cloudflare datacenter(s)
+  ip?: string | string[];          // IP(s), range(s), or CIDR(s)
+}
+
+/**
+ * Delivery mode for destinations:
+ * - 'hosted': Serve from local assets on the platform (folder path like "campaigns/offer1")
+ * - 'proxy': Fetch and serve from external URL (address bar unchanged, cloaked)
+ * - 'redirect': HTTP 302 redirect to external URL with macro replacement
+ */
+export type DestinationMode = 'hosted' | 'proxy' | 'redirect';
+
+export interface Destination {
+  id: string;
+  value: string;           // Folder path or URL
+  weight: number;          // Traffic weight (1-100)
+  mode?: DestinationMode;  // How to serve this destination (inferred from value if not set)
 }
 
 export interface Rule {
-  flags: RuleFlags;     // All conditions that must match
-  folder?: string;       // Folder to serve if ALL flags match
-  fetchUrl?: string;    // URL to fetch if ALL flags match
+  flags?: RuleFlags;     // Conditions to match (legacy single-group)
+  groups?: RuleFlags[];  // OR of groups; within each group, flags AND
+  
+  // --- ONE of the following actions ---
+  folder?: string;           // ACTION 1 (legacy): Serve a page you uploaded to our platform.
+  modifications?: Modification[]; // ACTION 2: Modify the user's current page.
+  redirectUrl?: string;      // ACTION 3 (legacy): Redirect the user to a different URL.
+  proxyUrl?: string;         // ACTION 4 (legacy): Seamlessly serve a different page (address bar does NOT change)
+  fetchUrl?: string;         // Legacy alias for proxyUrl (backward compatibility)
+  destinations?: Destination[];  // ACTION 5 (modern): Multiple weighted destinations with explicit mode
+  // ---
+
+  // --- Click-out handling (for paths ending with /click) ---
+  clickUrl?: string;         // Single URL to redirect to when path ends with /click (backward compat, no D1 lookup)
+  clickDestinations?: Array<{ // Multiple weighted click-out destinations (weighted split)
+    id: string;              // Destination UUID (lookup URL from D1)
+    weight: number;         // Relative weight (doesn't need to sum to 100)
+    // NOTE: URL is stored in D1 destinations table, not in KV
+  }>;
+  // ---
+
   variables?: Record<string, string>; // Optional macros to replace in HTML
+  operator?: 'AND' | 'OR'; // How to combine multiple flags (NOT YET IMPLEMENTED - always uses AND)
+  weight?: number;      // Traffic split percentage (1-100) - used when multiple rules match
+}
+
+export interface Modification {
+  selector: string; // CSS selector (e.g., '#headline', '.cta-button')
+  action: 'setText' | 'setHtml' | 'setCss' | 'setAttribute' | 'remove';
+  value: string | Record<string, string>; // The new content, style, or attribute
 }
 
 export interface KVRule {
+  id?: string;                  // Campaign ID (UUIDv7) - stored in KV for fast tracking
+  name?: string;                 // Campaign name (denormalized from D1 for macro access)
+  siteName?: string;             // Site name (optional, denormalized from D1)
   rules: Rule[];                // List of rules to check in order
-  defaultFolder: string;        // Default folder if no rules match
+  defaultFolder?: string;       // Default folder/URL if no rules match (mutually exclusive with destinationId)
+  destinationId?: string;        // Destination ID to lookup from D1 (mutually exclusive with defaultFolder)
+  defaultFolderMode?: 'hosted' | 'proxy' | 'redirect';  // How to serve defaultFolder:
+                                // 'hosted' = serve from local assets (default for paths without http)
+                                // 'proxy' = fetch and serve from external URL (address bar unchanged)
+                                // 'redirect' = HTTP redirect to external URL with macro replacement
   variables?: Record<string, string>; // Default macros for default folder
   blocks?: BlockRules;         // Blocking rules (always serve defaultFolder)
 }
@@ -40,6 +509,9 @@ export interface RequestData {
   ip: string | null;
   org: string | null;
   referrer?: string | null;
+  isEmbedRequest?: boolean;
+  sessionId?: string;      // Fingerprint-based stable ID (generated per request)
+  impressionId?: string;   // Unique ID for page view (generated per request)
   userAgent: {
     browser: string | null;    // "Chrome", "Firefox", etc
     browserVersion: string | null;
@@ -69,6 +541,10 @@ export interface RequestData {
     tlsVersion: string | null;
     tlsCipher: string | null;
   };
+}
+
+export interface ExtendedRequestData extends RequestData {
+  isEmbedRequest?: boolean;
 }
 
 async function serveRemoteFile(c: any, url: string, data: RequestData, reason: string, variables?: Record<string, string>): Promise<Response> {
@@ -102,12 +578,104 @@ async function serveRemoteFile(c: any, url: string, data: RequestData, reason: s
   }
 }
 
+async function serveAsJavaScript(c: any, data: ExtendedRequestData, reason: string, ruleVariables: Record<string, string> | undefined, options: { targetFolder?: string, fetchUrl?: string }): Promise<Response> {
+  let content: string;
+  let response: Response | undefined;
+
+  const allReplaceableVariables = populateMacros(data, ruleVariables);
+
+  if (options.targetFolder) {
+    if (options.targetFolder.startsWith('http')) {
+      const proxyData = { ...data, path: '/' };
+      response = await handleInitialProxyRequest(c, options.targetFolder, proxyData, `JS Embed: ${reason}`, ruleVariables);
+      content = await response.text();
+    } else {
+      const normalizedBaseDir = options.targetFolder.replace(/^\/+/, '').replace(/\/+$/, '');
+      const fullAssetPath = `${normalizedBaseDir}/index.html`;
+      try {
+        const assetUrl = new URL(`/${fullAssetPath}`, c.req.url);
+        const assetRequest = new Request(assetUrl.toString());
+        const assetResponse = await env.ASSETS.fetch(assetRequest);
+        if (!assetResponse.ok) throw new Error(`Asset not found: ${fullAssetPath}`);
+        content = await assetResponse.text();
+        content = replaceMacros(content, allReplaceableVariables);
+      } catch (e: any) {
+        console.error(`JS Embed: Failed to serve public file ${fullAssetPath}: ${e.message}`);
+        content = `<h1>Error: Content not available</h1>`;
+      }
+    }
+  } else if (options.fetchUrl) {
+    response = await serveRemoteFile(c, options.fetchUrl, data, `JS Embed: ${reason}`, ruleVariables);
+    content = await response.text();
+  } else {
+    return new Response("/* Tracked: No content to serve. */", { headers: { 'Content-Type': 'application/javascript' } });
+  }
+
+  const contentType = response ? response.headers.get('content-type') || '' : 'text/html';
+
+  if (contentType.includes('javascript')) {
+    return new Response(content, { headers: { 'Content-Type': 'application/javascript; charset=utf-8' } });
+  }
+
+  const escapedContent = JSON.stringify(content);
+  const jsPayload = `
+    (function() {
+      try {
+        document.open('text/html', 'replace');
+        document.write(${escapedContent});
+        document.close();
+      } catch (e) {
+        console.error('Tracked script failed:', e);
+      }
+    })();
+  `;
+
+  return new Response(jsPayload, { headers: { 'Content-Type': 'application/javascript; charset=utf-8' } });
+}
+
 // Helper function to serve a local file from /public
 async function servePublicFile(c: any, baseDir: string, data: RequestData, reason: string, variables?: Record<string, string>): Promise<Response> {
   console.log("SERVE_PUBLIC_FILE_CALLED: baseDir=", baseDir, "path=", data.path, "reason=", reason);
   
   // Normalize the base directory: remove leading/trailing slashes for consistency
   let normalizedBaseDir = baseDir.replace(/^\/+/, '').replace(/\/+$/, '');
+  const cleanBaseLastSegment = normalizedBaseDir.split('?')[0].split('#')[0];
+
+  // Helper: get extension of a path
+  const getExt = (p: string): string => {
+    const last = p.split('/').pop() || '';
+    const parts = last.split('.');
+    if (parts.length <= 1) return '';
+    return parts.pop()!.toLowerCase();
+  };
+
+  // If baseDir points to a specific file (e.g., folder/file.html or asset.svg), serve it directly
+  const baseExt = getExt(cleanBaseLastSegment);
+  const KNOWN_FILE_EXTS = new Set([
+    'html','htm','css','js','mjs','jsx','ts','tsx','svg','png','jpg','jpeg','gif','webp','ico','json','map','woff','woff2','ttf','otf','eot','mp4','webm','ogg','mp3','wav','pdf','txt','xml','csv','wasm','zip','gz','br','avif','heic','webmanifest'
+  ]);
+  if (baseExt && KNOWN_FILE_EXTS.has(baseExt)) {
+    const fullAssetPath = normalizedBaseDir; // exact file path under ASSETS
+    try {
+      const assetUrl = new URL(`/${fullAssetPath}`, c.req.url);
+      const assetRequest = new Request(assetUrl.toString(), { method: 'GET', headers: { 'Accept': '*/*' } });
+      const assetResponse = await env.ASSETS.fetch(assetRequest);
+      if (!assetResponse.ok) {
+        return serveNotFoundPage(c, data, `Asset not found: ${fullAssetPath}`);
+      }
+      // Macro replacement for HTML/CSS
+      if (fullAssetPath.endsWith('.html') || fullAssetPath.endsWith('.htm') || fullAssetPath.endsWith('.css')) {
+        let content = await assetResponse.text();
+        const allReplaceableVariables = populateMacros(data, variables);
+        content = replaceMacros(content, allReplaceableVariables);
+        const newHeaders = new Headers(assetResponse.headers);
+        return new Response(content, { status: assetResponse.status, statusText: assetResponse.statusText, headers: newHeaders });
+      }
+      return new Response(assetResponse.body, { status: assetResponse.status, statusText: assetResponse.statusText, headers: assetResponse.headers });
+    } catch (e) {
+      return serveNotFoundPage(c, data, `Exception serving exact file: ${fullAssetPath}`);
+    }
+  }
   
   // Get the requested path and remove any leading slash
   let requestedPath = data.path.replace(/^\/+/, '');
@@ -465,37 +1033,73 @@ export async function fetchAndStreamAsset(c: any, targetUrl: string, baseUrl: st
     });
 }
 
-function populateMacros(data: RequestData, variables?: Record<string, string>): Record<string, string> {
+interface MacroContext {
+  campaignId?: string;
+  campaignName?: string;  // Campaign name (denormalized from D1, stored in KV)
+  siteName?: string;      // Site name (optional, denormalized from D1)
+  clickId?: string;
+  impressionId?: string;
+  sessionId?: string;
+  platformId?: string;    // Platform ID (e.g., UUID for Meta)
+  platformName?: string;  // Platform name (e.g., "Meta Ads")
+  platformClickId?: string; // Platform click ID value (e.g., the actual fbclid value)
+}
+
+function populateMacros(data: RequestData, variables?: Record<string, string>, context?: MacroContext): Record<string, string> {
     const allReplaceableVariables: Record<string, string> = { ...(variables || {}) };
 
-    const addUserVariable = (key: string, value: string | number | null | undefined) => {
+    const addVariable = (key: string, value: string | number | null | undefined) => {
         allReplaceableVariables[key] = (value === null || value === undefined) ? '' : String(value);
     };
 
-    addUserVariable('user.IP', data.ip);
-    addUserVariable('user.CITY', data.geo.city);
-    addUserVariable('user.COUNTRY', data.geo.country);
-    addUserVariable('user.GEO', data.geo.country);
-    addUserVariable('user.COUNTRY_CODE', data.geo.country);
-    addUserVariable('user.REGION_NAME', data.geo.region);
-    addUserVariable('user.REGION_CODE', data.geo.regionCode);
-    addUserVariable('user.POSTAL_CODE', data.geo.postalCode);
-    addUserVariable('user.LATITUDE', data.geo.latitude);
-    addUserVariable('user.LONGITUDE', data.geo.longitude);
-    addUserVariable('user.TIMEZONE', data.geo.timezone);
-    addUserVariable('user.DEVICE', data.userAgent.device);
-    addUserVariable('user.BROWSER', data.userAgent.browser);
-    addUserVariable('user.BROWSER_VERSION', data.userAgent.browserVersion);
-    addUserVariable('user.OS', data.userAgent.os);
-    addUserVariable('user.OS_VERSION', data.userAgent.osVersion);
-    addUserVariable('user.BRAND', data.userAgent.brand);
-    addUserVariable('user.ORGANIZATION', data.org);
-    addUserVariable('user.REFERRER', data.referrer);
-    addUserVariable('user.COLO', data.cf.colo);
+    // Campaign & Tracking IDs
+    addVariable('campaign.id', context?.campaignId);
+    addVariable('campaign.ID', context?.campaignId);  // Alias
+    addVariable('campaign.name', context?.campaignName);
+    addVariable('campaign.NAME', context?.campaignName);  // Alias
+    addVariable('site.name', context?.siteName);
+    addVariable('site.NAME', context?.siteName);  // Alias
+    addVariable('click.id', context?.clickId);
+    addVariable('impression.id', context?.impressionId);
+    addVariable('session.id', context?.sessionId);
+    
+    // Platform info
+    addVariable('platform.id', context?.platformId);
+    addVariable('platform.name', context?.platformName);
+    addVariable('platform.click_id', context?.platformClickId);
 
+    // User/Visitor Data
+    addVariable('user.IP', data.ip);
+    addVariable('user.CITY', data.geo.city);
+    addVariable('user.COUNTRY', data.geo.country);
+    addVariable('user.GEO', data.geo.country);
+    addVariable('user.COUNTRY_CODE', data.geo.country);
+    addVariable('user.CONTINENT', data.geo.continent);
+    addVariable('user.REGION_NAME', data.geo.region);
+    addVariable('user.REGION_CODE', data.geo.regionCode);
+    addVariable('user.POSTAL_CODE', data.geo.postalCode);
+    addVariable('user.LATITUDE', data.geo.latitude);
+    addVariable('user.LONGITUDE', data.geo.longitude);
+    addVariable('user.TIMEZONE', data.geo.timezone);
+    addVariable('user.DEVICE', data.userAgent.device);
+    addVariable('user.BROWSER', data.userAgent.browser);
+    addVariable('user.BROWSER_VERSION', data.userAgent.browserVersion);
+    addVariable('user.OS', data.userAgent.os);
+    addVariable('user.OS_VERSION', data.userAgent.osVersion);
+    addVariable('user.BRAND', data.userAgent.brand);
+    addVariable('user.ORGANIZATION', data.org);
+    addVariable('user.REFERRER', data.referrer);
+    addVariable('user.COLO', data.cf.colo);
+    addVariable('user.ASN', data.cf.asn);
+
+    // Request context
+    addVariable('request.DOMAIN', data.domain);
+    addVariable('request.PATH', data.path);
+
+    // Query parameters (dynamic)
     if (data.query) {
         for (const [queryKey, queryValue] of Object.entries(data.query)) {
-            addUserVariable(`query.${queryKey.replace(/[^a-zA-Z0-9_]/g, '_')}`, queryValue);
+            addVariable(`query.${queryKey.replace(/[^a-zA-Z0-9_]/g, '_')}`, queryValue);
         }
     }
     return allReplaceableVariables;
@@ -549,6 +1153,94 @@ function matchWildcard(text: string | null, pattern: string): boolean {
   return regex.test(text);
 }
 
+// Fetch platform info from D1 (cached via Cache API) for a campaign
+async function getPlatformInfoForCampaign(campaignId: string | null | undefined): Promise<{ platformId: string | null; platformName: string | null; clickIdParam: string | null }> {
+  if (!campaignId) return { platformId: null, platformName: null, clickIdParam: null };
+  try {
+    const cache = caches.default;
+    const cacheKey = new Request(`https://platform-cache/campaign/${campaignId}`);
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return await cached.json();
+    }
+
+    const db = (env as any).DB;
+    if (!db) return { platformId: null, platformName: null, clickIdParam: null };
+
+    const row = await db.prepare(
+      `SELECT p.id as platformId, p.name as platformName, p.click_id_param as clickIdParam
+       FROM campaigns c
+       LEFT JOIN platforms p ON c.platform_id = p.id
+       WHERE c.id = ?
+       LIMIT 1`
+    ).bind(campaignId).first() as { platformId: string | null; platformName: string | null; clickIdParam: string | null } | null;
+
+    const result = {
+      platformId: row?.platformId || null,
+      platformName: row?.platformName || null,
+      clickIdParam: row?.clickIdParam || null,
+    };
+
+    await cache.put(
+      cacheKey,
+      new Response(JSON.stringify(result), {
+        headers: { 'Content-Type': 'application/json' },
+        cf: { cacheTtl: 900 }, // 15 minutes
+      })
+    );
+
+    return result;
+  } catch (e) {
+    console.error('getPlatformInfoForCampaign failed', e);
+    return { platformId: null, platformName: null, clickIdParam: null };
+  }
+}
+
+
+// Helper function to detect if a path is a click-out request
+function isClickOutPath(path: string): boolean {
+  // Normalize path: remove trailing slash for comparison
+  const normalized = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+  // Check if path ends with /click (case-sensitive)
+  return normalized.endsWith('/click');
+}
+
+/**
+ * Generate a stable session ID from browser fingerprint
+ * Same browser/device will get same sessionId across visits
+ */
+export function generateSessionId(data: RequestData): string {
+  // Note: Don't include tlsVersion - it differs between HTTP and HTTPS requests
+  // causing the same user to get different session IDs during HTTP->HTTPS redirect
+  const components = [
+    data.ip || 'no-ip',
+    data.userAgent.raw || '',
+    data.userAgent.browser || '',
+    data.userAgent.os || '',
+    data.headers['accept-language'] || '',
+  ];
+  const fingerprint = components.join('|');
+  
+  // Simple hash function (djb2 algorithm)
+  let hash = 5381;
+  for (let i = 0; i < fingerprint.length; i++) {
+    hash = ((hash << 5) + hash) + fingerprint.charCodeAt(i);
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  // Convert to base36 string (12 chars)
+  return Math.abs(hash).toString(36).substring(0, 12);
+}
+
+/**
+ * Generate a unique ID for events (impressions, clicks, conversions)
+ * Uses crypto.randomUUID() available in Cloudflare Workers
+ */
+export function generateUniqueId(prefix: string = ''): string {
+  const uuid = crypto.randomUUID();
+  return prefix ? `${prefix}-${uuid}` : uuid;
+}
+
 export interface BlockRules {
   orgs?: string[];      // Organization wildcards to block
   ips?: string[];       // IP ranges/wildcards to block
@@ -561,54 +1253,107 @@ export interface BlockRules {
 }
 
 // Helper function to check if a single rule's flags match the request data
-function checkSingleRule(data: RequestData, flags: RuleFlags, isAssetRequest: boolean): {
+function checkSingleRule(data: RequestData, flags: RuleFlags, isAssetRequest: boolean, _operator: 'AND' | 'OR' = 'AND'): {
   matched: boolean;
   matchedFlagsList: string[]; // Return list to allow flexible joining
 } {
-  let allFlagsMatch = true;
   const matchedFlags: string[] = [];
+  const flagChecks: boolean[] = [];
+
+  const anyOf = <T,>(candidate: T | null, expected: T | T[] | undefined, cmp: (a: T | null, b: T) => boolean): boolean => {
+    if (expected === undefined) return true;
+    if (Array.isArray(expected)) return expected.some((e) => cmp(candidate, e));
+    return cmp(candidate, expected);
+  };
 
   // Check params (sensitive to isAssetRequest)
-  // If 'params' is a flag in the rule:
-  // - If it's a main page request, the request's query params MUST match the rule's params.
-  // - If it's an asset request, this rule (with 'params') is NOT considered a match.
   if (flags.params) {
     if (!isAssetRequest) { // Main page request
+      let paramsMatch = true;
       for (const [key, value] of Object.entries(flags.params)) {
         if (data.query[key] !== value) {
-          allFlagsMatch = false;
+          paramsMatch = false;
           break;
         }
-        matchedFlags.push(`param:${key}=${value}`);
       }
+      if (paramsMatch) {
+        matchedFlags.push(`params:${Object.entries(flags.params).map(([k,v]) => `${k}=${v}`).join('&')}`);
+      }
+      flagChecks.push(paramsMatch);
     } else { // Asset request
-      allFlagsMatch = false; // Rules with params are not directly matched by asset requests
+      flagChecks.push(false); // Rules with params are not directly matched by asset requests
     }
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check country
   if (flags.country) {
-    if (data.geo.country !== flags.country) allFlagsMatch = false;
-    else matchedFlags.push(`country:${flags.country}`);
+    const countryMatch = anyOf<string>(data.geo.country, flags.country, (a, b) => a === b);
+    if (countryMatch) matchedFlags.push(`country:${Array.isArray(flags.country) ? flags.country.join('|') : flags.country}`);
+    flagChecks.push(countryMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
+  
+  // Check region
+  if (flags.region) {
+    const regionMatch = anyOf<string>(data.geo.regionCode, flags.region, (a, b) => a === b);
+    if (regionMatch) matchedFlags.push(`region:${Array.isArray(flags.region) ? flags.region.join('|') : flags.region}`);
+    flagChecks.push(regionMatch);
+  }
+
+  // Check city
+  if (flags.city) {
+    const cityMatch = anyOf<string>(data.geo.city, flags.city, (a, b) => a === b);
+    if (cityMatch) matchedFlags.push(`city:${Array.isArray(flags.city) ? flags.city.join('|') : flags.city}`);
+    flagChecks.push(cityMatch);
+  }
+
+  // Check continent
+  if (flags.continent) {
+    const continentMatch = anyOf<string>(data.geo.continent, flags.continent, (a, b) => a === b);
+    if (continentMatch) matchedFlags.push(`continent:${Array.isArray(flags.continent) ? flags.continent.join('|') : flags.continent}`);
+    flagChecks.push(continentMatch);
+  }
+
+  // Check ASN
+  if (flags.asn) {
+    const asnMatch = anyOf<number>(data.cf.asn, flags.asn, (a, b) => a === b);
+    if (asnMatch) matchedFlags.push(`asn:${Array.isArray(flags.asn) ? flags.asn.join('|') : flags.asn}`);
+    flagChecks.push(asnMatch);
+  }
+
+  // Check Cloudflare datacenter
+  if (flags.colo) {
+    const coloMatch = anyOf<string>(data.cf.colo, flags.colo, (a, b) => a === b);
+    if (coloMatch) matchedFlags.push(`colo:${Array.isArray(flags.colo) ? flags.colo.join('|') : flags.colo}`);
+    flagChecks.push(coloMatch);
+  }
+
+  // Check IP address/range
+  if (flags.ip && data.ip) {
+    const ips = Array.isArray(flags.ip) ? flags.ip : [flags.ip];
+    const ipMatch = ips.some((r) => isIpInRange(data.ip!, r));
+    if (ipMatch) matchedFlags.push(`ip:${ips.join('|')}`);
+    flagChecks.push(ipMatch);
+  } else if (flags.ip) {
+    flagChecks.push(false); // IP flag present but no IP data
+  }
   
   // Check Organization
   if (flags.org) {
-    if (!data.org || !matchWildcard(data.org, flags.org)) allFlagsMatch = false;
-    else matchedFlags.push(`org:${flags.org}`);
+    const orgs = Array.isArray(flags.org) ? flags.org : [flags.org];
+    const orgMatch = data.org ? orgs.some((p) => matchWildcard(data.org!, p)) : false;
+    if (orgMatch) matchedFlags.push(`org:${orgs.join('|')}`);
+    flagChecks.push(!!orgMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check language
   if (flags.language) {
     const acceptLang = data.headers['accept-language'] || '';
     const primaryLang = acceptLang.split(',')[0].split('-')[0].toLowerCase();
-    if (primaryLang !== flags.language) allFlagsMatch = false;
-    else matchedFlags.push(`language:${flags.language}`);
+    const expected = Array.isArray(flags.language) ? flags.language : [flags.language];
+    const languageMatch = expected.some((l) => primaryLang === l);
+    if (languageMatch) matchedFlags.push(`language:${expected.join('|')}`);
+    flagChecks.push(languageMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check time
   if (flags.time) {
@@ -627,58 +1372,61 @@ function checkSingleRule(data: RequestData, flags: RuleFlags, isAssetRequest: bo
     const endMinute = Math.round(endMinutePart * 60);
     const endTimeInMinutes = endHour * 60 + endMinute;
 
-    if (currentTimeInMinutes < startTimeInMinutes || currentTimeInMinutes >= endTimeInMinutes) {
-      allFlagsMatch = false;
-    } else {
+    const timeMatch = currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes;
+    if (timeMatch) {
       const formatTime = (h: number, m: number) => `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
       matchedFlags.push(`time:${formatTime(startHour, startMinute)}-${formatTime(endHour, endMinute)}`);
     }
+    flagChecks.push(timeMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check device
   if (flags.device) {
-    if (data.userAgent.device !== flags.device) allFlagsMatch = false;
-    else matchedFlags.push(`device:${flags.device}`);
+    const deviceMatch = anyOf<string>(data.userAgent.device, flags.device, (a, b) => a === b);
+    if (deviceMatch) matchedFlags.push(`device:${Array.isArray(flags.device) ? flags.device.join('|') : flags.device}`);
+    flagChecks.push(deviceMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check browser
   if (flags.browser) {
-    if (data.userAgent.browser !== flags.browser) allFlagsMatch = false;
-    else matchedFlags.push(`browser:${flags.browser}`);
+    const browserMatch = anyOf<string>(data.userAgent.browser, flags.browser, (a, b) => a === b);
+    if (browserMatch) matchedFlags.push(`browser:${Array.isArray(flags.browser) ? flags.browser.join('|') : flags.browser}`);
+    flagChecks.push(browserMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check OS
   if (flags.os) {
-    if (!data.userAgent.os || !data.userAgent.os.includes(flags.os)) allFlagsMatch = false;
-    else if (data.userAgent.os) matchedFlags.push(`os:${flags.os}`);
+    const expected = Array.isArray(flags.os) ? flags.os : [flags.os];
+    const osMatch = data.userAgent.os ? expected.some((e) => data.userAgent.os!.includes(e)) : false;
+    if (osMatch) matchedFlags.push(`os:${expected.join('|')}`);
+    flagChecks.push(!!osMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
 
   // Check brand
   if (flags.brand) {
-    if (data.userAgent.brand !== flags.brand) allFlagsMatch = false;
-    else matchedFlags.push(`brand:${flags.brand}`);
+    const brandMatch = anyOf<string>(data.userAgent.brand, flags.brand, (a, b) => a === b);
+    if (brandMatch) matchedFlags.push(`brand:${Array.isArray(flags.brand) ? flags.brand.join('|') : flags.brand}`);
+    flagChecks.push(brandMatch);
   }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
-
-  // Check region
-  if (flags.region) {
-    if (data.geo.regionCode !== flags.region) allFlagsMatch = false;
-    else matchedFlags.push(`region:${flags.region}`);
-  }
-  if (!allFlagsMatch) return { matched: false, matchedFlagsList: [] };
   
-  return { matched: allFlagsMatch, matchedFlagsList: matchedFlags };
+  // Across different fields we always AND; within each field, arrays were OR'ed above
+  const finalMatch = flagChecks.every(check => check);
+  
+  return { matched: finalMatch, matchedFlagsList: matchedFlags };
 }
 
-async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Response> {
+async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, ruleKey: string): Promise<Response> {
+  let selectedRule: Rule | null = null;
+  let matchedFlags: string[] = [];
   let reason = "";
-  let targetFolder = rule.defaultFolder;
-  let ruleVariables = rule.variables; // Start with default variables
-  let fetchUrl: string | undefined;
+  
+  // Generate IDs for tracking (if not already set)
+  if (!data.sessionId) {
+    data.sessionId = generateSessionId(data);
+  }
+  if (!data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+    data.impressionId = generateUniqueId('imp');
+  }
 
   // Detect if this is an asset request (not a page). Treat extensionless and non-asset extensions as pages.
   const ASSET_EXTENSIONS = new Set([
@@ -703,6 +1451,37 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
 
   // 1. Check blocks first
   if (rule.blocks) {
+    // Helper to serve default folder based on mode
+    const serveDefaultFolderForBlock = async (blockReason: string): Promise<Response> => {
+      const mode = rule.defaultFolderMode;
+      const defaultFolder = rule.defaultFolder || '';
+      const isUrl = defaultFolder.startsWith('http://') || defaultFolder.startsWith('https://');
+      
+      if (mode === 'redirect' && isUrl) {
+        const macroContext: MacroContext = {
+          campaignId: rule.id,
+          campaignName: rule.name,
+          siteName: rule.siteName,
+          sessionId: data.sessionId,
+          impressionId: data.impressionId,
+        };
+        const redirectUrl = replaceMacrosInUrl(defaultFolder, data, rule.variables, macroContext);
+        return new Response(null, { 
+          status: 302, 
+          headers: { 
+            'Location': redirectUrl,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          } 
+        });
+      } else if (mode === 'proxy' || (isUrl && mode !== 'hosted')) {
+        return handleInitialProxyRequest(c, defaultFolder, data, blockReason, rule.variables);
+      } else {
+        return servePublicFile(c, `${defaultFolder}/`, data, blockReason, rule.variables);
+      }
+    };
+
     // Check IP blocks
     if (rule.blocks.ips && data.ip) {
       for (const ipRange of rule.blocks.ips) {
@@ -717,10 +1496,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -740,10 +1516,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -763,10 +1536,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -786,10 +1556,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -810,10 +1577,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -833,10 +1597,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -856,10 +1617,7 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
@@ -879,101 +1637,969 @@ async function applyKVRule(c: any, data: RequestData, rule: KVRule): Promise<Res
               reason: reason
             }));
           }
-          if (rule.defaultFolder.startsWith('http://') || rule.defaultFolder.startsWith('https://')) {
-            return handleInitialProxyRequest(c, rule.defaultFolder, data, reason, rule.variables);
-          }
-          return servePublicFile(c, `${rule.defaultFolder}/`, data, reason, rule.variables);
+          return serveDefaultFolderForBlock(reason);
         }
       }
     }
   }
 
-  // 2. Check each rule in order - first matching rule wins (MAIN LOOP)
-  for (const ruleSet of rule.rules) {
-    const { matched, matchedFlagsList } = checkSingleRule(data, ruleSet.flags, isAssetRequest);
-    if (matched) {
-      if (ruleSet.fetchUrl) {
-        fetchUrl = ruleSet.fetchUrl;
-        targetFolder = ''; // Ensure folder is not used
-      } else if (ruleSet.folder) {
-      targetFolder = ruleSet.folder;
-        fetchUrl = undefined; // Ensure fetchUrl is not used
-      }
-      ruleVariables = ruleSet.variables || rule.variables; // Use ruleSet variables or fallback to default
-      const matchedFlagsString = matchedFlagsList.join(', ');
-      if (isAssetRequest) {
-        reason = `Asset request - matched rule directly [${matchedFlagsString}]`;
-      } else {
-        reason = `Matched rule [${matchedFlagsString}]`;
-      }
-      break; // Found a direct match
-    }
-  }
-
-  // If no direct match was found (reason is still "") and this is an asset request
-  if (reason === "" && isAssetRequest) {
-    // ASSET INHERITANCE LOGIC:
-    // For assets that didn't match directly, try matching rules again, but ignore 'params' criteria.
-    // This helps assets be served from the same folder as a page that was matched using params.
+  // 0. Handle click-out requests (paths ending with /click or /click/)
+  if (isClickOutPath(data.path)) {
+    // Find matching rules for click-out handling
+    const clickMatchingRules: Array<{ rule: Rule; matchedFlags: string[] }> = [];
     for (const ruleSet of rule.rules) {
-      const flagsWithoutParams = { ...ruleSet.flags };
-      delete flagsWithoutParams.params; // Critically, ignore 'params' for this inheritance check
-
-      // Call checkSingleRule with isAssetRequest=true (though params are deleted, other logic might use it)
-      // and the modified flags.
-      const { matched, matchedFlagsList } = checkSingleRule(data, flagsWithoutParams, true /*isAssetRequest*/);
-
-      if (matched) {
-        if (ruleSet.fetchUrl) {
-          fetchUrl = ruleSet.fetchUrl;
-          targetFolder = '';
-        } else if (ruleSet.folder) {
-        targetFolder = ruleSet.folder;
-          fetchUrl = undefined;
+      if (ruleSet.groups && ruleSet.groups.length > 0) {
+        // OR across groups
+        let groupMatched = false;
+        let matchedFlags: string[] = [];
+        for (const g of ruleSet.groups) {
+          const res = checkSingleRule(data, g, isAssetRequest, 'AND');
+          if (res.matched) {
+            groupMatched = true;
+            matchedFlags = res.matchedFlagsList;
+            break;
+          }
         }
-        ruleVariables = ruleSet.variables || rule.variables;
-        const matchedFlagsString = matchedFlagsList.join(', ');
-        reason = `Asset request - inheriting folder via rule [${matchedFlagsString}] (original rule's params ignored)`;
-        break; // Found an inheriting rule
+        if (groupMatched && (ruleSet.clickUrl || ruleSet.clickDestinations)) {
+          clickMatchingRules.push({ rule: ruleSet as Rule, matchedFlags });
+        }
+      } else {
+        const { matched, matchedFlagsList } = checkSingleRule(data, (ruleSet.flags || {}) as RuleFlags, isAssetRequest, ruleSet.operator);
+        if (matched && (ruleSet.clickUrl || ruleSet.clickDestinations)) {
+          clickMatchingRules.push({ rule: ruleSet, matchedFlags: matchedFlagsList });
+        }
+      }
+    }
+
+    if (clickMatchingRules.length > 0) {
+      // Select one rule based on weights (if multiple match)
+      const totalWeight = clickMatchingRules.reduce((sum, mr) => sum + (mr.rule.weight || 100), 0);
+      const random = Math.random() * totalWeight;
+      let currentWeight = 0;
+      let selectedClickRule: Rule | null = null;
+      let selectedClickFlags: string[] = [];
+      
+      for (const mr of clickMatchingRules) {
+        currentWeight += (mr.rule.weight || 100);
+        if (random <= currentWeight) {
+          selectedClickRule = mr.rule;
+          selectedClickFlags = mr.matchedFlags;
+          break;
+        }
+      }
+
+      if (selectedClickRule) {
+        let clickDestination: string | null = null;
+        let destinationId: string | null = null;
+
+        // Handle clickDestinations array (weighted split)
+        if (selectedClickRule.clickDestinations && selectedClickRule.clickDestinations.length > 0) {
+          const validDestinations = selectedClickRule.clickDestinations.filter(d => d.id && d.id.trim());
+          if (validDestinations.length > 0) {
+            const totalDestWeight = validDestinations.reduce((sum, d) => sum + (d.weight || 1), 0);
+            const randomDest = Math.random() * totalDestWeight;
+            let currentDestWeight = 0;
+            
+            for (const dest of validDestinations) {
+              currentDestWeight += (dest.weight || 1);
+              if (randomDest <= currentDestWeight) {
+                destinationId = dest.id;
+                // Lookup URL from D1 (cached)
+                const url = await getDestinationUrl(dest.id, c);
+                if (url) {
+                  clickDestination = url.trim();
+                } else {
+                  console.error(`Destination ${dest.id} not found in D1 or inactive`);
+                  // Fall through to try next destination or clickUrl
+                }
+                break;
+              }
+            }
+          }
+        } else if (selectedClickRule.clickUrl) {
+          // Single click URL (backward compatibility, no D1 lookup)
+          clickDestination = selectedClickRule.clickUrl;
+        }
+
+        if (clickDestination) {
+          // Generate IDs for click tracking
+          const clickId = generateUniqueId('click');
+          const sessionId = data.sessionId || generateSessionId(data);
+          const impressionId = data.impressionId || generateUniqueId('imp');
+          
+          // Look up landing page and query params from impression BEFORE macro replacement
+          // This ensures we have the original fbclid and other params even if /click request doesn't have them
+          const landingPageInfo = await getLandingPageFromImpression(impressionId);
+          
+          // Merge impression query params into data.query (current params override impression params)
+          if (landingPageInfo?.queryParams) {
+            data.query = { ...landingPageInfo.queryParams, ...data.query };
+          }
+          
+          // Get platform info for macros (from D1 only)
+          const clickPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+          const clickPlatformId = clickPlatformLookup.platformId;
+          const clickPlatformClickId = clickPlatformLookup.clickIdParam ? data.query[clickPlatformLookup.clickIdParam] : null;
+          
+          // Replace macros in the click destination URL (e.g., {{query.fbclid}}, {{user.CITY}}, {{campaign.id}}, {{platform.name}})
+          const clickMacroContext: MacroContext = {
+            campaignId: rule.id,
+            campaignName: rule.name,
+            siteName: rule.siteName,
+            clickId: clickId,
+            sessionId: sessionId,
+            impressionId: impressionId,
+            platformId: clickPlatformId || undefined,
+            platformName: clickPlatformLookup.platformName || undefined,
+            platformClickId: clickPlatformClickId || undefined,
+          };
+          const clickDestinationWithMacros = replaceMacrosInUrl(clickDestination, data, selectedClickRule.variables, clickMacroContext);
+          
+          // Build redirect URL with query string preserved
+          const redirectUrl = new URL(clickDestinationWithMacros);
+          
+          // Append original query parameters (now includes merged impression params)
+          for (const [key, value] of Object.entries(data.query)) {
+            redirectUrl.searchParams.set(key, value);
+          }
+          
+          // Add tracking parameters
+          redirectUrl.searchParams.set('click_id', clickId);
+          redirectUrl.searchParams.set('impression_id', impressionId);
+          redirectUrl.searchParams.set('session_id', sessionId);
+
+          const weightInfo = clickMatchingRules.length > 1 ? ` (weight: ${selectedClickRule.weight || 100}%)` : '';
+          const destInfo = destinationId ? ` → destination ${destinationId}` : '';
+          reason = `Click-out matched rule [${selectedClickFlags.join(', ')}]${weightInfo}${destInfo}`;
+          
+          if (data.path === '/' || data.path === '/index.html' || isClickOutPath(data.path)) {
+            console.log(JSON.stringify({
+              action: "CLICK_OUT_REDIRECT",
+              domain: data.domain,
+              path: data.path,
+              destination: redirectUrl.toString(),
+              matchedFlags: selectedClickFlags,
+              destinationId: destinationId,
+              clickId: clickId,
+              impressionId: impressionId,
+              sessionId: sessionId,
+              reason: reason
+            }));
+          }
+          
+          // Store click event in PlanetScale (async, non-blocking)
+          // Use platform info already fetched for macros
+          console.log('[CLK] queue storeEvent', { clickId, impressionId, path: data.path, domain: data.domain, platformId: clickPlatformId });
+          c.executionCtx.waitUntil(
+            (async () => {
+              const campaignId = rule.id || '';
+              // Use already-fetched landingPageInfo or fallback to defaultFolder
+              const finalLandingPageInfo = landingPageInfo || {
+                landingPage: rule.defaultFolder || null,
+                landingPageMode: rule.defaultFolderMode || null,
+                queryParams: null,
+              };
+              await storeEvent({
+                eventId: clickId,  // Separate event for click (folder/proxy campaigns)
+                sessionId: sessionId,
+                campaignId: campaignId,
+                isImpression: false,
+                isClick: true,  // Click-only event for folder/proxy campaigns
+                domain: data.domain,
+                path: data.path,
+                landingPage: finalLandingPageInfo.landingPage,
+                landingPageMode: finalLandingPageInfo.landingPageMode,
+                destinationUrl: redirectUrl.toString(),
+                destinationId: destinationId || null,
+                matchedFlags: selectedClickFlags,
+                ip: data.ip,
+                country: data.geo.country,
+                city: data.geo.city,
+                continent: data.geo.continent,
+                latitude: data.geo.latitude,
+                longitude: data.geo.longitude,
+                region: data.geo.region,
+                regionCode: data.geo.regionCode,
+                postalCode: data.geo.postalCode || null,
+                timezone: data.geo.timezone,
+                device: data.userAgent.device,
+                browser: data.userAgent.browser,
+                browserVersion: data.userAgent.browserVersion,
+                os: data.userAgent.os,
+                osVersion: data.userAgent.osVersion,
+                brand: data.userAgent.brand,
+                referrer: data.referrer || null,
+                queryParams: data.query,
+                ruleKey: ruleKey,
+                userAgentRaw: data.userAgent.raw,
+                asn: data.cf.asn,
+                asOrganization: data.cf.asOrganization,
+                colo: data.cf.colo,
+                clientTrustScore: data.cf.clientTrustScore,
+                httpProtocol: data.cf.httpProtocol,
+                tlsVersion: data.cf.tlsVersion,
+                tlsCipher: data.cf.tlsCipher,
+                platformId: clickPlatformId || null,
+                platformClickId: clickPlatformClickId || null,
+              });
+            })()
+          );
+
+          return new Response(null, { 
+            status: 302, 
+            headers: { 'Location': redirectUrl.toString() } 
+          });
+        }
       }
     }
     
-    // If loop finishes and reason is still "", means no inheritance found either.
-    if (reason === "") {
-      reason = `Asset request - no rules matched (direct or inherited), using default folder`;
-      // targetFolder remains rule.defaultFolder, ruleVariables remain rule.variables
+    // If no click-out rule matched, but we have a destinationId at top level and this is a /click path,
+    // use the destinationId for the click
+    if (isClickOutPath(data.path) && rule.destinationId && rule.defaultFolder) {
+      const destinationId = rule.destinationId;
+      const clickDestination = rule.defaultFolder; // Already resolved from destinationId in getKVRule
+      
+      if (clickDestination) {
+        // Generate IDs for click tracking
+        const clickId = generateUniqueId('click');
+        const sessionId = data.sessionId || generateSessionId(data);
+        const impressionId = data.impressionId || generateUniqueId('imp');
+        
+        // Look up landing page and query params from impression BEFORE macro replacement
+        const landingPageInfo = await getLandingPageFromImpression(impressionId);
+        
+        // Merge impression query params into data.query
+        if (landingPageInfo?.queryParams) {
+          data.query = { ...landingPageInfo.queryParams, ...data.query };
+        }
+        
+        // Get platform info for macros (from D1 only)
+        const clickPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+        const clickPlatformId = clickPlatformLookup.platformId;
+        const clickPlatformClickId = clickPlatformLookup.clickIdParam ? data.query[clickPlatformLookup.clickIdParam] : null;
+        
+        // Replace macros in the click destination URL
+        const clickMacroContext: MacroContext = {
+          campaignId: rule.id,
+          campaignName: rule.name,
+          siteName: rule.siteName,
+          clickId: clickId,
+          sessionId: sessionId,
+          impressionId: impressionId,
+          platformId: clickPlatformId || undefined,
+          platformName: clickPlatformLookup.platformName || undefined,
+          platformClickId: clickPlatformClickId || undefined,
+        };
+        const clickDestinationWithMacros = replaceMacrosInUrl(clickDestination, data, rule.variables, clickMacroContext);
+        
+        // Build redirect URL with query string preserved
+        const redirectUrl = new URL(clickDestinationWithMacros);
+        
+        // Append original query parameters
+        for (const [key, value] of Object.entries(data.query)) {
+          redirectUrl.searchParams.set(key, value);
+        }
+        
+        // Add tracking parameters
+        redirectUrl.searchParams.set('click_id', clickId);
+        redirectUrl.searchParams.set('impression_id', impressionId);
+        redirectUrl.searchParams.set('session_id', sessionId);
+
+        reason = `Click-out using default destination ${destinationId}`;
+        
+        if (data.path === '/' || data.path === '/index.html' || isClickOutPath(data.path)) {
+          console.log(JSON.stringify({
+            action: "CLICK_OUT_REDIRECT",
+            domain: data.domain,
+            path: data.path,
+            destination: redirectUrl.toString(),
+            matchedFlags: [],
+            destinationId: destinationId,
+            clickId: clickId,
+            impressionId: impressionId,
+            sessionId: sessionId,
+            reason: reason
+          }));
+        }
+        
+        // Store click event in PlanetScale (async, non-blocking)
+        console.log('[CLK] queue storeEvent (default destination)', { clickId, impressionId, path: data.path, domain: data.domain, platformId: clickPlatformId, destinationId });
+        c.executionCtx.waitUntil(
+          (async () => {
+            const campaignId = rule.id || '';
+            const finalLandingPageInfo = landingPageInfo || {
+              landingPage: rule.defaultFolder || null,
+              landingPageMode: rule.defaultFolderMode || null,
+              queryParams: null,
+            };
+            await storeEvent({
+              eventId: clickId,
+              sessionId: sessionId,
+              campaignId: campaignId,
+              isImpression: false,
+              isClick: true,
+              domain: data.domain,
+              path: data.path,
+              landingPage: finalLandingPageInfo.landingPage,
+              landingPageMode: finalLandingPageInfo.landingPageMode,
+              destinationUrl: redirectUrl.toString(),
+              destinationId: destinationId, // Use the top-level destinationId
+              matchedFlags: [],
+              ip: data.ip,
+              country: data.geo.country,
+              city: data.geo.city,
+              continent: data.geo.continent,
+              latitude: data.geo.latitude,
+              longitude: data.geo.longitude,
+              region: data.geo.region,
+              regionCode: data.geo.regionCode,
+              postalCode: data.geo.postalCode || null,
+              timezone: data.geo.timezone,
+              device: data.userAgent.device,
+              browser: data.userAgent.browser,
+              browserVersion: data.userAgent.browserVersion,
+              os: data.userAgent.os,
+              osVersion: data.userAgent.osVersion,
+              brand: data.userAgent.brand,
+              referrer: data.referrer || null,
+              queryParams: data.query,
+              ruleKey: ruleKey,
+              userAgentRaw: data.userAgent.raw,
+              asn: data.cf.asn,
+              asOrganization: data.cf.asOrganization,
+              colo: data.cf.colo,
+              clientTrustScore: data.cf.clientTrustScore,
+              httpProtocol: data.cf.httpProtocol,
+              tlsVersion: data.cf.tlsVersion,
+              tlsCipher: data.cf.tlsCipher,
+              platformId: clickPlatformId || null,
+              platformClickId: clickPlatformClickId || null,
+            });
+          })()
+        );
+
+        return new Response(null, { 
+          status: 302, 
+          headers: { 'Location': redirectUrl.toString() } 
+        });
+      }
     }
-  } else if (reason === "") { // Not an asset, and no direct match from main loop
-     reason = `No rules matched, using default folder`;
-     // targetFolder remains rule.defaultFolder, ruleVariables remain rule.variables
+    
+    // If no click-out rule matched, fall through to regular rule processing
+    // (which will eventually serve defaultFolder if no rules match)
+  }
+
+  // 1. Find the winning rule first
+  const matchingRules: Array<{ rule: Rule; matchedFlags: string[] }> = [];
+  for (const ruleSet of rule.rules) {
+    if (ruleSet.groups && ruleSet.groups.length > 0) {
+      // OR across groups
+      let groupMatched = false;
+      let matchedFlags: string[] = [];
+      for (const g of ruleSet.groups) {
+        const res = checkSingleRule(data, g, isAssetRequest, 'AND');
+        if (res.matched) {
+          groupMatched = true;
+          matchedFlags = res.matchedFlagsList;
+          break;
+        }
+      }
+      if (groupMatched) matchingRules.push({ rule: ruleSet as Rule, matchedFlags });
+    } else {
+      const { matched, matchedFlagsList } = checkSingleRule(data, (ruleSet.flags || {}) as RuleFlags, isAssetRequest, ruleSet.operator);
+      if (matched) {
+        matchingRules.push({ rule: ruleSet, matchedFlags: matchedFlagsList });
+      }
+    }
+  }
+
+  if (matchingRules.length > 0) {
+    // 2. Select one based on weights
+      const totalWeight = matchingRules.reduce((sum, mr) => sum + (mr.rule.weight || 100), 0);
+      const random = Math.random() * totalWeight;
+      let currentWeight = 0;
+      
+      for (const mr of matchingRules) {
+        currentWeight += (mr.rule.weight || 100);
+        if (random <= currentWeight) {
+          selectedRule = mr.rule;
+        matchedFlags = mr.matchedFlags;
+          break;
+        }
+      }
+    }
+
+  // 2. Decide on the action based on the winning rule (or lack thereof)
+  let finalAction: { type: 'folder' | 'modifications' | 'redirect' | 'proxy'; payload: any; variables?: Record<string, string> } | null = null;
+
+  if (selectedRule) {
+    const weightInfo = matchingRules.length > 1 ? ` (weight: ${selectedRule.weight || 100}%)` : '';
+    reason = `Matched rule [${matchedFlags.join(', ')}]${weightInfo}`;
+
+    // Handle destinations array (weighted split within a single rule)
+    if (selectedRule.destinations && selectedRule.destinations.length > 0) {
+      const validDestinations = selectedRule.destinations.filter(d => d.value && d.value.trim());
+      if (validDestinations.length > 0) {
+        const totalDestWeight = validDestinations.reduce((sum, d) => sum + (d.weight || 1), 0);
+        const randomDest = Math.random() * totalDestWeight;
+        let currentDestWeight = 0;
+        let selectedDestination = validDestinations[0]; // fallback
+        
+        for (const dest of validDestinations) {
+          currentDestWeight += (dest.weight || 1);
+          if (randomDest <= currentDestWeight) {
+            selectedDestination = dest;
+            break;
+          }
+        }
+        
+        const destValue = selectedDestination.value.trim();
+        const isUrl = destValue.startsWith('http://') || destValue.startsWith('https://');
+        
+        // Determine action type based on explicit mode or infer from value
+        const destMode = selectedDestination.mode;
+        if (destMode === 'redirect' && isUrl) {
+          finalAction = { type: 'redirect', payload: destValue, variables: selectedRule.variables || rule.variables };
+        } else if (destMode === 'proxy' || (isUrl && destMode !== 'hosted')) {
+          finalAction = { type: 'proxy', payload: destValue, variables: selectedRule.variables || rule.variables };
+        } else {
+          finalAction = { type: 'folder', payload: destValue, variables: selectedRule.variables || rule.variables };
+        }
+        reason = `Matched rule [${matchedFlags.join(', ')}] → destination ${selectedDestination.id} (weight: ${selectedDestination.weight}%, mode: ${destMode || 'auto'})`;
+      } else {
+        // Destinations array exists but all are empty, fall through to other actions
+      }
+    }
+    
+    // Only check other actions if destinations weren't handled
+    if (!finalAction) {
+      if (selectedRule.modifications) {
+        finalAction = { type: 'modifications', payload: selectedRule.modifications, variables: selectedRule.variables || rule.variables };
+      } else if (selectedRule.proxyUrl || (selectedRule as any).fetchUrl) {
+        finalAction = { type: 'proxy', payload: selectedRule.proxyUrl || (selectedRule as any).fetchUrl, variables: selectedRule.variables || rule.variables };
+      } else if (selectedRule.redirectUrl) {
+        finalAction = { type: 'redirect', payload: selectedRule.redirectUrl, variables: selectedRule.variables || rule.variables };
+      } else if (selectedRule.folder) {
+        if (selectedRule.folder.startsWith('http://') || selectedRule.folder.startsWith('https://')) {
+          // Handle legacy rule: URL in folder property
+          finalAction = { type: 'proxy', payload: selectedRule.folder, variables: selectedRule.variables || rule.variables };
+        } else {
+          // Handle as a standard folder
+          finalAction = { type: 'folder', payload: selectedRule.folder, variables: selectedRule.variables || rule.variables };
+        }
+      } else {
+        // Rule matched but has no action, fall through to default
+        reason = `Matched rule [${matchedFlags.join(', ')}] but it had no action, using default.`;
+        const defaultFolder = rule.defaultFolder || '';
+        if (defaultFolder.startsWith('http')) {
+          finalAction = { type: 'proxy', payload: defaultFolder, variables: rule.variables };
+        } else {
+          finalAction = { type: 'folder', payload: defaultFolder, variables: rule.variables };
+        }
+      }
+    }
+  } else {
+    reason = "No rules matched, using default folder";
+    
+    // Determine action type based on defaultFolderMode
+    const mode = rule.defaultFolderMode;
+    const defaultFolder = rule.defaultFolder || '';
+    const isUrl = defaultFolder.startsWith('http://') || defaultFolder.startsWith('https://');
+    
+    if (mode === 'redirect' && isUrl) {
+      // Redirect mode: HTTP redirect with macro replacement
+      finalAction = { type: 'redirect', payload: defaultFolder, variables: rule.variables };
+    } else if (mode === 'proxy' || (isUrl && mode !== 'hosted')) {
+      // Proxy mode (default for URLs without explicit mode)
+      finalAction = { type: 'proxy', payload: defaultFolder, variables: rule.variables };
+    } else {
+      // Hosted mode (default for non-URLs)
+      finalAction = { type: 'folder', payload: defaultFolder, variables: rule.variables };
+    }
+      
+    // Store impression for default folder page views (will be stored in the switch statement below)
   }
   
-  // Log the decision for main page requests
-  if (data.path === '/' || data.path === '/index.html') {
-    console.log(JSON.stringify({
-      action: "RULE_DECISION",
-      domain: data.domain,
-      ip: data.ip,
-      country: data.geo.country,
-      language: data.headers['accept-language'],
-      referrer: data.referrer,
-      userAgent: data.userAgent,
-      reason: reason,
-      folder: targetFolder,
-      fetchUrl: fetchUrl
-    }));
+  // 3. Execute the action based on the integration type (Proxy vs. JS Snippet)
+  if (data.isEmbedRequest) {
+    // --- JS Snippet Delivery ---
+    switch (finalAction.type) {
+      case 'modifications':
+        const modificationsPayload = `
+          (function() {
+            const changes = ${JSON.stringify(finalAction.payload)};
+            
+            function applyChanges() {
+              for (const change of changes) {
+                try {
+                  const elements = document.querySelectorAll(change.selector);
+                  elements.forEach(element => {
+                    switch (change.action) {
+                      case 'setText':
+                        element.innerText = change.value;
+                        break;
+                      case 'setHtml':
+                        element.innerHTML = change.value;
+                        break;
+                      case 'setCss':
+                        Object.assign(element.style, change.value);
+                        break;
+                      case 'setAttribute':
+                        element.setAttribute(change.value.name, change.value.value);
+                        break;
+                      case 'remove':
+                        element.remove();
+                        break;
+                    }
+                  });
+                } catch (e) {
+                  console.error('Tracked script error applying change:', change, e);
+                }
+              }
+              // Unhide the page
+              window.tracked.end();
+            }
+
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', applyChanges);
+            } else {
+              applyChanges();
+            }
+          })();
+        `;
+        return new Response(modificationsPayload, { headers: { 'Content-Type': 'application/javascript' } });
+      case 'proxy':
+        const iframeSrc = `/proxy-session?url=${encodeURIComponent(finalAction.payload)}`;
+        const iframePayload = `
+          (function() {
+            // The page is currently hidden by the anti-flicker snippet.
+            var iframe = document.createElement('iframe');
+            iframe.src = '${iframeSrc}';
+            iframe.style.position = 'fixed';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.visibility = 'hidden'; // Start hidden
+
+            iframe.onload = function() {
+              // Now, unhide the page and the iframe.
+              iframe.style.visibility = 'visible';
+              window.tracked.end();
+            };
+
+            // Add the iframe to the (invisible) body and clear everything else.
+            document.body.innerHTML = '';
+            document.body.appendChild(iframe);
+          })();
+        `;
+        return new Response(iframePayload, { headers: { 'Content-Type': 'application/javascript' } });
+      case 'redirect':
+        // Generate event ID for JS redirect (same ID for impression+click since they're one event)
+        const jsRedirectEventId = data.impressionId || generateUniqueId('evt');
+        const jsRedirectSessionId = data.sessionId || generateSessionId(data);
+        // For JS redirect campaigns: impression and click are the same event, so use same ID
+        const jsRedirectImpressionId = jsRedirectEventId;
+        const jsRedirectClickId = jsRedirectEventId;  // Same ID since it's one event
+        
+        // Get platform info for click (from D1 only)
+        const jsRedirectPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+        const jsRedirectPlatformId = jsRedirectPlatformLookup.platformId;
+        const jsRedirectPlatformClickId = jsRedirectPlatformLookup.clickIdParam ? data.query[jsRedirectPlatformLookup.clickIdParam] : null;
+        
+        // Replace macros in redirect URL (including {{click.id}}, {{platform.name}}, {{platform.click_id}})
+        const jsRedirectMacroContext: MacroContext = {
+          campaignId: rule.id,
+          campaignName: rule.name,
+          siteName: rule.siteName,
+          sessionId: jsRedirectSessionId,
+          impressionId: jsRedirectImpressionId,
+          clickId: jsRedirectClickId,  // Same as impressionId for JS redirect campaigns
+          platformId: jsRedirectPlatformId || undefined,
+          platformName: jsRedirectPlatformLookup.platformName || undefined,
+          platformClickId: jsRedirectPlatformClickId || undefined,
+        };
+        const jsRedirectUrl = replaceMacrosInUrl(finalAction.payload, data, finalAction.variables, jsRedirectMacroContext);
+        
+        // Queue event storage (JS redirect = impression + click in one event)
+        console.log('[EVT] queue storeEvent (js-redirect)', { eventId: jsRedirectEventId, platformId: jsRedirectPlatformId });
+        c.executionCtx.waitUntil(
+          (async () => {
+            const campaignId = rule.id || '';
+            await storeEvent({
+              eventId: jsRedirectEventId,  // Same ID for impression and click (one event)
+              sessionId: jsRedirectSessionId,
+              campaignId: campaignId,
+              isImpression: true,
+              isClick: true,  // JS redirect = impression + click in one event
+              domain: data.domain,
+              path: data.path,
+              landingPage: finalAction.payload,
+              landingPageMode: 'redirect',
+              destinationUrl: jsRedirectUrl,
+              destinationId: rule.destinationId || null,  // Use top-level destinationId if available
+              matchedFlags: [],
+              ip: data.ip,
+              country: data.geo.country,
+              city: data.geo.city,
+              continent: data.geo.continent,
+              latitude: data.geo.latitude,
+              longitude: data.geo.longitude,
+              region: data.geo.region,
+              regionCode: data.geo.regionCode,
+              postalCode: data.geo.postalCode || null,
+              timezone: data.geo.timezone,
+              device: data.userAgent.device,
+              browser: data.userAgent.browser,
+              browserVersion: data.userAgent.browserVersion,
+              os: data.userAgent.os,
+              osVersion: data.userAgent.osVersion,
+              brand: data.userAgent.brand,
+              referrer: data.referrer || null,
+              queryParams: data.query,
+              ruleKey: ruleKey,
+              userAgentRaw: data.userAgent.raw,
+              asn: data.cf.asn,
+              asOrganization: data.cf.asOrganization,
+              colo: data.cf.colo,
+              clientTrustScore: data.cf.clientTrustScore,
+              httpProtocol: data.cf.httpProtocol,
+              tlsVersion: data.cf.tlsVersion,
+              tlsCipher: data.cf.tlsCipher,
+              platformId: jsRedirectPlatformId || null,
+              platformClickId: jsRedirectPlatformClickId || null,
+            });
+          })()
+        );
+        
+        const jsRedirect = `window.location.href = "${jsRedirectUrl}";`;
+        return new Response(jsRedirect, { headers: { 'Content-Type': 'application/javascript' } });
+      case 'folder':
+        // This action is not supported for JS Snippet integration as it implies self-hosting.
+        // We serve an empty response. A console warning could be added.
+        return new Response('/* "folder" rule is not supported in JS Snippet mode */', { headers: { 'Content-Type': 'application/javascript' } });
+    }
+  } else {
+    // --- DNS Proxy Delivery ---
+    switch (finalAction.type) {
+      case 'modifications':
+        // Fetch the original page content
+        const originUrl = new URL(c.req.url);
+        const originResponse = await handleInitialProxyRequest(c, originUrl.origin, data, reason, finalAction.variables);
+
+        // Build the rewriter from the modifications
+        const rewriter = new HTMLRewriter();
+        for (const mod of finalAction.payload) {
+          rewriter.on(mod.selector, {
+            element(element) {
+              switch (mod.action) {
+                case 'setText':
+                  element.setInnerContent(mod.value as string);
+                  break;
+                case 'setHtml':
+                   element.setInnerContent(mod.value as string, { html: true });
+                   break;
+                case 'setCss':
+                  const style = element.getAttribute('style') || '';
+                  const newStyle = Object.entries(mod.value as Record<string, string>)
+                    .map(([k, v]) => `${k}:${v}`)
+                    .join(';');
+                  element.setAttribute('style', `${style};${newStyle}`);
+                  break;
+                case 'setAttribute':
+                  const attr = mod.value as { name: string; value: string };
+                  element.setAttribute(attr.name, attr.value);
+                  break;
+                case 'remove':
+                  element.remove();
+                  break;
+              }
+            },
+          });
+        }
+        const modResponse = rewriter.transform(originResponse);
+        
+        // Store impression for modifications only if we successfully served a page (200 OK)
+        if (originResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+          console.log('[IMP] queue storeEvent (modifications)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
+          c.executionCtx.waitUntil(
+            (async () => {
+              const campaignId = rule.id || '';
+              const originUrl = new URL(c.req.url);
+              const { landingPage, landingPageMode } = extractLandingPageInfo(finalAction);
+              await storeEvent({
+                eventId: data.impressionId!,
+                sessionId: data.sessionId || generateSessionId(data),
+                campaignId: campaignId,
+                isImpression: true,
+                isClick: false,
+                domain: data.domain,
+                path: data.path,
+                landingPage: landingPage || originUrl.origin, // For modifications, use origin URL
+                landingPageMode: landingPageMode || 'proxy', // Modifications are proxied
+                ip: data.ip,
+                country: data.geo.country,
+                city: data.geo.city,
+                continent: data.geo.continent,
+                latitude: data.geo.latitude,
+                longitude: data.geo.longitude,
+                region: data.geo.region,
+                regionCode: data.geo.regionCode,
+                postalCode: data.geo.postalCode || null,
+                timezone: data.geo.timezone,
+                device: data.userAgent.device,
+                browser: data.userAgent.browser,
+                browserVersion: data.userAgent.browserVersion,
+                os: data.userAgent.os,
+                osVersion: data.userAgent.osVersion,
+                brand: data.userAgent.brand,
+                referrer: data.referrer || null,
+                queryParams: data.query,
+                ruleKey: ruleKey,
+                userAgentRaw: data.userAgent.raw,
+                asn: data.cf.asn,
+                asOrganization: data.cf.asOrganization,
+                colo: data.cf.colo,
+                clientTrustScore: data.cf.clientTrustScore,
+                httpProtocol: data.cf.httpProtocol,
+                tlsVersion: data.cf.tlsVersion,
+                tlsCipher: data.cf.tlsCipher,
+              });
+            })()
+          );
+        }
+        
+        return modResponse;
+      case 'proxy':
+        const proxyResponse = await handleInitialProxyRequest(c, finalAction.payload, data, reason, finalAction.variables);
+        
+        // Store impression for proxy only if we successfully served a page (200 OK)
+        if (proxyResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+          console.log('[IMP] queue storeEvent (proxy)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
+          c.executionCtx.waitUntil(
+            (async () => {
+              const campaignId = rule.id || '';
+              const { landingPage, landingPageMode } = extractLandingPageInfo(finalAction);
+              
+              // Extract platform info for impressions (from D1 only)
+              const impressionPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+              const impressionPlatformId = impressionPlatformLookup.platformId;
+              const impressionPlatformClickId = impressionPlatformLookup.clickIdParam ? data.query[impressionPlatformLookup.clickIdParam] : null;
+              
+              await storeEvent({
+                eventId: data.impressionId!,
+                sessionId: data.sessionId || generateSessionId(data),
+                campaignId: campaignId,
+                isImpression: true,
+                isClick: false,
+                domain: data.domain,
+                path: data.path,
+                landingPage,
+                landingPageMode,
+                ip: data.ip,
+                country: data.geo.country,
+                city: data.geo.city,
+                continent: data.geo.continent,
+                latitude: data.geo.latitude,
+                longitude: data.geo.longitude,
+                region: data.geo.region,
+                regionCode: data.geo.regionCode,
+                postalCode: data.geo.postalCode || null,
+                timezone: data.geo.timezone,
+                device: data.userAgent.device,
+                browser: data.userAgent.browser,
+                browserVersion: data.userAgent.browserVersion,
+                os: data.userAgent.os,
+                osVersion: data.userAgent.osVersion,
+                brand: data.userAgent.brand,
+                referrer: data.referrer || null,
+                queryParams: data.query,
+                ruleKey: ruleKey,
+                userAgentRaw: data.userAgent.raw,
+                asn: data.cf.asn,
+                asOrganization: data.cf.asOrganization,
+                colo: data.cf.colo,
+                clientTrustScore: data.cf.clientTrustScore,
+                httpProtocol: data.cf.httpProtocol,
+                tlsVersion: data.cf.tlsVersion,
+                tlsCipher: data.cf.tlsCipher,
+                platformId: impressionPlatformId || null,
+                platformClickId: impressionPlatformClickId || null,
+              });
+            })()
+          );
+        }
+        
+        return proxyResponse;
+      case 'redirect':
+        // For redirect campaigns, only match exact path (no path traversal)
+        // Extract the path from the rule key (ruleKey is like "domain.com/path")
+        const rulePath = (ruleKey || '').replace(data.domain || '', '') || '/';
+        // Normalize both paths: remove trailing slash unless it's root
+        const normalizedRulePath = rulePath === '' ? '/' : rulePath.replace(/\/$/, '');
+        const normalizedRequestPath = data.path === '' ? '/' : data.path.replace(/\/$/, '');
+        
+        // If paths don't match exactly, return custom 404 page (don't redirect or track)
+        if (normalizedRulePath !== normalizedRequestPath) {
+          console.log('[SKIP] Redirect path mismatch:', { rulePath: normalizedRulePath, requestPath: normalizedRequestPath, ruleKey });
+          return await serveNotFoundPage(c, data, `Path mismatch: rule configured for "${normalizedRulePath}" but request was "${normalizedRequestPath}"`);
+        }
+        
+        // Generate event ID for redirect (same ID for impression+click since they're one event)
+        const redirectEventId = data.impressionId || generateUniqueId('evt');
+        const redirectSessionId = data.sessionId || generateSessionId(data);
+        // For redirect campaigns: impression and click are the same event, so use same ID
+        const redirectImpressionId = redirectEventId;
+        const redirectClickId = redirectEventId;  // Same ID since it's one event
+        
+        // Get platform info for click (from D1 only)
+        const redirectPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+        const redirectPlatformId = redirectPlatformLookup.platformId;
+        const redirectPlatformClickId = redirectPlatformLookup.clickIdParam ? data.query[redirectPlatformLookup.clickIdParam] : null;
+        
+        // Replace macros in the redirect URL (e.g., {{query.fbclid}}, {{user.CITY}}, {{campaign.id}}, {{click.id}}, {{platform.name}}, {{platform.click_id}})
+        const redirectMacroContext: MacroContext = {
+          campaignId: rule.id,
+          campaignName: rule.name,
+          siteName: rule.siteName,
+          sessionId: redirectSessionId,
+          impressionId: redirectImpressionId,
+          clickId: redirectClickId,  // Same as impressionId for redirect campaigns
+          platformId: redirectPlatformId || undefined,
+          platformName: redirectPlatformLookup.platformName || undefined,
+          platformClickId: redirectPlatformClickId || undefined,
+        };
+        const redirectUrl = replaceMacrosInUrl(finalAction.payload, data, finalAction.variables, redirectMacroContext);
+        
+        // Queue event store for redirects (path already validated - exact match only)
+        // For redirect campaigns: one event with both is_impression=true AND is_click=true
+        console.log('[EVT] queue storeEvent (redirect)', { eventId: redirectEventId, path: data.path, domain: data.domain });
+        c.executionCtx.waitUntil(
+          (async () => {
+            const campaignId = rule.id || '';
+            await storeEvent({
+              eventId: redirectEventId,  // Same ID for impression and click (one event)
+              sessionId: redirectSessionId,
+              campaignId: campaignId,
+              isImpression: true,
+              isClick: true,  // Redirect = impression + click in one event
+              domain: data.domain,
+              path: data.path,
+              landingPage: finalAction.payload,
+              landingPageMode: 'redirect',
+              destinationUrl: redirectUrl,
+              destinationId: rule.destinationId || null, // Use top-level destinationId if available
+              matchedFlags: [],
+              ip: data.ip,
+              country: data.geo.country,
+              city: data.geo.city,
+              continent: data.geo.continent,
+              latitude: data.geo.latitude,
+              longitude: data.geo.longitude,
+              region: data.geo.region,
+              regionCode: data.geo.regionCode,
+              postalCode: data.geo.postalCode || null,
+              timezone: data.geo.timezone,
+              device: data.userAgent.device,
+              browser: data.userAgent.browser,
+              browserVersion: data.userAgent.browserVersion,
+              os: data.userAgent.os,
+              osVersion: data.userAgent.osVersion,
+              brand: data.userAgent.brand,
+              referrer: data.referrer || null,
+              queryParams: data.query,
+              ruleKey: ruleKey,
+              userAgentRaw: data.userAgent.raw,
+              asn: data.cf.asn,
+              asOrganization: data.cf.asOrganization,
+              colo: data.cf.colo,
+              clientTrustScore: data.cf.clientTrustScore,
+              httpProtocol: data.cf.httpProtocol,
+              tlsVersion: data.cf.tlsVersion,
+              tlsCipher: data.cf.tlsCipher,
+              platformId: redirectPlatformId || null,
+              platformClickId: redirectPlatformClickId || null,
+            });
+          })()
+        );
+        
+        return new Response(null, { 
+          status: 302, 
+          headers: { 
+            'Location': redirectUrl,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          } 
+        });
+      case 'folder':
+        // The logic that sets finalAction.type has already confirmed this is not a URL.
+        const folderResponse = await servePublicFile(c, `${finalAction.payload}/`, data, reason, finalAction.variables);
+        
+        // Store impression for page views only if we successfully served a page (200 OK)
+        if (folderResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+          console.log('[IMP] queue storeEvent (folder)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
+          c.executionCtx.waitUntil(
+            (async () => {
+              const campaignId = rule.id || '';
+              const { landingPage, landingPageMode } = extractLandingPageInfo(finalAction);
+              
+              // Extract platform info for impressions (from D1 only)
+              const impressionPlatformLookup = await getPlatformInfoForCampaign(rule.id);
+              const impressionPlatformId = impressionPlatformLookup.platformId;
+              const impressionPlatformClickId = impressionPlatformLookup.clickIdParam ? data.query[impressionPlatformLookup.clickIdParam] : null;
+              
+              await storeEvent({
+                eventId: data.impressionId!,
+                sessionId: data.sessionId || generateSessionId(data),
+                campaignId: campaignId,
+                isImpression: true,
+                isClick: false,
+                domain: data.domain,
+                path: data.path,
+                landingPage,
+                landingPageMode,
+                ip: data.ip,
+                country: data.geo.country,
+                city: data.geo.city,
+                continent: data.geo.continent,
+                latitude: data.geo.latitude,
+                longitude: data.geo.longitude,
+                region: data.geo.region,
+                regionCode: data.geo.regionCode,
+                postalCode: data.geo.postalCode || null,
+                timezone: data.geo.timezone,
+                device: data.userAgent.device,
+                browser: data.userAgent.browser,
+                browserVersion: data.userAgent.browserVersion,
+                os: data.userAgent.os,
+                osVersion: data.userAgent.osVersion,
+                brand: data.userAgent.brand,
+                referrer: data.referrer || null,
+                queryParams: data.query,
+                ruleKey: ruleKey,
+                userAgentRaw: data.userAgent.raw,
+                asn: data.cf.asn,
+                asOrganization: data.cf.asOrganization,
+                colo: data.cf.colo,
+                clientTrustScore: data.cf.clientTrustScore,
+                httpProtocol: data.cf.httpProtocol,
+                tlsVersion: data.cf.tlsVersion,
+                tlsCipher: data.cf.tlsCipher,
+                platformId: impressionPlatformId || null,
+                platformClickId: impressionPlatformClickId || null,
+              });
+            })()
+          );
+        }
+        
+        return folderResponse;
+    }
   }
-  
-  if (fetchUrl) {
-    return serveRemoteFile(c, fetchUrl, data, reason, ruleVariables);
-  }
-  if (targetFolder.startsWith('http://') || targetFolder.startsWith('https://')) {
-    // For remote defaults where no rules matched, drop the incoming path and serve origin root
-    const useOriginRoot = !isAssetRequest && reason.startsWith('No rules matched');
-    const dataForProxy = useOriginRoot ? { ...data, path: '/' } : data;
-    return handleInitialProxyRequest(c, targetFolder, dataForProxy, reason, ruleVariables);
-  }
-  return servePublicFile(c, `${targetFolder}/`, data, reason, ruleVariables);
+
+  // Fallback, should not be reached
+  return new Response("An unexpected error occurred in the rule engine.", { status: 500 });
 }
 
 // Function to get rule from KV storage
@@ -987,7 +2613,23 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
       const keyWithPath = `${domain}${currentPath}`;
       const ruleJson = await env.KV.get(keyWithPath);
       if (ruleJson) {
-        return { rule: JSON.parse(ruleJson) as KVRule, key: keyWithPath };
+        const rule = JSON.parse(ruleJson) as KVRule;
+        // Resolve destinationId to URL if present
+        if (rule.destinationId && !rule.defaultFolder) {
+          const destinationUrl = await getDestinationUrl(rule.destinationId, c);
+          if (destinationUrl) {
+            rule.defaultFolder = destinationUrl;
+            rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
+          } else {
+            console.error(`Destination ${rule.destinationId} not found for rule ${keyWithPath}`);
+            rule.defaultFolder = ''; // Fallback to empty string
+          }
+        }
+        // Ensure defaultFolder is always a string
+        if (!rule.defaultFolder) {
+          rule.defaultFolder = '';
+        }
+        return { rule, key: keyWithPath };
       }
 
       // If path has a trailing slash (and isn't just "/"), try without it
@@ -995,11 +2637,29 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
         const keyWithoutSlash = keyWithPath.slice(0, -1);
         const ruleJsonWithoutSlash = await env.KV.get(keyWithoutSlash);
         if (ruleJsonWithoutSlash) {
-          return { rule: JSON.parse(ruleJsonWithoutSlash) as KVRule, key: keyWithoutSlash };
+          const rule = JSON.parse(ruleJsonWithoutSlash) as KVRule;
+          // Resolve destinationId to URL if present
+          if (rule.destinationId && !rule.defaultFolder) {
+            const destinationUrl = await getDestinationUrl(rule.destinationId, c);
+            if (destinationUrl) {
+              rule.defaultFolder = destinationUrl;
+              rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
+            } else {
+              console.error(`Destination ${rule.destinationId} not found for rule ${keyWithoutSlash}`);
+              rule.defaultFolder = ''; // Fallback to empty string
+            }
+          }
+          // Ensure defaultFolder is always a string
+          if (!rule.defaultFolder) {
+            rule.defaultFolder = '';
+          }
+          return { rule, key: keyWithoutSlash };
         }
       }
 
       if (currentPath === '/') {
+        // At root path - try domain/ one more time, then break
+        // (This handles the case where rule is stored at domain/)
         break;
       }
 
@@ -1012,12 +2672,33 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
       }
     }
 
-    // Finally, try domain only
-    const keyDomainOnly = domain;
-    const ruleJsonDomain = await env.KV.get(keyDomainOnly);
-    if (ruleJsonDomain) {
-      return { rule: JSON.parse(ruleJsonDomain) as KVRule, key: keyDomainOnly };
+    // Compatibility fallback: Only for root path requests, try domain-only (no slash)
+    // This handles legacy rules stored as "domain" instead of "domain/"
+    // But ONLY for root path - prevents /.env from matching domain-only rules
+    if (path === '/') {
+      const keyDomainOnly = domain;
+      const ruleJsonDomain = await env.KV.get(keyDomainOnly);
+      if (ruleJsonDomain) {
+        const rule = JSON.parse(ruleJsonDomain) as KVRule;
+        // Resolve destinationId to URL if present
+        if (rule.destinationId && !rule.defaultFolder) {
+          const destinationUrl = await getDestinationUrl(rule.destinationId, c);
+          if (destinationUrl) {
+            rule.defaultFolder = destinationUrl;
+            rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
+          } else {
+            console.error(`Destination ${rule.destinationId} not found for rule ${keyDomainOnly}`);
+            rule.defaultFolder = ''; // Fallback to empty string
+          }
+        }
+        // Ensure defaultFolder is always a string
+        if (!rule.defaultFolder) {
+          rule.defaultFolder = '';
+        }
+        return { rule, key: keyDomainOnly };
+      }
     }
+    // For non-root paths (like /.env), no domain-only fallback - exact match required
   } catch (error) {
     console.error(`Error fetching rule from KV: ${error}`);
   }
@@ -1076,7 +2757,7 @@ export const rules: WorkerRule[] = [
       if (kvRuleResult) {
         const { rule: kvRule, key: ruleKey } = kvRuleResult;
         // Only log for main page requests
-        if (data.path === '/' || data.path === '/index.html') {
+        if (data.path === '/' || data.path === '/index.html' || data.path === '/index.htm') {
           console.log(JSON.stringify({
             action: "RULE_FOUND",
             domain: data.domain,
@@ -1084,7 +2765,7 @@ export const rules: WorkerRule[] = [
             ruleKey: ruleKey
           }));
         }
-        return await applyKVRule(c, data, kvRule);
+        return await applyKVRule(c, data, kvRule, ruleKey);
       }
       
       // Referrer-based proxy fallback for assets loaded by a proxied page
@@ -1094,8 +2775,9 @@ export const rules: WorkerRule[] = [
           // Only attempt if same host as current request
           if (!data.domain || refUrl.host === data.domain) {
             const refKv = await getKVRule(c, data.domain || refUrl.host, refUrl.pathname);
-            if (refKv && (refKv.rule.defaultFolder.startsWith('http://') || refKv.rule.defaultFolder.startsWith('https://'))) {
-              const baseUrl = refKv.rule.defaultFolder;
+            const refDefaultFolder = refKv?.rule.defaultFolder || '';
+            if (refKv && (refDefaultFolder.startsWith('http://') || refDefaultFolder.startsWith('https://'))) {
+              const baseUrl = refDefaultFolder;
               const targetUrl = new URL(data.path, baseUrl).toString();
               return await fetchAndStreamAsset(c, targetUrl, baseUrl);
             }
@@ -1154,4 +2836,23 @@ function replaceMacros(html: string, variables: Record<string, string>): string 
   }
 
   return content;
+}
+
+/**
+ * Replace macros in a redirect URL
+ * Supports both {{key}} format for direct replacement and URL encoding
+ * Example: https://site.com?sub1={{query.fbclid}}&city={{user.CITY}}&cid={{campaign.id}}
+ */
+function replaceMacrosInUrl(url: string, data: RequestData, variables?: Record<string, string>, context?: MacroContext): string {
+  const allVariables = populateMacros(data, variables, context);
+  
+  // Replace macros with URL-encoded values for query string safety
+  let result = url;
+  for (const [key, value] of Object.entries(allVariables)) {
+    // URL-encode the value for safe inclusion in URLs
+    const encodedValue = encodeURIComponent(value);
+    result = result.replaceAll(`{{${key}}}`, encodedValue);
+  }
+  
+  return result;
 } 
