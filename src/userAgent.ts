@@ -1,7 +1,32 @@
 // This file is reconstructed from the bundled worker code.
 
-export function parseOS(userAgent: string): string {
+import { isbot } from 'isbot';
+
+export function parseOS(userAgent: string, clientHintsPlatformVersion?: string): string {
     const ua = userAgent.toLowerCase();
+    
+    // Use Client Hints platform version if available (most accurate)
+    if (clientHintsPlatformVersion) {
+        const version = clientHintsPlatformVersion.replace(/"/g, '');
+        // Try to determine OS from UA string context
+        if (/windows/i.test(userAgent)) {
+            // Windows version from Client Hints is like "15.0.0"
+            const major = parseInt(version.split('.')[0]);
+            if (major >= 10) return `Windows ${major}`;
+            return `Windows ${version}`;
+        }
+        if (/mac|darwin/i.test(userAgent)) {
+            return `macOS ${version}`;
+        }
+        if (/iphone|ipad|ipod/i.test(userAgent)) {
+            return `iOS ${version}`;
+        }
+        if (/android/i.test(userAgent)) {
+            return `Android ${version}`;
+        }
+        // Return version as-is if we can't determine OS
+        return version;
+    }
 
     if (/windows nt 10\.0/.test(ua)) return /windows nt 10\.0.*build 22/.test(ua) ? "Windows 11" : "Windows 10";
     if (/windows nt 6\.3/.test(ua)) return "Windows 8.1";
@@ -104,8 +129,78 @@ export function parseAcceptLanguage(acceptLanguageHeader: string | null): string
     return acceptLanguageHeader.split(',')[0].split('-')[0].toLowerCase();
 }
 
-export function parseBrowser(userAgent: string, clientHintsUA?: string): { name: string, version: string } {
+export function parseBrowser(userAgent: string, clientHintsUA?: string, clientHintsFullVersionList?: string): { name: string, version: string } {
     const ua = userAgent.toLowerCase();
+
+    // Bot detection handled separately via isbot() - just check for in-app browsers first
+    
+    // In-app browser detection (MUST be checked BEFORE generic Chrome/Safari)
+    // Facebook in-app browser
+    if (/FBAN|FBAV/.test(userAgent)) {
+        const match = userAgent.match(/FBAV\/(\d+(?:\.\d+)*)/i);
+        return { name: "Facebook", version: match ? match[1] : "Unknown" };
+    }
+    // Instagram in-app browser
+    if (/Instagram/.test(userAgent)) {
+        const match = userAgent.match(/Instagram[^\d]*(\d+(?:\.\d+)*)/i);
+        return { name: "Instagram", version: match ? match[1] : "Unknown" };
+    }
+    // TikTok in-app browser
+    if (/TikTok|BytedanceWebview|musical_ly/.test(userAgent)) {
+        const match = userAgent.match(/TikTok[^\d]*(\d+(?:\.\d+)*)/i);
+        return { name: "TikTok", version: match ? match[1] : "Unknown" };
+    }
+    // Snapchat
+    if (/Snapchat/.test(userAgent)) {
+        const match = userAgent.match(/Snapchat[^\d]*(\d+(?:\.\d+)*)/i);
+        return { name: "Snapchat", version: match ? match[1] : "Unknown" };
+    }
+    // Pinterest
+    if (/Pinterest/.test(userAgent)) {
+        const match = userAgent.match(/Pinterest[^\d]*(\d+(?:\.\d+)*)/i);
+        return { name: "Pinterest", version: match ? match[1] : "Unknown" };
+    }
+    // Twitter/X
+    if (/Twitter|X-Twitter/.test(userAgent)) {
+        return { name: "Twitter", version: "Unknown" };
+    }
+    // LINE
+    if (/Line\//.test(userAgent)) {
+        const match = userAgent.match(/Line\/(\d+(?:\.\d+)*)/i);
+        return { name: "LINE", version: match ? match[1] : "Unknown" };
+    }
+    // WeChat
+    if (/MicroMessenger/.test(userAgent)) {
+        const match = userAgent.match(/MicroMessenger\/(\d+(?:\.\d+)*)/i);
+        return { name: "WeChat", version: match ? match[1] : "Unknown" };
+    }
+    // Telegram
+    if (/Telegram/.test(userAgent)) {
+        return { name: "Telegram", version: "Unknown" };
+    }
+
+    // Use Client Hints for better browser detection
+    // Use Client Hints for better browser detection and full version
+    if (clientHintsFullVersionList) {
+        // Parse full version list for precise version numbers
+        const brands = clientHintsFullVersionList.split(',').map(s => s.trim());
+        for (const brand of brands) {
+            const match = brand.match(/"([^"]+)";v="(\d+(?:\.\d+)*)"/);
+            if (match) {
+                const [, name, version] = match;
+                if (!name.includes("Not") && !name.includes("Brand") && name !== "Chromium") {
+                    if (name === "Opera GX") return { name: "Opera GX", version };
+                    if (name === "Brave") return { name: "Brave", version };
+                    if (name === "Microsoft Edge") return { name: "Microsoft Edge", version };
+                    if (name === "Opera") return { name: "Opera", version };
+                    if (name === "Vivaldi") return { name: "Vivaldi", version };
+                    if (name === "Google Chrome") return { name: "Google Chrome", version };
+                    if (name === "Chromium") return { name: "Chromium", version };
+                    return { name, version };
+                }
+            }
+        }
+    }
 
     if (clientHintsUA) {
         const brands = clientHintsUA.split(',').map(s => s.trim());
@@ -335,5 +430,36 @@ export function parseDeviceBrand(userAgent: string): string | null {
     if (/xbox/.test(ua)) return "Microsoft";
     if (/nintendo|switch|3ds/.test(ua)) return "Nintendo";
 
+    return null;
+}
+
+export function parseDeviceModel(userAgent: string, clientHintsModel?: string): string | null {
+    // Prefer Client Hints model (most accurate)
+    if (clientHintsModel) {
+        return clientHintsModel.replace(/"/g, '');
+    }
+    
+    // Fallback: extract from UA
+    // iPhone models (e.g., iPhone14,2)
+    const iphoneMatch = userAgent.match(/iPhone(\d+,\d+)/);
+    if (iphoneMatch) return `iPhone ${iphoneMatch[1]}`;
+    
+    // Android device models (in parentheses after Android version)
+    // Format: Android 13; SM-S918B Build/TP1A.220624.014
+    const androidMatch = userAgent.match(/Android[^;]*;\s*([^)]+)\)/i);
+    if (androidMatch) {
+        const model = androidMatch[1].replace(/Build\/.*/, '').trim();
+        if (model && model !== 'Linux' && !model.startsWith('wv')) {
+            return model;
+        }
+    }
+    
+    // iPad models
+    const ipadMatch = userAgent.match(/iPad[^;]*;\s*([^)]+)\)/i);
+    if (ipadMatch) {
+        const model = ipadMatch[1].trim();
+        if (model) return `iPad ${model}`;
+    }
+    
     return null;
 }

@@ -21,6 +21,7 @@
 	"dependencies": {
 		"@clickhouse/client": "^1.14.0",
 		"hono": "^4.9.5",
+		"isbot": "^5.1.32",
 		"pg": "^8.11.3",
 		"uuidv7": "^1.1.0"
 	}

@@ -1,6 +1,7 @@
 import { Hono, Context } from "hono";
 import { html } from "hono/html";
-import { parseOS, parseAcceptLanguage, parseBrowser, parseEngine, parseDeviceType, parseDeviceBrand } from "./userAgent";
+import { parseOS, parseAcceptLanguage, parseBrowser, parseEngine, parseDeviceType, parseDeviceBrand, parseDeviceModel } from "./userAgent";
+import { isbot } from "isbot";
 import { env } from "cloudflare:workers";
 import { rules, type RequestData, type ExtendedRequestData, fetchAndStreamAsset, getKVRule, getClickData, storeConversion, generateUniqueId, generateSessionId } from "./rules";
 
@@ -175,16 +176,24 @@ app.get("/*", async (c: Context) => {
   const cf = c.req.raw.cf as any;
   const ua = c.req.header("User-Agent") || "";
   
-  // Parse user agent info
+  // Parse user agent info - read high-entropy Client Hints
   const clientHintsUA = headers['sec-ch-ua'] || undefined;
   const clientHintsMobile = headers['sec-ch-ua-mobile'] || undefined;
   const clientHintsPlatform = headers['sec-ch-ua-platform'] || undefined;
+  const clientHintsPlatformVersion = headers['sec-ch-ua-platform-version'] || undefined;
+  const clientHintsFullVersionList = headers['sec-ch-ua-full-version-list'] || undefined;
+  const clientHintsModel = headers['sec-ch-ua-model'] || undefined;
+  const clientHintsArch = headers['sec-ch-ua-arch'] || undefined;
 
-  const browserInfo = parseBrowser(ua, clientHintsUA);
-  const osInfo = parseOS(ua);
+  // Check if it's a bot
+  const isBot = isbot(ua);
+
+  const browserInfo = parseBrowser(ua, clientHintsUA, clientHintsFullVersionList);
+  const osInfo = parseOS(ua, clientHintsPlatformVersion);
   const engineInfo = parseEngine(ua);
   const deviceTypeInfo = parseDeviceType(ua, clientHintsMobile);
   const brandInfo = parseDeviceBrand(ua);
+  const modelInfo = parseDeviceModel(ua, clientHintsModel);
   
   // Use platform from client hints if available, otherwise parse from UA
   const platformFromHints = clientHintsPlatform ? clientHintsPlatform.replace(/"/g, '') : null;
@@ -192,6 +201,12 @@ app.get("/*", async (c: Context) => {
 
   // Extract OS version from OS string
   const extractOSVersion = (osString: string): { name: string; version: string | null } => {
+    // If we have Client Hints platform version, use it (most accurate)
+    if (clientHintsPlatformVersion && platformFromHints) {
+      const version = clientHintsPlatformVersion.replace(/"/g, '');
+      return { name: platformFromHints, version };
+    }
+    
     // Always try to extract version from the original User-Agent string first
     const uaOSInfo = parseOS(ua);
     
@@ -285,8 +300,11 @@ app.get("/*", async (c: Context) => {
       osVersion: osVersion,
       device: deviceTypeInfo,
       brand: brandInfo,
+      model: modelInfo,
+      arch: clientHintsArch ? clientHintsArch.replace(/"/g, '') : null,
       raw: ua
     },
+    isBot: isBot,
     geo: {
       country: cf?.country ?? null,
       city: cf?.city ?? null,
@@ -330,8 +348,11 @@ app.get("/*", async (c: Context) => {
       osVersion: osVersion,
       device: deviceTypeInfo,
       brand: brandInfo,
+      model: modelInfo,
+      arch: clientHintsArch ? clientHintsArch.replace(/"/g, '') : null,
       raw: ua
     },
+    isBot: isBot,
     geo: {
       country: cf?.country ?? null,
       city: cf?.city ?? null,
@@ -357,9 +378,18 @@ app.get("/*", async (c: Context) => {
   // Check rules (now using KV-based system)
   for (const rule of rules) {
     if (rule.condition(requestDataObject)) {
-      return await rule.action(c, requestDataObject);
+      const response = await rule.action(c, requestDataObject);
+      // Add Accept-CH header to request Client Hints on next request
+      const acceptCHHeader = 'sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-ch-ua-platform-version, sec-ch-ua-full-version-list, sec-ch-ua-model, sec-ch-ua-arch';
+      response.headers.set('Accept-CH', acceptCHHeader);
+      return response;
     }
   }
+  
+  // Fallback: return 404 with Accept-CH header
+  const fallbackResponse = new Response('Not Found', { status: 404 });
+  fallbackResponse.headers.set('Accept-CH', 'sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-ch-ua-platform-version, sec-ch-ua-full-version-list, sec-ch-ua-model, sec-ch-ua-arch');
+  return fallbackResponse;
 });
 
 export default app;

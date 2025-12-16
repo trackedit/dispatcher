@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS events (
     os_version VARCHAR(50),                     -- OS version
     brand VARCHAR(100),                         -- Device brand (Apple, Samsung, etc.)
     referrer TEXT,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Legacy column (deprecated, use timestamp_tz)
+    timestamp_tz TIMESTAMPTZ NOT NULL DEFAULT NOW(), -- Timezone-aware UTC timestamp (preferred)
     query_params JSONB,                         -- JSON object of query parameters (JSONB for PostgreSQL)
     rule_key VARCHAR(500),                      -- KV key that matched (e.g., "example.com" or "example.com/path")
     landing_page TEXT,                          -- Which landing page was shown (folder path or URL)
@@ -82,6 +83,7 @@ CREATE INDEX IF NOT EXISTS idx_events_country ON events(country);
 CREATE INDEX IF NOT EXISTS idx_events_city ON events(city);
 CREATE INDEX IF NOT EXISTS idx_events_landing_page ON events(landing_page);
 CREATE INDEX IF NOT EXISTS idx_events_session_timestamp ON events(session_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_events_session_timestamp_tz ON events(session_id, timestamp_tz);
 
 -- Click-specific indexes
 CREATE INDEX IF NOT EXISTS idx_events_click_id ON events(click_id) WHERE click_id IS NOT NULL;
@@ -92,11 +94,15 @@ CREATE INDEX IF NOT EXISTS idx_events_platform_click_id ON events(platform_click
 -- Conversion-specific indexes
 CREATE INDEX IF NOT EXISTS idx_events_conversion_type ON events(conversion_type) WHERE conversion_type IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_events_click_conversion ON events(click_id, timestamp) WHERE is_conversion = true;
+CREATE INDEX IF NOT EXISTS idx_events_click_conversion_tz ON events(click_id, timestamp_tz) WHERE is_conversion = true;
 
 -- Composite indexes for common analytics queries
 CREATE INDEX IF NOT EXISTS idx_events_campaign_impression ON events(campaign_id, timestamp) WHERE is_impression = true;
 CREATE INDEX IF NOT EXISTS idx_events_campaign_click ON events(campaign_id, timestamp) WHERE is_click = true;
 CREATE INDEX IF NOT EXISTS idx_events_campaign_conversion ON events(campaign_id, timestamp) WHERE is_conversion = true;
+CREATE INDEX IF NOT EXISTS idx_events_campaign_impression_tz ON events(campaign_id, timestamp_tz) WHERE is_impression = true;
+CREATE INDEX IF NOT EXISTS idx_events_campaign_click_tz ON events(campaign_id, timestamp_tz) WHERE is_click = true;
+CREATE INDEX IF NOT EXISTS idx_events_campaign_conversion_tz ON events(campaign_id, timestamp_tz) WHERE is_conversion = true;
 
 -- Note: PlanetScale PostgreSQL doesn't support foreign keys by default
 -- But the indexes above provide fast lookups for common query patterns

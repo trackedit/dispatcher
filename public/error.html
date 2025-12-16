@@ -4,41 +4,184 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Not Found</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./FaultyTerminal.css">
   <style>
     body {
-      font-family: 'IBM Plex Mono', monospace;
-      background-color: #0a0a0a;
-      color: #fafafa;
+      margin: 0;
+      padding: 0;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
+      overflow: hidden;
+    }
+    #terminal-container {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+    .error-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       text-align: center;
-      font-size: 16px;
+      z-index: 10;
+      pointer-events: none;
+      padding: 3rem 4rem;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 80%);
+      border-radius: 20px;
     }
-    div {
-      padding: 2rem;
+    .error-overlay h1 {
+      font-size: 6rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      background: linear-gradient(135deg, #ff6b9d 0%, #d933ad 50%, #9933ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 0 30px rgba(217, 51, 173, 0.5));
     }
-    p {
-      margin: 0 0 1rem 0;
+    .error-overlay p {
+      font-size: 1.4rem;
+      margin: 0 0 2rem 0;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
-    a {
+    .powered-by {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
+    }
+    .error-overlay a {
       color: #d933ad;
       text-decoration: none;
+      pointer-events: auto;
+      opacity: 0.9;
+      transition: all 0.2s;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
-    a:hover {
+    .error-overlay a:hover {
+      opacity: 1;
+      color: #ff6b9d;
       text-decoration: underline;
     }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div>
-    <p>this page does not exist</p>
-    <span style="font-size: 0.8em;">powered by <a href="https://tracked.it">https://tracked.it</a></span>
+  <div id="terminal-container" class="faulty-terminal-container">
+    <div class="error-overlay">
+      <h1>404</h1>
+      <p>Page not found</p>
+      <div class="powered-by">
+        powered by <a href="https://tracked.it">tracked</a>
+      </div>
+    </div>
   </div>
+  <script type="module">
+    import { createFaultyTerminal } from './FaultyTerminal.js';
+    
+    const container = document.getElementById('terminal-container');
+    let terminalInstance = null;
+    
+    // Random words to display in ASCII background
+    const words = ['ERROR', '404', 'NOTFOUND', 'FAIL', 'LOST', 'MISSING', 'VOID', 'NULL'];
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+    
+    createFaultyTerminal(container, {
+      word: randomWord,
+      scale: 1.8,
+      gridMul: [2.5, 1.2],
+      digitSize: 1.1,
+      timeScale: 0.4,
+      pause: false,
+      scanlineIntensity: 0.8,
+      glitchAmount: 0.6,
+      flickerAmount: 0.4,
+      noiseAmp: 1.2,
+      chromaticAberration: 2,
+      dither: 0.3,
+      curvature: 0.15,
+      tint: '#d933ad',
+      mouseReact: true,
+      mouseStrength: 0.7,
+      pageLoadAnimation: true,
+      brightness: 0.35
+    }).then((instance) => {
+      terminalInstance = instance;
+      startAnimation();
+    }).catch(console.error);
+    
+    function hslToHex(h, s, l) {
+      l /= 100;
+      const a = s * Math.min(l, 1 - l) / 100;
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`;
+    }
+    
+    function startAnimation() {
+      let time = 0;
+      const h1 = document.querySelector('.error-overlay h1');
+      const link = document.querySelector('.error-overlay a');
+      
+      setInterval(() => {
+        if (!terminalInstance) return;
+        
+        time += 0.02;
+        
+        // Rotating HSL color wheel
+        const hue = (time * 20) % 360;
+        const tintColor = hslToHex(hue, 80, 60);
+        
+        // Complementary color for text
+        const compHue = (hue + 180) % 360;
+        const compColor = hslToHex(compHue, 90, 60);
+        const compColor2 = hslToHex((compHue + 30) % 360, 90, 60);
+        
+        // Update DOM elements
+        if (h1) {
+          h1.style.background = `linear-gradient(135deg, ${compColor} 0%, ${compColor2} 100%)`;
+          h1.style.webkitBackgroundClip = 'text';
+          h1.style.webkitTextFillColor = 'transparent';
+          h1.style.filter = `drop-shadow(0 0 30px ${compColor}80)`;
+        }
+        
+        if (link) {
+          link.style.color = compColor;
+        }
+        
+        // Oscillate sizes smoothly
+        const scale = 1.8 + Math.sin(time) * 0.2;
+        const digitSize = 1.1 + Math.cos(time * 0.7) * 0.1;
+        const gridX = 2.5 + Math.sin(time * 0.5) * 0.3;
+        const gridY = 1.2 + Math.cos(time * 0.3) * 0.2;
+        
+        terminalInstance.setOptions({
+          tint: tintColor,
+          scale: scale,
+          digitSize: digitSize,
+          gridMul: [gridX, gridY]
+        });
+        
+      }, 50);
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (terminalInstance) terminalInstance.cleanup();
+    });
+  </script>
 </body>
 </html>

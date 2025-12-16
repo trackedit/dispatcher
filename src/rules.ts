@@ -107,12 +107,12 @@ async function storeInPlanetScale(data: Record<string, any>): Promise<void> {
           user_agent_raw, asn, as_organization, colo, client_trust_score,
           http_protocol, tls_version, tls_cipher,
           destination_url, destination_id, matched_flags, platform_id, platform_click_id,
-          click_id, payout, conversion_type, postback_data
+          click_id, payout, conversion_type, postback_data, is_bot
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
           $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29,
           $30, $31, $32, $33, $34, $35, $36, $37,
-          $38, $39, $40, $41, $42, $43, $44, $45, $46
+          $38, $39, $40, $41, $42, $43, $44, $45, $46, $47
         )
         ON CONFLICT (event_id) DO NOTHING
       `, [
@@ -131,7 +131,7 @@ async function storeInPlanetScale(data: Record<string, any>): Promise<void> {
         data.destination_url || null, data.destination_id || null, data.matched_flags || null,
         data.platform_id || null, data.platform_click_id || null,
         data.click_id || null, data.payout || null, data.conversion_type || null,
-        data.postback_data || null
+        data.postback_data || null, data.is_bot || false
       ]);
       
       await client.end();
@@ -176,6 +176,7 @@ async function storeEvent(data: {
   queryParams: Record<string, string>;
   ruleKey: string;
   userAgentRaw: string | null;
+  isBot?: boolean;  // Bot detection flag (from isbot library)
   asn: number | null;
   asOrganization: string | null;
   colo: string | null;
@@ -244,6 +245,7 @@ async function storeEvent(data: {
     matched_flags: data.matchedFlags ? JSON.stringify(data.matchedFlags) : null,
     platform_id: data.platformId || null,
     platform_click_id: data.platformClickId || null,
+    is_bot: data.isBot || false,
   });
 }
 
@@ -513,14 +515,15 @@ export interface RequestData {
   sessionId?: string;      // Fingerprint-based stable ID (generated per request)
   impressionId?: string;   // Unique ID for page view (generated per request)
   userAgent: {
-    browser: string | null;    // "Chrome", "Firefox", etc
+    browser: string | null;    // "Chrome", "Firefox", "Bot", "Facebook Bot", etc
     browserVersion: string | null;
     os: string | null;        // "Windows", "iOS", etc
     osVersion: string | null;
     device: string | null;    // "Mobile", "Desktop", "Tablet"
     brand: string | null;     // "Apple", "Samsung", "Huawei", etc
-    raw: string | null;       // Full user-agent string
+    raw: string | null;       // Full user-agent string (can derive model/arch from this)
   };
+  isBot?: boolean;            // Bot detection flag (from isbot library) - optional, can also filter by browser containing "Bot"
   geo: {
     country: string | null;
     city: string | null;
@@ -567,6 +570,7 @@ async function serveRemoteFile(c: any, url: string, data: RequestData, reason: s
     content = replaceMacros(content, allReplaceableVariables);
 
     const newHeaders = new Headers(response.headers);
+    addAcceptCHHeaders(newHeaders);
     return new Response(content, {
       status: response.status,
       statusText: response.statusText,
@@ -608,13 +612,17 @@ async function serveAsJavaScript(c: any, data: ExtendedRequestData, reason: stri
     response = await serveRemoteFile(c, options.fetchUrl, data, `JS Embed: ${reason}`, ruleVariables);
     content = await response.text();
   } else {
-    return new Response("/* Tracked: No content to serve. */", { headers: { 'Content-Type': 'application/javascript' } });
+    const noContentHeaders = new Headers({ 'Content-Type': 'application/javascript' });
+    addAcceptCHHeaders(noContentHeaders);
+    return new Response("/* Tracked: No content to serve. */", { headers: noContentHeaders });
   }
 
   const contentType = response ? response.headers.get('content-type') || '' : 'text/html';
 
   if (contentType.includes('javascript')) {
-    return new Response(content, { headers: { 'Content-Type': 'application/javascript; charset=utf-8' } });
+    const headers = new Headers({ 'Content-Type': 'application/javascript; charset=utf-8' });
+    addAcceptCHHeaders(headers);
+    return new Response(content, { headers });
   }
 
   const escapedContent = JSON.stringify(content);
@@ -630,7 +638,9 @@ async function serveAsJavaScript(c: any, data: ExtendedRequestData, reason: stri
     })();
   `;
 
-  return new Response(jsPayload, { headers: { 'Content-Type': 'application/javascript; charset=utf-8' } });
+  const jsHeaders = new Headers({ 'Content-Type': 'application/javascript; charset=utf-8' });
+  addAcceptCHHeaders(jsHeaders);
+  return new Response(jsPayload, { headers: jsHeaders });
 }
 
 // Helper function to serve a local file from /public
@@ -991,6 +1001,22 @@ async function handleInitialProxyRequest(c: any, baseUrl: string, data: RequestD
 }
 
 // This function fetches and streams a single asset, rewriting CSS if necessary.
+// Client Hints header to request high-entropy hints from browsers
+const ACCEPT_CH_HEADER = 'sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-ch-ua-platform-version, sec-ch-ua-full-version-list, sec-ch-ua-model, sec-ch-ua-arch';
+
+// Helper to add Accept-CH header to any response
+function addAcceptCHHeaders(headers: Headers): Headers {
+  headers.set('Accept-CH', ACCEPT_CH_HEADER);
+  return headers;
+}
+
+// Helper to check if browser is an in-app browser (Facebook, Instagram, TikTok, etc.)
+export function isInAppBrowser(browser: string | null): boolean {
+  if (!browser) return false;
+  const inAppBrowsers = ['Facebook', 'Instagram', 'TikTok', 'Snapchat', 'Pinterest', 'Twitter', 'LINE', 'WeChat', 'Telegram'];
+  return inAppBrowsers.includes(browser);
+}
+
 export async function fetchAndStreamAsset(c: any, targetUrl: string, baseUrl: string): Promise<Response> {
     const remoteRequest = new Request(targetUrl, {
         method: c.req.method,
@@ -1013,6 +1039,7 @@ export async function fetchAndStreamAsset(c: any, targetUrl: string, baseUrl: st
 
         const newHeaders = new Headers(remoteResponse.headers);
         newHeaders.delete('content-length');
+        addAcceptCHHeaders(newHeaders);
 
         return new Response(newCss, {
             status: remoteResponse.status,
@@ -1025,6 +1052,7 @@ export async function fetchAndStreamAsset(c: any, targetUrl: string, baseUrl: st
     newHeaders.set('Access-Control-Allow-Origin', '*');
     newHeaders.delete('Content-Security-Policy');
     newHeaders.delete('Strict-Transport-Security');
+    addAcceptCHHeaders(newHeaders);
 
     return new Response(remoteResponse.body, {
         status: remoteResponse.status,
@@ -1206,30 +1234,68 @@ function isClickOutPath(path: string): boolean {
 }
 
 /**
+ * Extract header order fingerprint
+ * Different browsers send headers in different orders - this is hard to spoof
+ */
+function getHeaderOrderFingerprint(headers: Record<string, string>): string {
+  // Get the first 10 header names in order (lowercase, sorted by when they appear)
+  const headerNames = Object.keys(headers)
+    .slice(0, 15)
+    .map(h => h.toLowerCase())
+    .filter(h => !h.startsWith('cf-') && h !== 'x-forwarded-for' && h !== 'x-real-ip') // Exclude proxy headers
+    .join(',');
+  return headerNames;
+}
+
+/**
  * Generate a stable session ID from browser fingerprint
  * Same browser/device will get same sessionId across visits
+ * Uses multiple signals to create a unique device fingerprint without cookies
  */
 export function generateSessionId(data: RequestData): string {
-  // Note: Don't include tlsVersion - it differs between HTTP and HTTPS requests
-  // causing the same user to get different session IDs during HTTP->HTTPS redirect
+  // Build comprehensive fingerprint from multiple signals
   const components = [
-    data.ip || 'no-ip',
+    // Network identity
+    data.ip || '',
+    
+    // Browser engine fingerprint (TLS cipher is unique per browser engine)
+    data.cf?.tlsCipher || '',
+    
+    // HTTP protocol version (h2, h3, http/1.1)
+    data.cf?.httpProtocol || '',
+    
+    // User-Agent (full string for version-level uniqueness)
     data.userAgent.raw || '',
-    data.userAgent.browser || '',
-    data.userAgent.os || '',
+    
+    // Header order (browsers send headers in different orders - hard to spoof)
+    getHeaderOrderFingerprint(data.headers),
+    
+    // Content negotiation headers (differ by browser)
+    data.headers['accept'] || '',
     data.headers['accept-language'] || '',
+    data.headers['accept-encoding'] || '',
+    
+    // Client hints (Chrome-specific, adds uniqueness)
+    data.headers['sec-ch-ua'] || '',
+    data.headers['sec-ch-ua-platform'] || '',
+    data.headers['sec-ch-ua-mobile'] || '',
+    
+    // Connection preferences
+    data.headers['connection'] || '',
+    data.headers['upgrade-insecure-requests'] || '',
   ];
+  
   const fingerprint = components.join('|');
   
-  // Simple hash function (djb2 algorithm)
-  let hash = 5381;
+  // Use a stronger hash (FNV-1a) for better distribution
+  let hash = 2166136261; // FNV offset basis
   for (let i = 0; i < fingerprint.length; i++) {
-    hash = ((hash << 5) + hash) + fingerprint.charCodeAt(i);
-    hash = hash & hash; // Convert to 32-bit integer
+    hash ^= fingerprint.charCodeAt(i);
+    hash = Math.imul(hash, 16777619); // FNV prime
   }
   
-  // Convert to base36 string (12 chars)
-  return Math.abs(hash).toString(36).substring(0, 12);
+  // Convert to base36 string (more compact, 8 chars)
+  return Math.abs(hash >>> 0).toString(36).padStart(8, '0').substring(0, 8);
 }
 
 /**
@@ -1829,6 +1895,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
                 osVersion: data.userAgent.osVersion,
                 brand: data.userAgent.brand,
                 referrer: data.referrer || null,
+                isBot: data.isBot || false,
                 queryParams: data.query,
                 ruleKey: ruleKey,
                 userAgentRaw: data.userAgent.raw,
@@ -2167,7 +2234,9 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
             }
           })();
         `;
-        return new Response(modificationsPayload, { headers: { 'Content-Type': 'application/javascript' } });
+        const modHeaders = new Headers({ 'Content-Type': 'application/javascript' });
+        addAcceptCHHeaders(modHeaders);
+        return new Response(modificationsPayload, { headers: modHeaders });
       case 'proxy':
         const iframeSrc = `/proxy-session?url=${encodeURIComponent(finalAction.payload)}`;
         const iframePayload = `
@@ -2194,7 +2263,9 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
             document.body.appendChild(iframe);
           })();
         `;
-        return new Response(iframePayload, { headers: { 'Content-Type': 'application/javascript' } });
+        const iframeHeaders = new Headers({ 'Content-Type': 'application/javascript' });
+        addAcceptCHHeaders(iframeHeaders);
+        return new Response(iframePayload, { headers: iframeHeaders });
       case 'redirect':
         // Generate event ID for JS redirect (same ID for impression+click since they're one event)
         const jsRedirectEventId = data.impressionId || generateUniqueId('evt');
@@ -2278,7 +2349,9 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
       case 'folder':
         // This action is not supported for JS Snippet integration as it implies self-hosting.
         // We serve an empty response. A console warning could be added.
-        return new Response('/* "folder" rule is not supported in JS Snippet mode */', { headers: { 'Content-Type': 'application/javascript' } });
+        const folderHeaders = new Headers({ 'Content-Type': 'application/javascript' });
+        addAcceptCHHeaders(folderHeaders);
+        return new Response('/* "folder" rule is not supported in JS Snippet mode */', { headers: folderHeaders });
     }
   } else {
     // --- DNS Proxy Delivery ---
@@ -2355,6 +2428,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
                 osVersion: data.userAgent.osVersion,
                 brand: data.userAgent.brand,
                 referrer: data.referrer || null,
+                isBot: data.isBot || false,
                 queryParams: data.query,
                 ruleKey: ruleKey,
                 userAgentRaw: data.userAgent.raw,
@@ -2414,6 +2488,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
                 osVersion: data.userAgent.osVersion,
                 brand: data.userAgent.brand,
                 referrer: data.referrer || null,
+                isBot: data.isBot || false,
                 queryParams: data.query,
                 ruleKey: ruleKey,
                 userAgentRaw: data.userAgent.raw,
@@ -2577,6 +2652,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
                 osVersion: data.userAgent.osVersion,
                 brand: data.userAgent.brand,
                 referrer: data.referrer || null,
+                isBot: data.isBot || false,
                 queryParams: data.query,
                 ruleKey: ruleKey,
                 userAgentRaw: data.userAgent.raw,
