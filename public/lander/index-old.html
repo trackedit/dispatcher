@@ -41,6 +41,7 @@
 
   
 
+  <link rel="icon" href="mark.svg" type="image/svg+xml" sizes="any" />
   <!-- icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,9 +58,8 @@
       <div class="headerBar pageContainer desktopMenuStrip">
         <div class="logo">
           <a href="/">
-            <svg width="110" height="25" viewBox="0 0 110 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="20" font-family="Plus Jakarta Sans" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
-            </svg>
+            <img src="mark.svg" alt="Tracked" width="32" height="32" />
+            <span class="logoText marginLeftSmall">Tracked</span>
           </a>
         </div>
         <div class="headerLinks">
@@ -109,7 +109,7 @@
           </a>
       <a
         id="liveDemoButton"
-        class="button buttonNavyBlack"
+        class="button buttonAccent"
         href="app.tracked.it?register"
         data-event-value="new_user"
       >
@@ -120,9 +120,8 @@
       <div class="headerBar pageContainer mobileMenuStrip flexJustifySpaceBetween">
         <div class="logo">
           <a id="mobileLogo" href="/">
-        <svg width="110" height="25" viewBox="0 0 110 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="20" font-family="Plus Jakarta Sans" font-size="22" font-weight="700" fill="#1f2328">Tracked</text>
-            </svg>
+        <img src="mark.svg" alt="Tracked" width="28" height="28" />
+        <span class="logoText marginLeftSmall">Tracked</span>
           </a>
       <div id="backProducts" class="mobileBackLink textLarger">
         <h4><span class="arrowLeft"></span> Products</h4>
@@ -152,7 +151,7 @@
             <a class="mobileMenuItem block passthrough" href="/pricing"><h4>Pricing</h4></a>
             <div class="flexStack flexGapSmall hr paddingMedium" style="position: absolute; bottom: 0; width: 100%; background: var(--color-background);">
                 <a class="button buttonWhite" href="/login" data-event-value="sign_in">Sign In</a>
-                <a class="button" href="/signup" data-event-value="sign_up" style="background-color: var(--color-blue);">Sign Up</a>
+                <a class="button buttonAccent" href="/signup" data-event-value="sign_up">Sign Up</a>
             </div>
         </div>
     </div>
@@ -174,7 +173,7 @@
             <div class="marginTopMedium flexContainer flexJustifyContentCenter flexGapExtraSmall desktopOnly">
         <a
           href="/signup"
-          class="button buttonNavyBlack"
+          class="button buttonAccent"
           data-event-value="sign_up"
         >
                 Create a free account
@@ -190,10 +189,17 @@
             <div class="marginTopMedium flexStack flexGapSmall mobileOnly">
         <a
           href="/signup"
-          class="button buttonWhite"
+          class="button buttonAccent"
           data-event-value="sign_up"
         >
                 Create a free account
+              </a>
+        <a
+          href="https://www.tracked.it/videos/how-it-works.html"
+          class="button buttonWhite"
+          data-event-value="how_it_works"
+        >
+                See how it works
               </a>
             </div>
           </div>
@@ -227,6 +233,7 @@
               <img src="x-black.png" alt="X" />
               <img src="cloudflare.png" alt="Cloudflare" />
               <img src="aws.png" alt="AWS" />
+              <img src="vercel.png" alt="Vercel" />
               <!-- Duplicate logos for seamless scroll -->
               <img src="outbrain.png" alt="Outbrain" />
               <img src="tab.png" alt="Taboola" />
@@ -242,6 +249,47 @@
           </div>
         </div>
         </section-row>
+
+      <section-row>
+        <section-box class="accentPanel">
+          <div class="pageContainer flexStack flexGapSmall">
+            <span class="textSecondary">How it works</span>
+            <h2>Launch in minutes</h2>
+            <div class="accentStripe"></div>
+            <div class="grid4column marginTopMedium">
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">1</span>
+                  <h4 class="marginZero">Connect</h4>
+                </div>
+                <div class="marginTopSmall">Point your domain or paste our JS snippet to start.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">2</span>
+                  <h4 class="marginZero">Track</h4>
+                </div>
+                <div class="marginTopSmall">Cookieless event tracking and session replays out of the box.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">3</span>
+                  <h4 class="marginZero">Target</h4>
+                </div>
+                <div class="marginTopSmall">Run experiments, personalize content, and route traffic.</div>
+              </div>
+              <div class="card">
+                <div class="flexContainer flexGapExtraSmall flexCenterAlignItems">
+                  <span class="stepBadge">4</span>
+                  <h4 class="marginZero">Decide</h4>
+                </div>
+                <div class="marginTopSmall">Use our decision engine via SDKs or API to power features.</div>
+              </div>
+            </div>
+           
+          </div>
+        </section-box>
+      </section-row>
 
       <section-row>
         <section-box class="flexContainer flexGapLarge flexCenterAlignItems">
@@ -328,48 +376,46 @@
     <div class="sdkTab" data-usecase="ecom">E-commerce</div>
   </div>
   <div class="productsGrid">
-    
-      <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
-        Content Delivery
-              </div>
-    
-      <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
-        Feature Flags
-            </div>
-    
-      <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
-        Smart Targeting
-          </div>
-    
-      <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
-        A/B Testing
-            </div>
-    
-      <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
-        Decision Engine
-            </div>
-            
-      <div class="productPill mono" data-group="tracking" data-usecases="app-dev,ecom">
-        Session Replays
-            </div>
-            
-      <div class="productPill mono" data-group="tracking" data-usecases="app-dev,affiliate,ecom">
-        Event Tracking
-            </div>
-            
-      <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
-        User Attribution
-            </div>
-            
-      <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
-        Cookieless Tracking
-            </div>
-            
-      <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
-        Global Edge
-            </div>
-            
-              </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
+      Content Delivery
+    </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate,ecom">
+      Global Edge
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="app-dev,affiliate,ecom">
+      Event Tracking
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
+      Cookieless Tracking
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="app-dev,ecom">
+      Session Replays
+    </div>
+    <div class="productPill mono" data-group="tracking" data-usecases="affiliate,ecom">
+      User Attribution
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev,affiliate,ecom">
+      Targeting
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev,ecom">
+      A/B Testing
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
+      Feature Flags
+    </div>
+    <div class="productPill mono" data-group="decisions" data-usecases="app-dev">
+      Decision Engine
+    </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,ecom">
+      Content Personalization
+    </div>
+    <div class="productPill mono" data-group="delivery" data-usecases="app-dev,affiliate">
+      URL Routing
+    </div>
+    <div class="productPill mono" data-group="protection" data-usecases="app-dev,affiliate,ecom">
+      Bot Blocking
+    </div>
+  </div>
             </div>
             
           </div>
@@ -386,12 +432,10 @@
         style="padding-bottom: 0;"
       >
             <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-          <img
-            src="https://www.statsig.com/images/icons/icon-heading-experiments.svg"
-            class="icon marginZero"
-            alt="Experimentation" 
-          />
-              <span class="textSecondary">Optimize everything</span>
+              <span class="textSecondary badge badgeBlue">
+                <img src="https://www.statsig.com/images/icons/icon-heading-experiments.svg" class="icon" alt="Experimentation" />
+                <span>Optimize everything</span>
+              </span>
             </div>
             <h4>Targeting & Experiments</h4>
             <div>
@@ -417,12 +461,10 @@
         style="padding-bottom: 0;"
       >
             <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-          <img
-            src="https://www.statsig.com/images/icons/icon-heading-analytics.svg"
-            class="icon marginZero"
-            alt="Product Analytics" 
-          />
-              <span class="textSecondary">Data driven</span>
+              <span class="textSecondary badge badgeMint">
+                <img src="https://www.statsig.com/images/icons/icon-heading-analytics.svg" class="icon" alt="Product Analytics" />
+                <span>Data driven</span>
+              </span>
             </div>
             <h4>Analytics & Insights</h4>
             <div>
@@ -448,12 +490,10 @@
         style="padding-bottom: 0;"
       >
             <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-          <img
-            src="https://www.statsig.com/images/icons/icon-heading-flags.svg"
-            class="icon marginZero"
-            alt="Decision Engine" 
-          />
-              <span class="textSecondary">Ship with confidence</span>
+              <span class="textSecondary badge badgePeach">
+                <img src="https://www.statsig.com/images/icons/icon-heading-flags.svg" class="icon" alt="Decision Engine" />
+                <span>Ship with confidence</span>
+              </span>
             </div>
             <h4>Feature Flags & Dynamic Content</h4>
             <div>
@@ -479,12 +519,10 @@
         style="padding-bottom: 0;"
       >
             <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-          <img
-            src="https://www.statsig.com/images/icons/icon-heading-replay.svg"
-            class="icon marginZero"
-            alt="SDK Integration" 
-          />
-              <span class="textSecondary">Integrate anywhere</span>
+              <span class="textSecondary badge badgePurple">
+                <img src="https://www.statsig.com/images/icons/icon-heading-replay.svg" class="icon" alt="SDK Integration" />
+                <span>Integrate anywhere</span>
+              </span>
             </div>
             <h4>Flexible Integration</h4>
             <div>
@@ -510,6 +548,84 @@
       </section-row>
 
 
+      
+
+      
+ 
+       <section-row>
+         <section-box>
+           <div id="inline-pricing">
+             <h2>Simple, transparent pricing</h2>
+             <div class="accentStripe marginTopSmall"></div>
+             <div class="pricingGrid marginTopMedium">
+               <div class="pricingCard">
+                 <div class="tierName">Starter</div>
+                 <div class="price marginTopSmall">$0</div>
+                 <div class="textSecondary marginTopSmall">For individuals and small projects getting started.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Cookieless tracking</li>
+                   <li>API & SDKs</li>
+                   <li>Global edge delivery (Starter)</li>
+                   <li>Community support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard highlight">
+                 <div class="highlight-badge">Most popular</div>
+                 <div class="tierName">Business</div>
+                 <div class="price marginTopSmall">$49/mo</div>
+                 <div class="textSecondary marginTopSmall">For teams running experiments and personalizing content.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Everything in Starter</li>
+                   <li>Session replays</li>
+                   <li>Targeting & A/B testing</li>
+                   <li>Email support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard">
+                 <div class="tierName">Agency</div>
+                 <div class="price marginTopSmall">$199/mo</div>
+                 <div class="textSecondary marginTopSmall">For agencies managing multiple clients and campaigns.</div>
+                 <hr />
+                 <ul class="checkboxList">
+                   <li>Everything in Business</li>
+                   <li>Advanced delivery</li>
+                   <li>Team features</li>
+                   <li>Priority support</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/signup" class="button buttonAccent">Get started</a>
+                 </div>
+               </div>
+               <div class="pricingCard">
+                 <div class="tierName">Enterprise</div>
+                 <div class="price marginTopSmall">Custom</div>
+                 <div class="textSecondary marginTopSmall">For large-scale applications with custom needs.</div>
+                 <hr />
+                 <ul class="checkboxList marginTopSmall">
+                   <li>Everything in Agency</li>
+                   <li>Dedicated SLA</li>
+                   <li>Custom terms</li>
+                 </ul>
+                 <div class="marginTopSmall">
+                   <a href="/contact" class="button buttonAccent widthFullOnMobile">Contact sales</a>
+                 </div>
+               </div>
+             </div>
+             <div class="marginTopSmall textSmaller textSecondary">
+               Need high volume or custom requirements? <a class="anchor" href="/contact">Contact sales</a>.
+             </div>
+           </div>
+         </section-box>
+       </section-row>
+
       <section-row>
         <section-box>
           <div>
@@ -521,69 +637,21 @@
             </div>
           </div>
           <div class="grid4column marginTopLarge">
-        
             <div>
-            <h3>
-              300+
-            </h3>
+              <h3>300+</h3>
               <div>Global edge locations</div>
             </div>
-        
             <div>
-            <h3>
-              99.99%
-            </h3>
+              <h3>99.99%</h3>
               <div>Uptime SLA guarantee</div>
             </div>
-        
             <div>
-            <h3>
-              &lt;50ms
-            </h3>
+              <h3>&lt;50ms</h3>
               <div>Average response time</div>
             </div>
-        
             <div>
-            <h3>
-              1B+
-            </h3>
+              <h3>1B+</h3>
               <div>Requests served daily</div>
-            </div>
-        
-          </div>
-        </section-box>
-      </section-row>
-
-      <section-row>
-        <section-box>
-          <div class="flexStack flexCenterAlignItems flexGapLarge">
-            <div>
-              <h2>
-                Say goodbye to
-                expensive point solutions
-              </h2>
-              <div class="sectionSubtitle">
-                Consolidate your stack with our dual-purpose platform. Choose content delivery, 
-                decision engine API, or both with the industry's most generous free 
-                tier and scalable enterprise pricing
-              </div>
-              <div class="marginTopMedium">
-                <a 
-                  href="/pricing" 
-                  class="button" 
-                  data-event-value="pricing"
-                >
-                  Compare pricing
-                </a>
-              </div>
-            </div>
-            <div>
-              <img
-                src="https://www.statsig.com/images/sections/cut-your-stack/stack.svg"
-                class="widthFull"
-                alt="Tracked is a platform"
-                style="max-height: 220px; aspect-ratio: 5.27;"
-              />
             </div>
           </div>
         </section-box>
@@ -599,171 +667,86 @@
               See what our users have to say about building with Tracked
             </div>
           </div>
-          <div class="marginTopLarge" id="voiceOfCustomer">
-            <div class="textAlignLeft vocContainer">
-              <div class="vocInnerContainer">
-                <div class="flex1Of3 flexStack flexGapMedium vocColumn">
-                  <div class="vocColumnScroller">
-              
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching from our old landing page system. The targeting capabilities are incredible."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Sarah Chen</div>
-                          <div class="textSmaller">Performance Marketing Director</div>
-                        </div>
-                      </div>
-
-                    </div>
-                    
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-dark-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Alex Kumar</div>
-                          <div class="textSmaller">Frontend Engineer</div>
-                        </div>
-                      </div>
-
-                    </div>
-                    
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-medium-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Marcus Rodriguez</div>
-                          <div class="textSmaller">Growth Marketing Lead</div>
-                        </div>
-                      </div>
-
-                    </div>
-                    
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "We evaluated multiple platforms, but Tracked's combination of speed, targeting, and analytics made it the clear winner for our agency."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-light-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Emma Thompson</div>
-                          <div class="textSmaller">Agency Owner</div>
-                        </div>
-                      </div>
-
-                    </div>
+          <div class="testimonial-scroller marginTopLarge" id="voiceOfCustomer">
+            <div class="testimonial-scroller-inner">
+              <div class="testimonial-card">
+                <div class="mono">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Sarah Chen</div>
+                    <div class="textSmaller">Performance Marketing Director</div>
                   </div>
                 </div>
-                <div class="flex1Of3 flexStack flexGapMedium vocColumn desktopOnly">
-                  <div class="vocColumnScroller reverse">
-              
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "We use Tracked's feature flags to safely roll out new features. The ability to target specific user segments has been game-changing for our product."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-dark-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">James Wilson</div>
-                          <div class="textSmaller">Product Manager</div>
-                        </div>
-                      </div>
-
-                    </div>
-                    
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "Setting up campaigns is incredibly fast. What used to take hours now takes minutes. The visual rule builder is intuitive and powerful."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Lisa Park</div>
-                          <div class="textSmaller">Digital Marketing Specialist</div>
-                        </div>
-                      </div>
-
-                    </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">Alex Kumar</div>
+                    <div class="textSmaller">Frontend Engineer</div>
                   </div>
                 </div>
-                <div class="flex1Of3 flexStack flexGapMedium vocColumn desktopOnly">
-                  <div class="vocColumnScroller">
-              
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "We integrated Tracked into our React app in minutes. The useTargeting hook makes A/B testing our components incredibly simple and powerful."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-medium-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">David Kim</div>
-                          <div class="textSmaller">Senior React Developer</div>
-                        </div>
-                      </div>
-
-                    </div>
-                    
-                    <div class="flexStack flexGapSmall card">
-        
-                      <div class="mono">
-          "The real-time analytics dashboard gives us insights we never had before. We can optimize campaigns on the fly."
-                      </div>
-                      <div class="flexContainer flexGapExtraSmall keepFlexOnMobile flexCenterAlignItems">
-  <div 
-    class="roundedProfilePic"
-    style="background: var(--color-light-blue);"
-  ></div>
-                        <div>
-    
-                          <div class="strong">Rachel Green</div>
-                          <div class="textSmaller">Campaign Manager</div>
-                        </div>
-                      </div>
-
-                    </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-medium-blue);"></div>
+                  <div>
+                    <div class="strong">Marcus Rodriguez</div>
+                    <div class="textSmaller">Growth Marketing Lead</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"We evaluated multiple platforms, but Tracked's combination of speed, targeting, and analytics made it the clear winner for our agency."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-light-blue);"></div>
+                  <div>
+                    <div class="strong">Emma Thompson</div>
+                    <div class="textSmaller">Agency Owner</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"We use Tracked's feature flags to safely roll out new features. The ability to target specific user segments has been game-changing."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">James Wilson</div>
+                    <div class="textSmaller">Product Manager</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"Setting up campaigns is incredibly fast. What used to take hours now takes minutes. The visual rule builder is intuitive and powerful."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Lisa Park</div>
+                    <div class="textSmaller">Digital Marketing Specialist</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Duplicates for seamless scroll -->
+              <div class="testimonial-card">
+                <div class="mono">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-blue);"></div>
+                  <div>
+                    <div class="strong">Sarah Chen</div>
+                    <div class="textSmaller">Performance Marketing Director</div>
+                  </div>
+                </div>
+              </div>
+              <div class="testimonial-card">
+                <div class="mono">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</div>
+                <div class="testimonial-author">
+                  <div class="roundedProfilePic" style="background: var(--color-dark-blue);"></div>
+                  <div>
+                    <div class="strong">Alex Kumar</div>
+                    <div class="textSmaller">Frontend Engineer</div>
                   </div>
                 </div>
               </div>
@@ -778,7 +761,7 @@
             </div>
       <div class="cookieUfi marginTopSmall">
         <a class="textSmaller" href="/privacy">Privacy Policy</a>
-        <button class="button buttonNavyBlack" onclick="setCookieConsent();">
+        <button class="button buttonAccent" onclick="setCookieConsent();">
           Got it!
         </button>
             </div>
@@ -1047,9 +1030,10 @@
             
       </div>
             <div class="flex1 textAlignCenter">
-              <svg width="165" height="40" viewBox="0 0 165 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="32" font-family="Plus Jakarta Sans" font-size="32" font-weight="700" fill="#1f2328">Tracked</text>
-              </svg>
+              <div class="flexCenterAlignItems">
+                <img src="mark.svg" alt="Tracked" width="48" height="48" />
+                <span class="logoTextFooter marginLeftSmall">Tracked</span>
+              </div>
             </div>
           </div>
           <div class="flexContainer marginTopMedium flexJustifySpaceBetween">
@@ -1072,5 +1056,51 @@
       </section-row>
     </footer>
   </div>
+
+  <script>
+    (function () {
+      // Use-case tab filtering: highlight only pills that list the selected usecase
+      const tabs = Array.from(document.querySelectorAll('.sdkTab'));
+      const pills = Array.from(document.querySelectorAll('.productPill'));
+
+      function normalizeList(s) {
+        return (s || '').split(',').map(x => x.trim()).filter(Boolean);
+      }
+
+      function updateForUsecase(usecase) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.usecase === usecase));
+
+        if (usecase === 'all') {
+          pills.forEach(p => {
+            p.classList.remove('dim');
+            p.classList.remove('highlight');
+          });
+          return;
+        }
+
+        pills.forEach(p => {
+          const usecases = normalizeList(p.dataset.usecases);
+          if (usecases.includes(usecase)) {
+            p.classList.remove('dim');
+            p.classList.add('highlight');
+          } else {
+            p.classList.add('dim');
+            p.classList.remove('highlight');
+          }
+        });
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          updateForUsecase(tab.dataset.usecase || 'all');
+        });
+      });
+
+      // Initialize based on any pre-set active tab
+      const initial = document.querySelector('.sdkTab.active')?.dataset.usecase || 'all';
+      updateForUsecase(initial);
+    })();
+  </script>
+
 </body>
 </html>
