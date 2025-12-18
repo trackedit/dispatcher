@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracked | The Performance Engine</title>
-    <meta name="description" content="Tracked is the unified platform for sales pages, VSLs, and lead gen. Real-time tracking, global hosting, and optimization." />
+    <title>Tracked | Tracking, Delivery & Decision Platform</title>
+    <meta name="description" content="Tracked is the unified platform for performance marketing and product teams. Get cookieless tracking, user attribution, session replays, event tracking, powerful A/B testing, and a global content delivery & decision engine." />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,6 +62,12 @@
                             warning: "var(--pastel-warning)",
                             info: "var(--pastel-info)",
                             accent: "var(--pastel-accent)",
+                            indigo: "var(--pastel-indigo)",
+                            pink: "var(--pastel-pink)",
+                            cyan: "var(--pastel-cyan)",
+                            orange: "var(--pastel-orange)",
+                            teal: "var(--pastel-teal)",
+                            violet: "var(--pastel-violet)",
                         }
                     },
                     borderRadius: {
@@ -78,6 +84,7 @@
                         "slide-in-left": "slideInLeft 0.8s ease-out forwards",
                         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                         "float": "float 6s ease-in-out infinite",
+                        "blob": "blob 7s infinite",
                     },
                     keyframes: {
                         "accordion-down": {
@@ -144,6 +151,12 @@
             --pastel-warning: #fef3c7;
             --pastel-info: #dbeafe;
             --pastel-accent: #f3e8ff;
+            --pastel-indigo: #e0e7ff;
+            --pastel-pink: #fce7f3;
+            --pastel-cyan: #ecfeff;
+            --pastel-orange: #ffedd5;
+            --pastel-teal: #f0fdfa;
+            --pastel-violet: #ede9fe;
         }
 
         .dark {
@@ -174,6 +187,12 @@
             --pastel-warning: #451a03;
             --pastel-info: #172554;
             --pastel-accent: #3b0764;
+            --pastel-indigo: #1e1b4b;
+            --pastel-pink: #500724;
+            --pastel-cyan: #083344;
+            --pastel-orange: #431407;
+            --pastel-teal: #042f2e;
+            --pastel-violet: #2e1065;
         }
         
         body {
@@ -245,6 +264,70 @@
             background: rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        .accentStripe {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--pastel-indigo), var(--pastel-pink), var(--pastel-cyan));
+            border-radius: 2px;
+            margin: 0 auto;
+        }
+    </style>
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        /* Editor Overlays */
+        #editor-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        #macro-input, #editor-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            margin: 0;
+            border: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.625;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: auto;
+        }
+        #macro-input {
+            z-index: 1;
+            color: transparent;
+            background: transparent;
+            caret-color: white;
+            resize: none;
+        }
+        #editor-highlight {
+            z-index: 0;
+            pointer-events: none;
+            background: #1e1e1e;
+        }
+        #editor-highlight code {
+            font-family: inherit;
+            background: transparent !important;
+            padding: 0 !important;
+        }
+        /* Custom Prism Colors to match theme */
+        .token.tag, .token.attr-name, .token.namespace, .token.deleted { color: #569cd6; }
+        .token.string, .token.attr-value { color: #ce9178; }
+        .token.punctuation { color: #808080; }
+        .token.operator { color: #d4d4d4; }
+        .token.keyword { color: #569cd6; }
+        .token.comment { color: #6a9955; }
+        /* Macro Highlighting */
+        .token.macro {
+            color: #4fc1ff;
+            font-weight: bold;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="bg-background text-foreground min-h-screen flex flex-col transition-colors duration-300">
@@ -312,27 +395,27 @@
             <!-- Grid Background -->
             <div class="absolute inset-0 bg-grid opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
             
+            <!-- Background Decorative Blobs -->
+            <div class="absolute top-0 -left-4 w-72 h-72 bg-pastel-indigo/30 dark:bg-pastel-indigo/10 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-70 animate-blob"></div>
+            <div class="absolute top-0 -right-4 w-72 h-72 bg-pastel-pink/30 dark:bg-pastel-pink/10 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-70 animate-blob" style="animation-delay: 2s;"></div>
+            <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pastel-cyan/30 dark:bg-pastel-cyan/10 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-70 animate-blob" style="animation-delay: 4s;"></div>
+            
             <div class="container mx-auto px-4 text-center relative z-10">
-                <div class="inline-flex items-center rounded-full border border-border bg-pastel-accent/50 px-3 py-1 text-xs font-mono-terminal text-foreground mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
-                    <span class="flex h-1.5 w-1.5 rounded-full bg-purple-500 mr-2 animate-pulse"></span>
-                    NEW: ASSET HOSTING & DRIVE
-                </div>
-                
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground animate-fade-in-up" style="animation-delay: 0.2s;">
-                    Sales Pages. Lead Gen. Funnels. <br class="hidden md:block" />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-muted-foreground">Tracked in Real-Time.</span>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight mb-6 text-foreground animate-fade-in-up" style="animation-delay: 0.2s;">
+                    The platform for <strong class="font-bold text-primary">tracking</strong>, <br /><strong class="font-bold text-primary">delivery</strong>, and <strong class="font-bold text-primary">decisions</strong>
                 </h1>
                 
                 <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up leading-relaxed" style="animation-delay: 0.3s;">
-                    Stop stitching together tools. Host high-converting pages, stream video, and attribute every conversion in one unified workflow.
+                    Get a complete view of your users with cookieless tracking, session replays, and event attribution.
+                    Deliver targeted content at scale or use our decision engine to power your own apps.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 animate-fade-in-up" style="animation-delay: 0.4s;">
                     <a href="/signup" class="h-12 px-8 rounded-md bg-primary text-primary-foreground font-medium flex items-center justify-center hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm hover:scale-105">
-                        Start Building
+                        Create a free account
                     </a>
                     <a href="#features" class="h-12 px-8 rounded-md border border-border bg-background hover:bg-secondary text-foreground font-medium flex items-center justify-center transition-all w-full sm:w-auto">
-                        See Capabilities
+                        See how it works
                     </a>
                 </div>
                 
@@ -444,23 +527,20 @@
                                         <input type="text" placeholder="Search campaigns..." class="pl-9 pr-4 py-1.5 text-sm bg-background border border-border rounded-md w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary/50" />
                                     </div>
                                     <div class="hidden md:flex items-center gap-1">
-                                        <div class="px-2 py-1 bg-secondary rounded text-xs border border-border flex items-center gap-1 font-medium">
+                                        <div class="px-2 py-1 bg-secondary rounded text-xs border border-border flex items-center gap-1 font-medium text-foreground cursor-pointer hover:bg-muted">
                                             Campaign
-                                            <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                            <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                         </div>
-                                        <button class="w-6 h-6 flex items-center justify-center rounded border border-border hover:bg-muted text-muted-foreground">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                        </button>
+                                        <div class="px-2 py-1 bg-background rounded text-xs border border-border flex items-center gap-1 font-medium text-muted-foreground cursor-pointer hover:bg-muted">
+                                            Last 7 Days
+                                            <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <button class="px-3 py-1.5 text-xs font-medium border border-border rounded hover:bg-muted flex items-center gap-2">
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                        Reset
-                                    </button>
-                                    <button class="px-3 py-1.5 text-xs font-medium border border-border rounded hover:bg-muted flex items-center gap-2">
+                                    <button class="px-3 py-1.5 text-xs font-medium border border-border rounded hover:bg-muted flex items-center gap-2 transition-colors">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                        Columns
+                                        Customize
                                     </button>
                                 </div>
                             </div>
@@ -469,10 +549,10 @@
                             <div class="overflow-x-auto">
                                 <div class="min-w-[800px]">
                                     <!-- Header -->
-                                    <div class="grid grid-cols-12 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">
+                                    <div class="grid grid-cols-12 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground select-none">
                                         <div class="col-span-4 px-4 py-2 flex items-center gap-1 cursor-pointer hover:text-foreground">
-                                            Name
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                                            Campaign Name
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                         </div>
                                         <div class="col-span-1 px-4 py-2 text-center">Status</div>
                                         <div class="col-span-2 px-4 py-2 text-right cursor-pointer hover:text-foreground">Spend</div>
@@ -482,14 +562,14 @@
                                         <div class="col-span-1 px-4 py-2 text-right cursor-pointer hover:text-foreground">CTR</div>
                                     </div>
 
-                                    <!-- Row 1 -->
+                                    <!-- Row 1: Parent Campaign -->
                                     <div class="grid grid-cols-12 border-b border-border text-sm hover:bg-accent/30 transition-colors group cursor-pointer items-center h-10">
                                         <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate">
-                                            <button class="p-0.5 rounded hover:bg-muted text-muted-foreground"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                                            <button class="p-0.5 rounded hover:bg-muted text-muted-foreground transition-transform hover:scale-110"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
                                             <span class="font-medium text-blue-600 flex items-center gap-2"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02c0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89c1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02Z"/></svg> Cold_Traffic_USA_Scale</span>
                                         </div>
                                         <div class="col-span-1 px-4 py-2 flex justify-center">
-                                            <span class="text-emerald-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                         </div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal text-muted-foreground">$12,450.00</div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal font-medium">$42,850.00</div>
@@ -498,14 +578,14 @@
                                         <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">1.2%</div>
                                     </div>
                                     
-                                    <!-- Row 2 -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm hover:bg-accent/30 transition-colors group cursor-pointer items-center h-10 bg-accent/5">
-                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-8">
-                                            <button class="p-0.5 rounded hover:bg-muted text-muted-foreground"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-                                            <span class="text-foreground flex items-center gap-2"><svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg> YouTube_Retargeting</span>
+                                    <!-- Row 2: Parent Campaign (Expanded) -->
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/5 hover:bg-accent/10 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-primary">
+                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate">
+                                            <button class="p-0.5 rounded hover:bg-muted text-foreground transition-transform rotate-90"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                                            <span class="font-medium text-foreground flex items-center gap-2"><svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg> YouTube_Retargeting</span>
                                         </div>
                                         <div class="col-span-1 px-4 py-2 flex justify-center">
-                                            <span class="text-emerald-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                         </div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal text-muted-foreground">$2,100.00</div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal font-medium">$8,450.00</div>
@@ -514,13 +594,14 @@
                                         <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">2.4%</div>
                                     </div>
 
-                                     <!-- Row 3 (Nested) -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm hover:bg-accent/30 transition-colors group cursor-pointer items-center h-10 bg-accent/10">
-                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-14">
-                                            <span class="text-muted-foreground flex items-center gap-2 text-xs">Ad Set: VSL_Variant_A</span>
+                                     <!-- Row 3: Child Ad Set (Nested) -->
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-transparent">
+                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-12">
+                                            <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                                            <span class="text-sm font-medium">Ad Set: VSL_Variant_A</span>
                                         </div>
                                         <div class="col-span-1 px-4 py-2 flex justify-center">
-                                            <span class="text-emerald-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+                                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                                         </div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal text-muted-foreground">$1,200.00</div>
                                         <div class="col-span-2 px-4 py-2 text-right font-mono-terminal font-medium">$5,100.00</div>
@@ -529,20 +610,20 @@
                                         <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">2.8%</div>
                                     </div>
                                     
-                                    <!-- Row 4 -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm hover:bg-accent/30 transition-colors group cursor-pointer items-center h-10">
-                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate">
-                                            <button class="p-0.5 rounded hover:bg-muted text-muted-foreground"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
-                                            <span class="text-foreground flex items-center gap-2"><svg class="w-3 h-3 text-black dark:text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1Z"/></svg> TikTok_Influencers</span>
+                                    <!-- Row 4: Child Ad Set (Nested) -->
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-transparent">
+                                        <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-12">
+                                            <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                                            <span class="text-sm font-medium">Ad Set: VSL_Variant_B</span>
                                         </div>
                                         <div class="col-span-1 px-4 py-2 flex justify-center">
-                                            <span class="text-yellow-500"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>
+                                            <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
                                         </div>
-                                        <div class="col-span-2 px-4 py-2 text-right font-mono-terminal text-muted-foreground">$5,600.00</div>
-                                        <div class="col-span-2 px-4 py-2 text-right font-mono-terminal font-medium">$6,200.00</div>
-                                        <div class="col-span-1 px-4 py-2 text-right font-medium text-yellow-600">1.10</div>
-                                        <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">120</div>
-                                        <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">0.8%</div>
+                                        <div class="col-span-2 px-4 py-2 text-right font-mono-terminal text-muted-foreground">$900.00</div>
+                                        <div class="col-span-2 px-4 py-2 text-right font-mono-terminal font-medium">$3,350.00</div>
+                                        <div class="col-span-1 px-4 py-2 text-right font-medium text-yellow-600">3.72</div>
+                                        <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">33</div>
+                                        <div class="col-span-1 px-4 py-2 text-right text-muted-foreground">1.9%</div>
                                     </div>
                                 </div>
                             </div>
@@ -555,7 +636,7 @@
         <!-- Partners Section -->
         <section class="py-12 border-y border-border bg-secondary/30">
             <div class="container mx-auto px-4">
-                <p class="text-xs font-mono-terminal text-center text-muted-foreground mb-8 uppercase tracking-widest">[ INTEGRATED_NETWORKS ]</p>
+                <p class="text-xs font-mono-terminal text-center text-muted-foreground mb-8 uppercase tracking-widest">Compatible with your favorite platforms</p>
                 <div class="relative w-full overflow-hidden mask-fade-sides group">
                     <div class="flex animate-scroll w-max gap-12 items-center">
                         <!-- Logos -->
@@ -581,377 +662,557 @@
         <section id="solutions" class="py-24 bg-muted/20">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-16 reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">// BUILD_ANYTHING</span>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Not Just a Tracker. A Complete Ecosystem.</h2>
-                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">We're not an operating system. We're a specialized toolkit for direct response.</p>
+                    <span class="text-xs font-mono-terminal text-primary mb-2 block">How it works</span>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Launch in minutes</h2>
+                    <div class="accentStripe"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Card 1 -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <!-- Step 1 -->
                     <div class="terminal-card p-6 reveal-on-scroll hover:border-primary/50 transition-all hover:-translate-y-1">
-                        <div class="h-40 bg-secondary/50 rounded mb-6 flex items-center justify-center overflow-hidden relative">
-                             <div class="absolute inset-0 bg-grid opacity-10"></div>
-                             <div class="w-32 h-20 bg-background border border-border shadow-sm rounded flex flex-col p-2">
-                                <div class="h-2 w-full bg-muted rounded mb-2"></div>
-                                <div class="flex-1 bg-muted/50 rounded"></div>
-                             </div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">1</span>
+                            <h4 class="text-lg font-bold">Add Domain</h4>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Sales Pages</h3>
-                        <p class="text-muted-foreground text-sm">Host lightning-fast HTML or React sales pages on our global edge network. Sub-50ms load times.</p>
+                        <p class="text-muted-foreground text-sm">Point your DNS to Tracked or use our instant subdomains.</p>
                     </div>
 
-                    <!-- Card 2 -->
+                    <!-- Step 2 -->
                     <div class="terminal-card p-6 reveal-on-scroll hover:border-primary/50 transition-all hover:-translate-y-1" style="transition-delay: 100ms;">
-                         <div class="h-40 bg-secondary/50 rounded mb-6 flex items-center justify-center overflow-hidden relative p-4">
-                             <div class="w-full h-full bg-black rounded relative overflow-hidden group/video border border-border shadow-sm">
-                                <div class="absolute inset-0 flex items-center justify-center z-10">
-                                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover/video:scale-110 transition-transform cursor-pointer">
-                                        <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
-                                    </div>
-                                </div>
-                                <!-- Fake Progress Bar -->
-                                <div class="absolute bottom-2 left-2 right-2 h-1 bg-white/20 rounded-full overflow-hidden">
-                                     <div class="h-full bg-primary w-1/3"></div>
-                                </div>
-                                <div class="absolute top-2 right-2 px-1.5 py-0.5 bg-black/50 text-[10px] text-white rounded font-mono-terminal">PLAYING</div>
-                            </div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">2</span>
+                            <h4 class="text-lg font-bold">Create Campaign</h4>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Video Funnels</h3>
-                        <p class="text-muted-foreground text-sm">Optimized video player built for conversions. Autoplay handling, sticky on scroll, and engagement tracking.</p>
+                        <p class="text-muted-foreground text-sm">Set up your campaign structure and default routing behavior.</p>
                     </div>
 
-                    <!-- Card 3 -->
+                    <!-- Step 3 -->
                     <div class="terminal-card p-6 reveal-on-scroll hover:border-primary/50 transition-all hover:-translate-y-1" style="transition-delay: 200ms;">
-                         <div class="h-40 bg-secondary/50 rounded mb-6 flex items-center justify-center overflow-hidden relative p-6">
-                             <div class="absolute inset-0 bg-grid opacity-10"></div>
-                             <div class="w-full bg-background border border-border p-4 rounded shadow-sm">
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between text-xs border-b border-border pb-2">
-                                        <span class="text-muted-foreground">Form Conv.</span>
-                                        <span class="text-green-600 font-bold">12.4%</span>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs">
-                                         <span class="text-muted-foreground">CPL</span>
-                                         <span class="font-mono-terminal">$3.42</span>
-                                    </div>
-                                    <div class="h-1.5 w-full bg-secondary rounded-full mt-2 overflow-hidden">
-                                         <div class="h-full bg-primary w-3/4"></div>
-                                    </div>
-                                </div>
-                             </div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">3</span>
+                            <h4 class="text-lg font-bold">Set Rules</h4>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Lead Gen</h3>
-                        <p class="text-muted-foreground text-sm">Capture leads with multi-step forms. Send data directly to your CRM via webhooks or API.</p>
+                        <p class="text-muted-foreground text-sm">Configure sophisticated targeting rules and destination splits.</p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="terminal-card p-6 reveal-on-scroll hover:border-primary/50 transition-all hover:-translate-y-1" style="transition-delay: 300ms;">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">4</span>
+                            <h4 class="text-lg font-bold">Profit & Optimize</h4>
+                        </div>
+                        <p class="text-muted-foreground text-sm">Analyze real-time data, drill down, and scale your winners.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-         <!-- Unified Workflow Section -->
-         <section class="py-24">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-16 reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">// INTEGRATION</span>
-                    <h2 class="text-3xl font-bold mb-4">Unified Campaign Workflow</h2>
-                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">Connect traffic sources, manage logic, and analyze results in one place.</p>
-                </div>
-
-                <div class="relative max-w-5xl mx-auto">
-                    <!-- Workflow Visual -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-                        
-                        <!-- Input: Traffic Sources -->
-                        <div class="terminal-card p-8 flex flex-col gap-4 items-center text-center reveal-on-scroll relative z-10">
-                            <span class="text-xs font-mono-terminal text-muted-foreground uppercase">1. Traffic Sources</span>
-                            <div class="flex -space-x-3">
-                                <div class="w-12 h-12 rounded-full bg-blue-600 border-4 border-card flex items-center justify-center text-white text-xs font-bold z-30 shadow-sm">FB</div>
-                                <div class="w-12 h-12 rounded-full bg-black border-4 border-card flex items-center justify-center text-white text-xs font-bold z-20 shadow-sm">TK</div>
-                                <div class="w-12 h-12 rounded-full bg-red-500 border-4 border-card flex items-center justify-center text-white text-xs font-bold z-10 shadow-sm">GG</div>
-                            </div>
-                            <div class="text-sm font-medium">Inbound Clicks</div>
-                        </div>
-
-                        <!-- Processor: Tracked Engine -->
-                        <div class="relative reveal-on-scroll" style="transition-delay: 200ms;">
-                            <!-- Animated Connection Lines (Mobile Hidden) -->
-                            <div class="absolute top-1/2 left-0 -translate-x-1/2 w-full h-0.5 bg-border hidden md:block -z-10"></div>
-                            
-                            <div class="terminal-card p-8 border-primary bg-secondary/5 shadow-xl scale-110 z-20 relative">
-                                <div class="text-center space-y-4">
-                                    <div class="w-14 h-14 bg-primary text-primary-foreground rounded mx-auto flex items-center justify-center font-bold text-2xl font-mono-terminal shadow-lg">T</div>
-                                    <div>
-                                        <h4 class="font-bold text-lg">Tracked Engine</h4>
-                                        <p class="text-xs text-muted-foreground mt-1">Routing & Optimization</p>
-                                    </div>
-                                    <div class="flex justify-center gap-1.5">
-                                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-75"></span>
-                                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-150"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                         <!-- Output: Destination -->
-                        <div class="terminal-card p-8 flex flex-col gap-4 text-left reveal-on-scroll relative z-10 w-full md:col-span-1" style="transition-delay: 400ms;">
-                            <span class="text-xs font-mono-terminal text-muted-foreground uppercase text-center md:text-left">2. Flexible Integration</span>
-                            <div class="space-y-3 w-full">
-                                <div class="p-3 rounded border border-border bg-background flex items-center gap-3 text-sm shadow-sm">
-                                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                    <span class="font-medium">Hosted Landing Page</span>
-                                </div>
-                                <div class="p-3 rounded border border-border bg-background flex items-center gap-3 text-sm shadow-sm opacity-80">
-                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                                     <span class="font-mono-terminal text-xs text-muted-foreground">&lt;script src="..."&gt;</span>
-                                     <span class="text-xs ml-auto">Embed</span>
-                                </div>
-                                <div class="p-3 rounded border border-border bg-background flex items-center gap-3 text-sm shadow-sm opacity-80">
-                                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                                    <span>Direct Redirect</span>
-                                    <span class="text-xs ml-auto text-muted-foreground">URL</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Capabilities (Bento Box) -->
-        <section id="features" class="py-24 bg-background border-t border-border">
-            <div class="container mx-auto px-4">
-                <div class="mb-16 reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">// CAPABILITIES</span>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Everything You Need. Nothing You Don't.</h2>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Feature 1: Asset Drive (New) -->
-                    <div class="md:col-span-1 terminal-card p-8 group relative overflow-hidden hover:border-primary/50 transition-colors reveal-on-scroll">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-pastel-warning/20 rounded-full blur-[40px] -z-10"></div>
-                        <div class="w-10 h-10 rounded border border-border bg-background flex items-center justify-center text-primary mb-4">
-                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                        </div>
-                        <h3 class="text-lg font-bold mb-2">Asset Drive</h3>
-                        <p class="text-muted-foreground text-sm">Host your images, videos, and scripts directly on our edge network. Drag-and-drop file management.</p>
-                    </div>
-
-                    <!-- Feature 2: Global Hosting -->
-                    <div class="md:col-span-2 terminal-card p-8 group relative overflow-hidden hover:border-primary/50 transition-colors reveal-on-scroll" style="transition-delay: 100ms;">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-pastel-accent/30 rounded-full blur-[80px] -z-10 dark:bg-pastel-accent/10"></div>
-                        <div class="h-full flex flex-col">
-                            <div class="mb-6">
-                                <div class="w-10 h-10 rounded border border-border bg-background flex items-center justify-center text-primary mb-4">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2">Global Edge Hosting</h3>
-                                <p class="text-muted-foreground text-sm">Deploy instantly. We handle SSL, caching, and asset optimization automatically.</p>
-                            </div>
-                            <div class="mt-auto pt-4 border-t border-border border-dashed flex justify-between items-center text-xs font-mono-terminal">
-                                <span class="text-muted-foreground">AVG_TTFB</span>
-                                <span class="text-primary font-bold">< 50ms</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Feature 3: Cookieless -->
-                    <div class="md:col-span-1 terminal-card p-8 group relative overflow-hidden hover:border-primary/50 transition-colors bg-secondary/20 reveal-on-scroll">
-                        <div class="h-full flex flex-col">
-                            <div class="flex flex-col gap-4 items-start">
-                                <div class="w-10 h-10 rounded border border-border bg-background flex items-center justify-center text-primary mb-2 shrink-0">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold mb-2">Cookieless</h3>
-                                    <p class="text-muted-foreground text-sm">Server-side fingerprinting ensures 100% data accuracy despite ad blockers.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Feature 4: Analytics -->
-                    <div class="md:col-span-1 terminal-card p-8 hover:border-primary/50 transition-colors reveal-on-scroll" style="transition-delay: 100ms;">
-                        <div class="w-10 h-10 rounded border border-border bg-background flex items-center justify-center text-primary mb-4">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-                        </div>
-                        <h3 class="text-lg font-bold mb-2">Real-Time Analytics</h3>
-                        <p class="text-sm text-muted-foreground">See profit, ROI, and CTR as they happen. No delays.</p>
-                    </div>
-
-                    <!-- Feature 5: A/B Testing (New) -->
-                    <div class="md:col-span-1 terminal-card p-8 hover:border-primary/50 transition-colors reveal-on-scroll" style="transition-delay: 200ms;">
-                        <div class="w-10 h-10 rounded border border-border bg-background flex items-center justify-center text-primary mb-4">
-                           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                        </div>
-                        <h3 class="text-lg font-bold mb-2">Smart Rotation</h3>
-                        <p class="text-sm text-muted-foreground">Split test offers, landers, and traffic sources automatically.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Logic / Rules Section (Story Telling Animation) -->
-        <section id="logic" class="py-32 bg-secondary/30 border-y border-border overflow-hidden relative">
-            <div class="absolute inset-0 bg-grid opacity-[0.02] pointer-events-none"></div>
+        <!-- Unified Story Demo Section -->
+        <section id="demo" class="py-24 relative overflow-hidden">
             <div class="container mx-auto px-4 relative z-10">
                 <div class="text-center mb-20 reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">// TRAFFIC_CONTROL</span>
-                    <h2 class="text-3xl md:text-5xl font-bold mb-6">Route. Personalize. Convert.</h2>
-                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Define exactly where every click goes and what they see. Inject dynamic data instantly.
-                    </p>
+                    <span class="text-xs font-mono-terminal text-primary mb-2 block">See it in action</span>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6">One platform, complete control</h2>
+                    <div class="accentStripe mb-10"></div>
+                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">From asset hosting to intelligent routing and real-time analytics, everything works together seamlessly.</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-                    
-                    <!-- Feature 1: Rules Engine -->
-                    <div class="reveal-on-scroll group">
-                        <div class="mb-8">
-                            <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 border border-blue-500/20">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                <div class="space-y-32">
+                    <!-- Part A: Asset Drive -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div class="order-2 lg:order-1 reveal-on-scroll">
+                            <div class="terminal-card overflow-hidden shadow-xl border-primary/20 bg-card/50 backdrop-blur-sm">
+                                <div class="bg-muted/30 border-b border-border p-3 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex gap-1.5">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-amber-400/80"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] font-mono-terminal text-muted-foreground">Assets / Campaign-01</div>
+                                </div>
+                                <div class="p-4 bg-muted/5 min-h-[300px]">
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        <!-- File Item -->
+                                        <div class="group relative aspect-square rounded-lg border border-border bg-background p-3 flex flex-col items-center justify-center gap-3 hover:border-primary/50 transition-colors cursor-pointer">
+                                            <div class="w-10 h-10 rounded bg-pastel-info/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            </div>
+                                            <span class="text-xs font-medium truncate w-full text-center">lander-v1.html</span>
+                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                            </div>
+                                        </div>
+                                        <!-- File Item -->
+                                        <div class="group relative aspect-square rounded-lg border border-border bg-background p-3 flex flex-col items-center justify-center gap-3 hover:border-primary/50 transition-colors cursor-pointer">
+                                            <div class="w-10 h-10 rounded bg-pastel-warning/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                                            </div>
+                                            <span class="text-xs font-medium truncate w-full text-center">style.css</span>
+                                        </div>
+                                        <!-- File Item -->
+                                        <div class="group relative aspect-square rounded-lg border border-border bg-background p-3 flex flex-col items-center justify-center gap-3 hover:border-primary/50 transition-colors cursor-pointer">
+                                            <div class="w-10 h-10 rounded bg-pastel-accent/50 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                            <span class="text-xs font-medium truncate w-full text-center">video_vsl.mp4</span>
+                                        </div>
+                                        <!-- Upload Placeholder -->
+                                        <div class="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-muted/50 transition-all cursor-pointer">
+                                            <svg class="w-6 h-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                            <span class="text-xs text-muted-foreground font-medium">Upload</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="text-2xl font-bold mb-3">Smart Routing Rules</h3>
-                            <p class="text-muted-foreground leading-relaxed">Build complex flows based on device, geo, carrier, or custom parameters. Send mobile iOS traffic to a specific app store deep link while desktop users see a VSL.</p>
+                        </div>
+                        <div class="order-1 lg:order-2 reveal-on-scroll">
+                            <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
+                                STEP 1
+                            </div>
+                            <h3 class="text-3xl font-bold mb-4">Upload once, deploy everywhere</h3>
+                            <p class="text-muted-foreground text-lg mb-6">
+                                Forget complex FTP setups. Drag and drop your landing pages, scripts, and assets directly into our global edge network.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Instant global CDN propagation</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Automatic SSL certificates</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Built-in macro injection ({{city}}, {{device}})</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Part B: Rules Engine -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                         <div class="reveal-on-scroll">
+                            <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
+                                STEP 2
+                            </div>
+                            <h3 class="text-3xl font-bold mb-4">Route traffic with surgical precision</h3>
+                            <p class="text-muted-foreground text-lg mb-6">
+                                Create sophisticated flow logic without writing code. Redirect, proxy, or split-test based on 50+ data points.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Device & GEO targeting</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Weighted split testing</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>ISP & Connection type filtering</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="reveal-on-scroll relative">
+                            <!-- RuleFlowCard Mockup -->
+                            <div class="space-y-4 font-sans text-sm">
+                                
+                                <!-- Rule 1 Card -->
+                                <div class="terminal-card border-l-4 border-l-primary p-0 overflow-hidden shadow-lg">
+                                    <div class="bg-muted/30 p-3 border-b border-border flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex items-center rounded-full border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                                                Rule 1
+                                            </span>
+                                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                        </div>
+                                        <div class="text-muted-foreground hover:text-destructive cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-4 space-y-4">
+                                        <!-- IF Block -->
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 uppercase tracking-wider mt-0.5">IF</span>
+                                            <div class="flex-1 space-y-2">
+                                                <div class="flex flex-wrap gap-2">
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                        <span class="font-medium text-muted-foreground">Device Type</span>
+                                                        <span class="font-bold text-primary">=</span>
+                                                        <span>Mobile</span>
+                                                    </div>
+                                                    <span class="text-xs font-bold text-muted-foreground self-center">AND</span>
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                        <span class="font-medium text-muted-foreground">OS</span>
+                                                        <span class="font-bold text-primary">=</span>
+                                                        <span>iOS</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- THEN Block -->
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 uppercase tracking-wider mt-0.5">THEN</span>
+                                            <div class="flex-1">
+                                                <div class="rounded border border-border bg-background p-3 hover:border-primary/50 transition-colors">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                                                        </div>
+                                    <div>
+                                                            <div class="font-medium text-sm">App Store Redirect</div>
+                                                            <div class="text-[10px] text-muted-foreground truncate max-w-[200px]">https://apps.apple.com/app/id123456</div>
+                                    </div>
+                                                        <span class="ml-auto text-xs font-mono-terminal bg-muted px-2 py-1 rounded">REDIRECT</span>
+                                                    </div>
+                                                </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Mockup: Rules Editor -->
-                        <div class="terminal-card bg-card shadow-xl overflow-hidden border-border group-hover:border-blue-500/50 transition-colors">
-                            <div class="bg-muted/50 border-b border-border px-4 py-2 flex items-center justify-between">
-                                <span class="text-xs font-mono-terminal text-muted-foreground flex items-center gap-2">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    rule_engine.config
-                                </span>
-                                <div class="flex gap-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-border"></div>
-                                    <div class="w-2 h-2 rounded-full bg-border"></div>
+                                <!-- Rule 2 Card -->
+                                <div class="terminal-card border-l-4 border-l-muted p-0 overflow-hidden shadow-lg opacity-90">
+                                     <div class="bg-muted/30 p-3 border-b border-border flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex items-center rounded-full border border-transparent bg-secondary px-2 py-0.5 text-xs font-semibold text-foreground">
+                                                Rule 2
+                                            </span>
+                                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                </div>
+                                </div>
+                                    
+                                    <div class="p-4 space-y-4">
+                                        <!-- ELSE IF Block -->
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 uppercase tracking-wider mt-0.5 whitespace-nowrap">ELSE IF</span>
+                                            <div class="flex-1 space-y-2">
+                                                <div class="flex flex-wrap gap-2">
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                        <span class="font-medium text-muted-foreground">Country</span>
+                                                        <span class="font-bold text-primary">IN</span>
+                                                        <span>🇺🇸 🇨🇦 🇬🇧</span>
                                 </div>
                             </div>
-                            <div class="p-6 space-y-4 relative">
-                                <!-- Connection Line Background -->
-                                <div class="absolute left-[2.25rem] top-10 bottom-10 w-px bg-border border-l border-dashed border-muted-foreground/30 z-0"></div>
+                        </div>
+                    </div>
 
-                                <!-- Rule Block 1 -->
-                                <div class="p-4 rounded border border-border bg-background flex flex-col gap-3 relative z-10 shadow-sm">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px] font-bold dark:bg-purple-900/30 dark:text-purple-300 font-mono-terminal">IF</span>
-                                            <span class="text-xs font-mono-terminal font-medium">device.os</span>
-                                            <span class="text-xs text-muted-foreground">equals</span>
-                                            <span class="px-2 py-0.5 rounded bg-secondary border border-border text-xs font-mono-terminal">iOS</span>
+                                        <!-- THEN Block (Split) -->
+                                        <div class="flex items-start gap-3">
+                                            <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 uppercase tracking-wider mt-0.5">THEN</span>
+                                            <div class="flex-1 space-y-3">
+                                                <!-- Split Test Visual -->
+                                                <div class="h-2 w-full rounded-full bg-muted overflow-hidden flex">
+                                                    <div class="h-full bg-primary w-1/2"></div>
+                                                    <div class="h-full bg-muted-foreground/30 w-1/2"></div>
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div class="rounded border border-primary bg-primary/5 p-2">
+                                                        <div class="text-[10px] text-muted-foreground font-mono-terminal mb-1">50% • VSL Page A</div>
+                                                        <div class="font-medium text-xs">Main Lander</div>
+                                                    </div>
+                                                    <div class="rounded border border-border bg-background p-2">
+                                                        <div class="text-[10px] text-muted-foreground font-mono-terminal mb-1">50% • VSL Page B</div>
+                                                        <div class="font-medium text-xs">Variant Blue</div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                    </div>
-                                    <div class="flex items-center gap-2 pl-4 border-l-2 border-purple-100 dark:border-purple-900/30 ml-1">
-                                        <span class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-bold dark:bg-green-900/30 dark:text-green-300 font-mono-terminal">THEN</span>
-                                        <span class="text-xs font-mono-terminal text-muted-foreground">Route to:</span>
-                                        <span class="text-xs border border-border px-2 py-0.5 rounded bg-blue-50/50 text-blue-700 dark:text-blue-300 dark:bg-blue-900/20 font-medium">App Store Lander</span>
-                                    </div>
-                                </div>
-
-                                <!-- Rule Block 2 -->
-                                <div class="p-4 rounded border border-border bg-background flex flex-col gap-3 relative z-10 shadow-sm opacity-90">
-                                     <div class="flex items-center gap-2">
-                                        <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-[10px] font-bold dark:bg-orange-900/30 dark:text-orange-300 font-mono-terminal">ELSE IF</span>
-                                        <span class="text-xs font-mono-terminal font-medium">geo.country</span>
-                                        <span class="text-xs text-muted-foreground">is in</span>
-                                        <div class="flex -space-x-1">
-                                            <span class="w-5 h-5 rounded-full bg-secondary border border-border flex items-center justify-center text-[10px]">🇺🇸</span>
-                                            <span class="w-5 h-5 rounded-full bg-secondary border border-border flex items-center justify-center text-[10px]">🇨🇦</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2 pl-4 border-l-2 border-orange-100 dark:border-orange-900/30 ml-1">
-                                        <span class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-bold dark:bg-green-900/30 dark:text-green-300 font-mono-terminal">THEN</span>
-                                        <span class="text-xs font-mono-terminal text-muted-foreground">Route to:</span>
-                                        <span class="text-xs border border-border px-2 py-0.5 rounded bg-secondary text-foreground font-medium">High Ticket VSL</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Feature 2: Dynamic Content Injection -->
-                    <div class="reveal-on-scroll group" style="transition-delay: 200ms;">
-                         <div class="mb-8">
-                            <div class="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-500 mb-4 border border-pink-500/20">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                    <!-- Part C: Macro Playground (Interactive) -->
+                    <div class="reveal-on-scroll group">
+                         <div class="mb-8 text-center md:text-left">
+                            <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
+                                STEP 3
                             </div>
-                            <h3 class="text-2xl font-bold mb-3">Dynamic Content & Macros</h3>
-                            <p class="text-muted-foreground leading-relaxed">Personalize landing pages on the fly without coding. Inject city names, dates, or custom URL parameters like <code class="bg-muted px-1 py-0.5 rounded text-xs font-mono-terminal">{{city}}</code> directly into your HTML.</p>
+                            <h3 class="text-3xl font-bold mb-4">Dynamic Content & Macros</h3>
+                            <p class="text-muted-foreground text-lg mb-6 leading-relaxed">
+                                Personalize landing pages instantly. Type in the editor below to see macros replace in real-time.
+                            </p>
                         </div>
 
-                        <!-- Mockup: Code vs Preview -->
-                        <div class="grid grid-rows-2 gap-4">
-                            <!-- Editor -->
-                            <div class="terminal-card bg-[#1e1e1e] border-[#333] shadow-xl overflow-hidden group-hover:border-pink-500/50 transition-colors">
-                                <div class="bg-[#252526] border-b border-[#333] px-4 py-2 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-3 h-3 rounded-full bg-[#f87171]"></span>
-                                        <span class="w-3 h-3 rounded-full bg-[#fbbf24]"></span>
-                                        <span class="w-3 h-3 rounded-full bg-[#34d399]"></span>
-                                    </div>
-                                    <span class="text-xs font-mono-terminal text-gray-400">landing_page.html</span>
+                        <!-- Interactive Playground -->
+                        <div class="terminal-card bg-card shadow-xl overflow-hidden border-border group-hover:border-primary/50 transition-colors flex flex-col md:flex-row min-h-[400px]">
+                            <!-- Input Side -->
+                            <div class="flex-1 border-b md:border-b-0 md:border-r border-border bg-[#1e1e1e] flex flex-col">
+                                <div class="bg-[#252526] border-b border-[#333] px-4 py-2 flex items-center justify-between shrink-0">
+                                    <span class="text-xs font-mono-terminal text-gray-400">template.html</span>
+                                    <span class="text-[10px] text-gray-500 font-mono-terminal">Editable</span>
                                 </div>
-                                <div class="p-5 font-mono-terminal text-xs leading-relaxed text-gray-300">
-                                    <div class="flex"><span class="text-gray-600 select-none mr-3">1</span> <div><span class="text-blue-400">&lt;h1&gt;</span>Exclusive Offer for <span class="text-yellow-300">{{city}}</span> Residents<span class="text-blue-400">&lt;/h1&gt;</span></div></div>
-                                    <div class="flex"><span class="text-gray-600 select-none mr-3">2</span> <div><span class="text-blue-400">&lt;p&gt;</span>Your discount expires on <span class="text-yellow-300">{{date_tomorrow}}</span>.<span class="text-blue-400">&lt;/p&gt;</span></div></div>
-                                    <div class="flex"><span class="text-gray-600 select-none mr-3">3</span> <div class="mt-1"><span class="text-green-600">&lt;!-- Auto-populated from edge --&gt;</span></div></div>
+                                <div class="flex-1 relative" id="editor-container">
+                                    <pre id="editor-highlight" aria-hidden="true"><code class="language-markup" id="highlight-content"></code></pre>
+                                    <textarea id="macro-input" class="focus:outline-none focus:ring-1 focus:ring-primary/50 border-none" spellcheck="false"></textarea>
+                                </div>
+                                <div class="p-3 border-t border-[#333] bg-[#252526] shrink-0">
+                                    <div class="text-[10px] uppercase text-gray-500 font-bold mb-2 font-mono-terminal">Try typing these:</div>
+                                    <div id="macro-buttons" class="flex flex-wrap gap-1.5">
+                                        <!-- Buttons generated via JS to avoid server-side macro replacement -->
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Preview -->
-                            <div class="terminal-card bg-background border-border shadow-xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group/preview">
-                                <div class="absolute inset-0 bg-grid opacity-[0.05]"></div>
-                                <div class="absolute top-3 right-3 px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] rounded font-bold uppercase tracking-wide border border-green-500/20 flex items-center gap-1">
-                                    <span class="relative flex h-2 w-2">
+                            <!-- Output Side -->
+                            <div class="flex-1 bg-background flex flex-col relative group/preview">
+                                <div class="absolute top-2 right-2 px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] rounded font-bold uppercase tracking-wide border border-green-500/20 flex items-center gap-1 z-10">
+                                    <span class="relative flex h-1.5 w-1.5">
                                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                      <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
                                     </span>
                                     Live Preview
                                 </div>
-                                <h4 class="text-2xl font-bold mb-3 relative z-10">Exclusive Offer for <span class="text-pink-600 bg-pink-50 px-1 rounded dark:bg-pink-900/30 border border-pink-100 dark:border-pink-800">London</span> Residents</h4>
-                                <p class="text-base text-muted-foreground relative z-10">Your discount expires on <span class="text-foreground font-medium border-b-2 border-yellow-300 dark:border-yellow-700">Friday, Oct 14</span>.</p>
+                                <div class="bg-muted/30 border-b border-border px-4 py-2 flex items-center justify-between shrink-0">
+                                    <span id="visitor-context" class="text-xs font-mono-terminal text-muted-foreground">Visitor Context: Loading...</span>
+                                </div>
+                                <div class="p-6 flex flex-col h-full relative overflow-hidden bg-background">
+                                    <div class="absolute inset-0 bg-grid opacity-[0.05] pointer-events-none"></div>
+                                    <div id="macro-preview" class="relative z-10 prose prose-sm dark:prose-invert max-w-none">
+                                        <!-- Content injected via JS -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Part D: Analytics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div class="order-2 lg:order-1 reveal-on-scroll">
+                            <div class="terminal-card overflow-hidden shadow-xl bg-card">
+                                <div class="p-0 overflow-x-auto">
+                                    <table class="w-full text-sm text-left">
+                                        <thead class="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
+                                            <tr>
+                                                <th class="px-4 py-3 font-medium">Campaign</th>
+                                                <th class="px-4 py-3 font-medium text-right">Visitors</th>
+                                                <th class="px-4 py-3 font-medium text-right">Conv.</th>
+                                                <th class="px-4 py-3 font-medium text-right">CR%</th>
+                                                <th class="px-4 py-3 font-medium text-right">EPC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-border">
+                                            <!-- Parent Row -->
+                                            <tr class="bg-primary/5 hover:bg-primary/10 transition-colors">
+                                                <td class="px-4 py-3 font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4 text-muted-foreground transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                                    <span class="text-primary">US_Mobile_Scale</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-right font-mono-terminal">12,450</td>
+                                                <td class="px-4 py-3 text-right font-mono-terminal">842</td>
+                                                <td class="px-4 py-3 text-right font-mono-terminal text-green-600 font-bold">6.7%</td>
+                                                <td class="px-4 py-3 text-right font-mono-terminal">$3.42</td>
+                                            </tr>
+                                            <!-- Child Row 1 -->
+                                            <tr class="bg-background hover:bg-muted/30 transition-colors">
+                                                <td class="px-4 py-2 pl-10 text-xs text-muted-foreground flex items-center gap-2">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                    Lander V1 (Hosted)
+                                                </td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">6,200</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">510</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs text-green-600">8.2%</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">$4.15</td>
+                                            </tr>
+                                            <!-- Child Row 2 -->
+                                            <tr class="bg-background hover:bg-muted/30 transition-colors">
+                                                <td class="px-4 py-2 pl-10 text-xs text-muted-foreground flex items-center gap-2">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                                                    Direct Link B
+                                                </td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">6,250</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">332</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs text-yellow-600">5.3%</td>
+                                                <td class="px-4 py-2 text-right font-mono-terminal text-xs">$2.68</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-1 lg:order-2 reveal-on-scroll">
+                            <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
+                                STEP 4
+                            </div>
+                            <h3 class="text-3xl font-bold mb-4">Watch your metrics in real-time</h3>
+                            <p class="text-muted-foreground text-lg mb-6">
+                                No more delayed reports. See exactly which creatives, landing pages, and offers are performing the moment a click happens.
+                            </p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Drill-down reporting</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>EPC & ROI tracking</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <span>Server-side event attribution</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Optimize & Scale -->
+                    <div class="mt-32 max-w-6xl mx-auto">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <!-- Text Side -->
+                            <div class="reveal-on-scroll">
+                                <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
+                                    STEP 5
+                                </div>
+                                <h3 class="text-3xl font-bold mb-4">Optimize and Scale with AI</h3>
+                                <p class="text-muted-foreground text-lg mb-6 leading-relaxed">
+                                    Let AI agents work 24/7 to maximize your ROI. With complete access to your campaign data, they identify winning patterns, eliminate waste, and scale profitable campaigns automatically while you sleep.
+                                </p>
+                                <ul class="space-y-4">
+                                    <li class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.364-6.364l-.707-.707M6.364 18.364l-.707.707M18.364 18.364l-.707.707M12 5a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        </div>
+                                        <div>
+                                            <span class="font-semibold block">AI-Powered Performance Analysis</span>
+                                            <span class="text-sm text-muted-foreground">Smart agents continuously analyze performance data to identify your highest-converting traffic sources and creatives.</span>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                        </div>
+                                        <div>
+                                            <span class="font-semibold block">Smart Automation & Scaling</span>
+                                            <span class="text-sm text-muted-foreground">Automatically scale winning campaigns, pause underperformers, and rotate landers based on real-time performance metrics.</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Visual Side -->
+                            <div class="reveal-on-scroll">
+                                <div class="terminal-card overflow-hidden shadow-xl bg-card border-primary/20">
+                                    <div class="bg-muted/50 border-b border-border px-4 py-2 flex items-center justify-between">
+                                        <div class="flex gap-1.5">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+                                        </div>
+                                        <span class="text-[10px] font-mono-terminal text-muted-foreground uppercase tracking-widest">AI Agent: Optimizer-01</span>
+                                    </div>
+                                    <div class="p-5 font-mono-terminal text-xs space-y-3 leading-relaxed">
+                                        <div class="text-blue-400"># Initializing AI Agent...</div>
+                                        <div class="text-gray-400">[info] Loading campaign data for "US_Mobile_Scale"</div>
+                                        <div class="text-gray-400">[info] Analyzing 12,450 events across 3 variants</div>
+                                        <div class="text-green-400">[match] Detected winning pattern in Lander V1</div>
+                                        <div class="text-gray-400">[action] Increasing weight for Lander V1: 40% -> 75%</div>
+                                        <div class="text-yellow-400">[action] Pausing underperforming variant: Direct Link B</div>
+                                        <div class="text-purple-400"># Scaling up budget by 15% based on ROI target...</div>
+                                        <div class="flex items-center gap-2 pt-4 text-primary animate-pulse border-t border-border/50">
+                                            <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                            Agent active... monitoring performance
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- NEW: Integration Methods Grid (Cleaned up) -->
+                <div class="mt-32 max-w-5xl mx-auto border-t border-border pt-20">
+                    <div class="text-center mb-12 reveal-on-scroll">
+                        <h3 class="text-2xl font-bold mb-4">3 Ways to Integrate</h3>
+                        <p class="text-muted-foreground">Flexible integration options for any tech stack.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Method 1: Direct Redirect -->
+                        <div class="terminal-card p-5 text-center reveal-on-scroll hover:border-primary/50 transition-colors">
+                            <div class="w-10 h-10 rounded bg-pastel-warning/50 flex items-center justify-center text-amber-600 dark:text-amber-400 mx-auto mb-3">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            </div>
+                            <h4 class="font-bold text-sm mb-1">Direct Redirect</h4>
+                            <p class="text-xs text-muted-foreground mb-3">Tracked link, instant redirect</p>
+                            <div class="bg-muted p-2 rounded text-[10px] font-mono-terminal text-muted-foreground border border-border/50 break-all">
+                                trkd.it/c/abc
+                            </div>
+                        </div>
+
+                        <!-- Method 2: JS Pixel -->
+                        <div class="terminal-card p-5 text-center reveal-on-scroll hover:border-primary/50 transition-colors" style="transition-delay: 100ms;">
+                            <div class="w-10 h-10 rounded bg-pastel-info/50 flex items-center justify-center text-blue-600 dark:text-blue-400 mx-auto mb-3">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                            </div>
+                            <h4 class="font-bold text-sm mb-1">JS Pixel</h4>
+                            <p class="text-xs text-muted-foreground mb-3">Single line, full tracking</p>
+                            <div class="bg-muted p-2 rounded text-[10px] font-mono-terminal text-muted-foreground border border-border/50 break-all">
+                                &lt;script src="..."&gt;
+                            </div>
+                        </div>
+
+                        <!-- Method 3: Hosted Mode -->
+                        <div class="terminal-card p-5 text-center reveal-on-scroll hover:border-primary/50 transition-colors" style="transition-delay: 200ms;">
+                            <div class="w-10 h-10 rounded bg-pastel-accent/50 flex items-center justify-center text-purple-600 dark:text-purple-400 mx-auto mb-3">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <h4 class="font-bold text-sm mb-1">Hosted (with us)</h4>
+                            <p class="text-xs text-muted-foreground mb-3">Upload to Tracked Drive & point DNS</p>
+                            <div class="bg-muted p-2 rounded text-[10px] font-mono-terminal text-muted-foreground border border-border/50 break-all">
+                                CNAME → dispatch.tracked.it
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
         <!-- Pricing -->
         <section id="pricing" class="py-24 bg-muted/20 border-t border-border">
             <div class="container mx-auto px-4">
                 <div class="mb-16 text-center reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">// PLANS</span>
-                    <h2 class="text-3xl font-bold mb-4">Simple Pricing</h2>
+                    <span class="text-xs font-mono-terminal text-primary mb-2 block">Pricing</span>
+                    <h2 class="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
+                    <div class="accentStripe mb-10"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-start">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-start">
                     <!-- Starter -->
                     <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll">
                         <h3 class="text-lg font-medium text-muted-foreground mb-4">Starter</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$0</div>
-                        <p class="text-sm text-muted-foreground mb-6">For individuals testing new offers.</p>
+                        <p class="text-sm text-muted-foreground mb-6">For individuals and small projects getting started.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Get Started</a>
                         <ul class="mt-8 space-y-3 text-sm text-muted-foreground font-mono-terminal">
                             <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Cookieless tracking</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> 10k events/mo</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Basic File Drive</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> API & SDKs</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Global edge delivery</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Community support</li>
                         </ul>
                     </div>
 
                     <!-- Business -->
                     <div class="terminal-card p-8 border-primary bg-secondary/10 relative shadow-sm reveal-on-scroll" style="transition-delay: 100ms;">
-                        <div class="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-wide rounded-bl font-mono-terminal">Recommended</div>
+                        <div class="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-wide rounded-bl font-mono-terminal">Most popular</div>
                         <h3 class="text-lg font-medium text-primary mb-4">Business</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$49<span class="text-sm text-muted-foreground font-normal">/mo</span></div>
-                        <p class="text-sm text-muted-foreground mb-6">For teams running paid traffic.</p>
+                        <p class="text-sm text-muted-foreground mb-6">For teams running experiments and personalizing content.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded bg-primary text-primary-foreground text-center text-sm font-medium hover:bg-primary/90 transition-colors">Get Started</a>
                         <ul class="mt-8 space-y-3 text-sm font-mono-terminal">
                             <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Everything in Starter</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Global Edge Hosting</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> A/B Testing Rules</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> VSL Video Hosting</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Session replays</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Targeting & A/B testing</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Email support</li>
                         </ul>
                     </div>
 
@@ -959,77 +1220,110 @@
                     <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll" style="transition-delay: 200ms;">
                         <h3 class="text-lg font-medium text-muted-foreground mb-4">Agency</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$199<span class="text-sm text-muted-foreground font-normal">/mo</span></div>
-                        <p class="text-sm text-muted-foreground mb-6">For agencies with multiple clients.</p>
+                        <p class="text-sm text-muted-foreground mb-6">For agencies managing multiple clients and campaigns.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Get Started</a>
                         <ul class="mt-8 space-y-3 text-sm text-muted-foreground font-mono-terminal">
                             <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Everything in Business</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Unlimited Team Members</li>
-                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> White-label Reports</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Advanced delivery</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Team features</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Priority support</li>
+                        </ul>
+                    </div>
+
+                    <!-- Enterprise -->
+                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll" style="transition-delay: 300ms;">
+                        <h3 class="text-lg font-medium text-muted-foreground mb-4">Enterprise</h3>
+                        <div class="text-4xl font-bold mb-6 font-mono-terminal">Custom</div>
+                        <p class="text-sm text-muted-foreground mb-6">For large-scale applications with custom needs.</p>
+                        <a href="/contact" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Contact Sales</a>
+                        <ul class="mt-8 space-y-3 text-sm text-muted-foreground font-mono-terminal">
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Everything in Agency</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Dedicated SLA</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> Custom terms</li>
+                            <li class="flex items-center"><span class="mr-2 text-primary">✓</span> White-glove setup</li>
                         </ul>
                     </div>
                 </div>
+                <div class="mt-8 text-center text-sm text-muted-foreground">
+                    Need high volume or custom requirements? <a href="/contact" class="text-primary hover:underline">Contact sales</a>.
+                </div>
             </div>
         </section>
 
-        <!-- CTA Section -->
-        <section class="py-24">
+        <!-- Stats Section -->
+        <section class="py-24 border-t border-border">
             <div class="container mx-auto px-4">
-                <div class="rounded-xl border border-border bg-card p-12 md:p-16 text-center relative overflow-hidden reveal-on-scroll">
-                    <div class="absolute inset-0 bg-grid opacity-[0.05]"></div>
-                    <div class="relative z-10">
-                        <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Scale?</h2>
-                        <p class="text-lg opacity-80 mb-10 max-w-2xl mx-auto">Join the performance marketers using Tracked to dominate their market.</p>
-                        <a href="/signup" class="inline-flex h-12 px-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all hover:scale-105 shadow-md">
-                            Get Started Now
-                        </a>
+                <div class="text-center mb-16 reveal-on-scroll">
+                    <h2 class="text-3xl font-bold mb-4">Backed by proven infrastructure</h2>
+                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        Whether you're using our content delivery platform or decision engine API, 
+                        Tracked services are built for massive scale with industry-leading reliability and performance
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 reveal-on-scroll">
+                    <div class="text-center">
+                        <h3 class="text-4xl font-bold mb-2">300+</h3>
+                        <p class="text-muted-foreground">Global edge locations</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-4xl font-bold mb-2">99.99%</h3>
+                        <p class="text-muted-foreground">Uptime SLA guarantee</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-4xl font-bold mb-2">&lt;50ms</h3>
+                        <p class="text-muted-foreground">Average response time</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-4xl font-bold mb-2">1B+</h3>
+                        <p class="text-muted-foreground">Requests served daily</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- FAQ -->
-        <section id="faq" class="py-24 border-t border-border">
-            <div class="container mx-auto px-4 max-w-3xl">
+        <!-- Testimonials Section -->
+        <section class="py-24 border-t border-border bg-muted/20">
+            <div class="container mx-auto px-4">
                 <div class="text-center mb-16 reveal-on-scroll">
-                    <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+                    <h2 class="text-3xl font-bold mb-4">Loved by performance marketers worldwide</h2>
+                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        See what our users have to say about building with Tracked
+                    </p>
                 </div>
                 
-                <div class="space-y-4">
-                    <details class="group terminal-card bg-card transition-all reveal-on-scroll">
-                        <summary class="flex cursor-pointer items-center justify-between p-6 font-medium">
-                            Is the free tier really free?
-                            <span class="transition group-open:rotate-180">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </span>
-                        </summary>
-                        <div class="px-6 pb-6 text-sm text-muted-foreground animate-accordion-down">
-                            Yes. Our Starter plan allows up to 10,000 tracked events per month completely free of charge. No credit card required.
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="terminal-card p-6 bg-card reveal-on-scroll">
+                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-500"></div>
+                            <div>
+                                <div class="font-semibold text-sm">Sarah Chen</div>
+                                <div class="text-xs text-muted-foreground">Performance Marketing Director</div>
+                            </div>
                         </div>
-                    </details>
+                    </div>
                     
-                    <details class="group terminal-card bg-card transition-all reveal-on-scroll">
-                        <summary class="flex cursor-pointer items-center justify-between p-6 font-medium">
-                            How does cookieless tracking work?
-                            <span class="transition group-open:rotate-180">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </span>
-                        </summary>
-                        <div class="px-6 pb-6 text-sm text-muted-foreground animate-accordion-down">
-                            We use advanced digital fingerprinting and server-side signal correlation to attribute users without persistent cookies, ensuring GDPR/CCPA compliance.
+                    <div class="terminal-card p-6 bg-card reveal-on-scroll" style="transition-delay: 100ms;">
+                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-600"></div>
+                            <div>
+                                <div class="font-semibold text-sm">Alex Kumar</div>
+                                <div class="text-xs text-muted-foreground">Frontend Engineer</div>
+                            </div>
                         </div>
-                    </details>
+                    </div>
                     
-                    <details class="group terminal-card bg-card transition-all reveal-on-scroll">
-                        <summary class="flex cursor-pointer items-center justify-between p-6 font-medium">
-                            Do you host my landing pages?
-                            <span class="transition group-open:rotate-180">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </span>
-                        </summary>
-                        <div class="px-6 pb-6 text-sm text-muted-foreground animate-accordion-down">
-                            Yes! We provide a global edge network to host your landing pages (HTML or React). This ensures they load instantly for users anywhere in the world.
+                    <div class="terminal-card p-6 bg-card reveal-on-scroll" style="transition-delay: 200ms;">
+                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-cyan-500"></div>
+                            <div>
+                                <div class="font-semibold text-sm">Marcus Rodriguez</div>
+                                <div class="text-xs text-muted-foreground">Growth Marketing Lead</div>
+                            </div>
                         </div>
-                    </details>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1039,54 +1333,67 @@
     <!-- Footer -->
     <footer class="bg-muted/30 border-t border-border pt-16 pb-8">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
-                <div class="md:col-span-2">
-                    <a href="/" class="flex items-center gap-2 mb-6">
-                        <div class="w-6 h-6 bg-primary text-primary-foreground rounded flex items-center justify-center font-bold font-mono-terminal text-sm">T</div>
-                        <span class="font-bold text-lg">Tracked</span>
-                    </a>
-                    <p class="text-sm text-muted-foreground max-w-xs mb-6">
-                        The unified platform for Sales Pages, VSLs, and Lead Gen.
-                    </p>
-                    <div class="flex gap-4 opacity-60">
-                        <a href="#" class="hover:opacity-100 transition-opacity"><img src="https://api.iconify.design/simple-icons/x.svg?color=gray" alt="X" class="w-4 h-4" /></a>
-                        <a href="#" class="hover:opacity-100 transition-opacity"><img src="https://api.iconify.design/simple-icons/github.svg?color=gray" alt="GitHub" class="w-4 h-4" /></a>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+                <div class="col-span-2 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-primary text-primary-foreground rounded flex items-center justify-center font-bold font-mono-terminal">T</div>
+                        <span class="font-bold text-lg tracking-tight">Tracked</span>
+                    </div>
+                    <p class="text-sm text-muted-foreground mb-4">The unified platform for tracking, delivery, and decisions.</p>
+                    <div class="text-[10px] text-muted-foreground font-mono-terminal uppercase tracking-widest">
+                        Made with <span class="text-red-500">♥</span> in New York
                     </div>
                 </div>
-                
                 <div>
-                    <h4 class="font-bold text-sm mb-6 font-mono-terminal uppercase">Platform</h4>
-                    <ul class="space-y-3 text-sm text-muted-foreground">
-                        <li><a href="#" class="hover:text-foreground transition-colors">Global Hosting</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">Asset Drive</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">Analytics</a></li>
+                    <h4 class="font-bold text-sm mb-4 uppercase tracking-wider font-mono-terminal text-primary">Platform</h4>
+                    <ul class="space-y-2 text-sm text-muted-foreground">
+                        <li><a href="/delivery" class="hover:text-foreground transition-colors">Content Delivery</a></li>
+                        <li><a href="/targeting" class="hover:text-foreground transition-colors">Smart Targeting</a></li>
+                        <li><a href="/analytics" class="hover:text-foreground transition-colors">Analytics</a></li>
+                        <li><a href="/protection" class="hover:text-foreground transition-colors">Bot Protection</a></li>
+                        <li><a href="/api" class="hover:text-foreground transition-colors">API Access</a></li>
                     </ul>
                 </div>
-                
                 <div>
-                    <h4 class="font-bold text-sm mb-6 font-mono-terminal uppercase">Resources</h4>
-                    <ul class="space-y-3 text-sm text-muted-foreground">
-                        <li><a href="#" class="hover:text-foreground transition-colors">Docs</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">API</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">Blog</a></li>
+                    <h4 class="font-bold text-sm mb-4 uppercase tracking-wider font-mono-terminal text-primary">Solutions</h4>
+                    <ul class="space-y-2 text-sm text-muted-foreground">
+                        <li><a href="/agencies" class="hover:text-foreground transition-colors">For Agencies</a></li>
+                        <li><a href="/ecommerce" class="hover:text-foreground transition-colors">E-commerce</a></li>
+                        <li><a href="/lead-gen" class="hover:text-foreground transition-colors">Lead Generation</a></li>
+                        <li><a href="/enterprise" class="hover:text-foreground transition-colors">Enterprise</a></li>
+                        <li><a href="/pricing" class="hover:text-foreground transition-colors">Pricing</a></li>
                     </ul>
                 </div>
-                
                 <div>
-                    <h4 class="font-bold text-sm mb-6 font-mono-terminal uppercase">Company</h4>
-                    <ul class="space-y-3 text-sm text-muted-foreground">
-                        <li><a href="#" class="hover:text-foreground transition-colors">About</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">Contact</a></li>
-                        <li><a href="#" class="hover:text-foreground transition-colors">Legal</a></li>
+                    <h4 class="font-bold text-sm mb-4 uppercase tracking-wider font-mono-terminal text-primary">Resources</h4>
+                    <ul class="space-y-2 text-sm text-muted-foreground">
+                        <li><a href="/docs" class="hover:text-foreground transition-colors">Documentation</a></li>
+                        <li><a href="/blog" class="hover:text-foreground transition-colors">Blog</a></li>
+                        <li><a href="/case-studies" class="hover:text-foreground transition-colors">Case Studies</a></li>
+                        <li><a href="/support" class="hover:text-foreground transition-colors">Support</a></li>
+                        <li><a href="/status" class="hover:text-foreground transition-colors">Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm mb-4 uppercase tracking-wider font-mono-terminal text-primary">Company</h4>
+                    <ul class="space-y-2 text-sm text-muted-foreground">
+                        <li><a href="/about" class="hover:text-foreground transition-colors">About</a></li>
+                        <li><a href="/careers" class="hover:text-foreground transition-colors">Careers</a></li>
+                        <li><a href="/contact" class="hover:text-foreground transition-colors">Contact</a></li>
+                        <li><a href="/privacy" class="hover:text-foreground transition-colors">Privacy</a></li>
+                        <li><a href="/terms" class="hover:text-foreground transition-colors">Terms</a></li>
                     </ul>
                 </div>
             </div>
-            
-            <div class="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center text-xs text-muted-foreground font-mono-terminal">
-                <div>&copy; 2025 Tracked, Inc.</div>
-                <div class="flex gap-8 mt-4 md:mt-0">
-                    <a href="/privacy" class="hover:text-foreground">Privacy</a>
-                    <a href="/terms" class="hover:text-foreground">Terms</a>
+            <div class="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[10px] text-muted-foreground font-mono-terminal uppercase tracking-widest">© 2025 Tracked LLC. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="https://twitter.com/tracked" class="text-muted-foreground hover:text-foreground transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="https://discord.gg/tracked" class="text-muted-foreground hover:text-foreground transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1158,7 +1465,212 @@
         revealElements.forEach(element => {
             revealObserver.observe(element);
         });
+
+        // Macro Playground Logic
+        const macroInput = document.getElementById('macro-input');
+        const macroPreview = document.getElementById('macro-preview');
+        const visitorContext = document.getElementById('visitor-context');
+
+        if (macroInput && macroPreview) {
+            // Detect real device/browser info from navigator
+            function detectDeviceInfo() {
+                const ua = navigator.userAgent;
+                let device = 'Desktop';
+                let os = 'Unknown';
+                let browser = 'Unknown';
+                
+                // Detect OS
+                if (ua.includes('Mac OS X') || ua.includes('Macintosh')) {
+                    os = 'macOS';
+                    device = 'Macintosh';
+                } else if (ua.includes('Windows')) {
+                    os = 'Windows';
+                } else if (ua.includes('Linux')) {
+                    os = 'Linux';
+                } else if (ua.includes('Android')) {
+                    os = 'Android';
+                    device = 'Mobile';
+                } else if (ua.includes('iPhone') || ua.includes('iPad')) {
+                    os = 'iOS';
+                    device = ua.includes('iPad') ? 'iPad' : 'iPhone';
+                }
+                
+                // Detect Browser
+                if (ua.includes('Chrome') && !ua.includes('Edg')) {
+                    browser = 'Chrome';
+                } else if (ua.includes('Firefox')) {
+                    browser = 'Firefox';
+                } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                    browser = 'Safari';
+                } else if (ua.includes('Edg')) {
+                    browser = 'Edge';
+                }
+                
+                return { device, os, browser };
+            }
+
+            const deviceInfo = detectDeviceInfo();
+            
+            // Get timezone from browser (we can detect this without permission)
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+            const locale = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
+            
+            // Demo data matching real macro names from rules.ts populateMacros function
+            // Note: Using string concatenation to prevent server-side macro replacement
+            // The server replaces {{macro}} in HTML/CSS files, so we must construct these strings dynamically
+            const M = (name) => '{' + '{' + name + '}' + '}'; // Builds macro syntax without triggering server replacement
+            
+            // Set textarea content via JS to avoid server-side macro replacement
+            if (macroInput) {
+                macroInput.value = `<h1>Hello ${M('user.CITY')}!</h1>
+
+<p>
+  Welcome to our special offer for
+  <span class="text-primary">${M('user.DEVICE')}</span> users.
+</p>
+
+<div class="offer-box">
+  Exclusive deal for visitors from
+  <strong>${M('user.COUNTRY')}</strong>
+</div>
+
+<a href="/offer?clickid=${M('click.id')}" class="inline-block mt-4 px-8 py-3 rounded-md bg-primary text-primary-foreground font-medium text-center hover:bg-primary/90 transition-all shadow-sm hover:scale-105">
+  Claim Offer
+</a>`;
+            }
+            
+            const demoData = {
+                // User Geo (showing example values like the server would inject)
+                [M('user.CITY')]: `<span class="bg-pastel-warning/80 dark:bg-pastel-warning/20 px-1.5 py-0.5 rounded text-amber-900 dark:text-amber-200 font-bold border border-amber-500/20">New York</span>`,
+                [M('user.COUNTRY')]: `<span class="bg-pastel-info/80 dark:bg-pastel-info/20 px-1.5 py-0.5 rounded text-blue-900 dark:text-blue-200 font-bold border border-blue-500/20">United States</span>`,
+                [M('user.COUNTRY_CODE')]: 'US',
+                [M('user.CONTINENT')]: 'NA',
+                [M('user.REGION_NAME')]: 'New York',
+                [M('user.REGION_CODE')]: 'NY',
+                [M('user.POSTAL_CODE')]: '10001',
+                [M('user.TIMEZONE')]: timezone,
+                
+                // User Device (using detected values from visitor's browser)
+                [M('user.DEVICE')]: `<span class="bg-pastel-violet/80 dark:bg-pastel-violet/20 px-1.5 py-0.5 rounded text-violet-900 dark:text-violet-200 font-bold border border-violet-500/20">${deviceInfo.device}</span>`,
+                [M('user.BROWSER')]: `<span class="bg-pastel-teal/80 dark:bg-pastel-teal/20 px-1.5 py-0.5 rounded text-teal-900 dark:text-teal-200 font-bold border border-teal-500/20">${deviceInfo.browser}</span>`,
+                [M('user.OS')]: `<span class="bg-pastel-pink/80 dark:bg-pastel-pink/20 px-1.5 py-0.5 rounded text-pink-900 dark:text-pink-200 font-bold border border-pink-500/20">${deviceInfo.os}</span>`,
+                [M('user.BROWSER_VERSION')]: '120',
+                [M('user.OS_VERSION')]: '14.0',
+                
+                // User Network
+                [M('user.IP')]: `<span class="bg-pastel-cyan/80 dark:bg-pastel-cyan/20 px-1.5 py-0.5 rounded text-cyan-900 dark:text-cyan-200 font-bold border border-cyan-500/20">192.168.1.1</span>`,
+                [M('user.ORGANIZATION')]: 'Example ISP',
+                [M('user.REFERRER')]: 'https://google.com',
+                [M('user.COLO')]: 'EWR',
+                [M('user.ASN')]: '13335',
+                
+                // Campaign & Tracking
+                [M('click.id')]: 'clk_8f7a9d2b',
+                [M('campaign.id')]: 'camp_abc123',
+                [M('campaign.name')]: 'Summer Sale',
+                [M('session.id')]: 'sess_xyz789',
+                
+                // Request
+                [M('request.DOMAIN')]: 'example.com',
+                [M('request.PATH')]: '/offer'
+            };
+
+            // Update visitor context display
+            if (visitorContext) {
+                visitorContext.textContent = `Visitor Context: New York, United States (${deviceInfo.device})`;
+            }
+
+            // Define insertMacro globally so onclick works (must be before buttons)
+            window.insertMacro = function(macro) {
+                const start = macroInput.selectionStart;
+                const end = macroInput.selectionEnd;
+                const text = macroInput.value;
+                const before = text.substring(0, start);
+                const after = text.substring(end, text.length);
+                
+                macroInput.value = before + macro + after;
+                macroInput.selectionStart = macroInput.selectionEnd = start + macro.length;
+                macroInput.focus();
+                updatePreview();
+            };
+            
+            // Generate macro buttons dynamically to avoid server-side replacement
+            const macroButtonsContainer = document.getElementById('macro-buttons');
+            if (macroButtonsContainer) {
+                const macros = ['user.CITY', 'user.COUNTRY', 'user.DEVICE', 'user.BROWSER', 'user.OS', 'user.IP', 'click.id'];
+                macros.forEach(name => {
+                    const btn = document.createElement('button');
+                    btn.className = 'px-1.5 py-0.5 rounded bg-[#333] text-gray-300 text-[10px] font-mono-terminal border border-[#444] hover:bg-[#444] transition-colors';
+                    btn.textContent = M(name);
+                    btn.onclick = () => window.insertMacro(M(name));
+                    macroButtonsContainer.appendChild(btn);
+                });
+            }
+
+            const highlightContent = document.getElementById('highlight-content');
+
+            function updatePreview() {
+                let text = macroInput.value;
+                
+                // Update highlight
+                // Escape HTML for Prism display
+                const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                highlightContent.innerHTML = escaped;
+                if (window.Prism) {
+                    Prism.highlightElement(highlightContent);
+                }
+
+                let content = text;
+                
+                // First, protect escaped macros {{!macro}} by replacing with placeholder
+                const escapedMacros = new Map();
+                let escapedIndex = 0;
+                content = content.replace(/\{\{!([^}]+)\}\}/g, (match, macroName) => {
+                    const placeholder = `__ESCAPED_MACRO_${escapedIndex}__`;
+                    escapedMacros.set(placeholder, `{{${macroName}}}`);
+                    escapedIndex++;
+                    return placeholder;
+                });
+                
+                // Then replace {{macro}} with demo values (matching server-side behavior)
+                Object.keys(demoData).forEach(macro => {
+                    const regex = new RegExp(macro.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    content = content.replace(regex, demoData[macro]);
+                });
+                
+                // Finally, restore escaped macros as literal text
+                escapedMacros.forEach((literal, placeholder) => {
+                    content = content.replace(placeholder, literal);
+                });
+
+                // Render HTML with replaced macros
+                macroPreview.innerHTML = content;
+            }
+
+            // Sync scrolling
+            macroInput.addEventListener('scroll', () => {
+                const highlight = document.getElementById('editor-highlight');
+                highlight.scrollTop = macroInput.scrollTop;
+                highlight.scrollLeft = macroInput.scrollLeft;
+            });
+
+            macroInput.addEventListener('input', updatePreview);
+            updatePreview(); // Initial render
+        }
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script>
+        // Custom Prism Rule for Macros: {{...}}
+        if (Prism.languages.markup) {
+            Prism.languages.insertBefore('markup', 'tag', {
+                'macro': {
+                    pattern: /\{\{.*?\}\}/,
+                    alias: 'macro'
+                }
+            });
+        }
+    </script>
 </body>
 </html>

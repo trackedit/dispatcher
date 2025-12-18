@@ -501,6 +501,15 @@ export interface KVRule {
                                 // 'redirect' = HTTP redirect to external URL with macro replacement
   variables?: Record<string, string>; // Default macros for default folder
   blocks?: BlockRules;         // Blocking rules (always serve defaultFolder)
+  // New array-based default destinations (takes precedence over single defaultFolder/destinationId)
+  defaultDestinations?: Array<{
+    id: string;
+    value: string;  // folder path or URL
+    weight: number;
+    mode?: 'hosted' | 'proxy' | 'redirect';
+    offers?: Array<{ id: string; weight: number }>;  // nested offers per LP
+  }>;
+  defaultOffers?: Array<{ id: string; weight: number }>;  // direct offers (no LP)
 }
 
 export interface RequestData {
@@ -842,22 +851,21 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
       }
 
       // Handle macro replacement for HTML and CSS content
-      if (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.css')) {
-        const contentType = alternateAssetResponse.headers.get('content-type') || '';
-        if (contentType.includes('text/html') || contentType.includes('text/css') || data.path.endsWith('.css')) {
-          let content = await alternateAssetResponse.text();
-          
-          const allReplaceableVariables = populateMacros(data, variables);
+      // Check content-type directly to handle extensionless paths like /redesign
+      const contentType = alternateAssetResponse.headers.get('content-type') || '';
+      if (contentType.includes('text/html') || contentType.includes('text/css')) {
+        let content = await alternateAssetResponse.text();
+        
+        const allReplaceableVariables = populateMacros(data, variables);
 
-          content = replaceMacros(content, allReplaceableVariables);
-          
-          const newHeaders = new Headers(alternateAssetResponse.headers);
-          return new Response(content, {
-            status: alternateAssetResponse.status,
-            statusText: alternateAssetResponse.statusText,
-            headers: newHeaders,
-          });
-        }
+        content = replaceMacros(content, allReplaceableVariables);
+        
+        const newHeaders = new Headers(alternateAssetResponse.headers);
+        return new Response(content, {
+          status: alternateAssetResponse.status,
+          statusText: alternateAssetResponse.statusText,
+          headers: newHeaders,
+        });
       }
 
       return new Response(alternateAssetResponse.body, {
@@ -868,22 +876,21 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
     }
 
     // Handle macro replacement for HTML and CSS content
-    if (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.css')) {
-      const contentType = assetResponse.headers.get('content-type') || '';
-      if (contentType.includes('text/html') || contentType.includes('text/css') || data.path.endsWith('.css')) {
-        let content = await assetResponse.text();
-        
-        const allReplaceableVariables = populateMacros(data, variables);
+    // Check content-type directly to handle extensionless paths like /redesign
+    const contentType = assetResponse.headers.get('content-type') || '';
+    if (contentType.includes('text/html') || contentType.includes('text/css')) {
+      let content = await assetResponse.text();
+      
+      const allReplaceableVariables = populateMacros(data, variables);
 
-        content = replaceMacros(content, allReplaceableVariables);
-        
-        const newHeaders = new Headers(assetResponse.headers);
-        return new Response(content, {
-          status: assetResponse.status,
-          statusText: assetResponse.statusText,
-          headers: newHeaders,
-        });
-      }
+      content = replaceMacros(content, allReplaceableVariables);
+      
+      const newHeaders = new Headers(assetResponse.headers);
+      return new Response(content, {
+        status: assetResponse.status,
+        statusText: assetResponse.statusText,
+        headers: newHeaders,
+      });
     }
 
     return new Response(assetResponse.body, {
@@ -907,7 +914,22 @@ async function handleInitialProxyRequest(c: any, baseUrl: string, data: RequestD
   console.log("PROXY_REMOTE_REQUEST_CALLED: baseUrl=", baseUrl, "path=", data.path, "reason=", reason);
 
   try {
-    const targetUrl = new URL(data.path, baseUrl);
+    // For external URLs (http/https), use the destination URL as-is (don't append the campaign path)
+    // The campaign path is specific to the campaign domain, not the destination domain
+    // If destination is "https://cnn.com/us", proxy that exact URL
+    // If destination is "https://cnn.com", proxy the root "/"
+    // For relative/local paths, use the request path
+    const isExternalUrl = baseUrl.startsWith('http://') || baseUrl.startsWith('https://');
+    let targetUrl: URL;
+    if (isExternalUrl) {
+      // Use the destination URL directly (preserves any path in the destination)
+      // Don't append the campaign path - it's specific to the campaign domain
+      targetUrl = new URL(baseUrl);
+    } else {
+      // Relative/local path, use the request path
+      targetUrl = new URL(data.path, baseUrl);
+    }
+    // Preserve query params from the original request
     targetUrl.search = new URL(c.req.raw.url).search;
 
     const remoteRequest = new Request(targetUrl.toString(), {
@@ -1490,7 +1512,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
   if (!data.sessionId) {
     data.sessionId = generateSessionId(data);
   }
-  if (!data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+  if (!data.impressionId && (data.path === '/' || data.path.endsWith('/') || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
     data.impressionId = generateUniqueId('imp');
   }
 
@@ -2394,7 +2416,8 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
         const modResponse = rewriter.transform(originResponse);
         
         // Store impression for modifications only if we successfully served a page (200 OK)
-        if (originResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+        // Track paths that are: root (/), end with slash (/test/), or are HTML files
+        if (originResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('/') || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
           console.log('[IMP] queue storeEvent (modifications)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
           c.executionCtx.waitUntil(
             (async () => {
@@ -2449,7 +2472,8 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
         const proxyResponse = await handleInitialProxyRequest(c, finalAction.payload, data, reason, finalAction.variables);
         
         // Store impression for proxy only if we successfully served a page (200 OK)
-        if (proxyResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+        // Track paths that are: root (/), end with slash (/test/), or are HTML files
+        if (proxyResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('/') || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
           console.log('[IMP] queue storeEvent (proxy)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
           c.executionCtx.waitUntil(
             (async () => {
@@ -2613,7 +2637,8 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
         const folderResponse = await servePublicFile(c, `${finalAction.payload}/`, data, reason, finalAction.variables);
         
         // Store impression for page views only if we successfully served a page (200 OK)
-        if (folderResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
+        // Track paths that are: root (/), end with slash (/test/), or are HTML files
+        if (folderResponse.ok && data.impressionId && (data.path === '/' || data.path.endsWith('/') || data.path.endsWith('.html') || data.path.endsWith('.htm'))) {
           console.log('[IMP] queue storeEvent (folder)', { impressionId: data.impressionId, path: data.path, domain: data.domain });
           c.executionCtx.waitUntil(
             (async () => {
@@ -2678,6 +2703,97 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
   return new Response("An unexpected error occurred in the rule engine.", { status: 500 });
 }
 
+// Helper to resolve new defaultDestinations/defaultOffers arrays to legacy format
+async function resolveDefaultDestinations(rule: KVRule, c: any): Promise<void> {
+  // New array format takes precedence
+  if (rule.defaultDestinations && rule.defaultDestinations.length > 0) {
+    // Pick a landing page based on weights
+    const totalWeight = rule.defaultDestinations.reduce((sum, d) => sum + (d.weight || 1), 0);
+    const random = Math.random() * totalWeight;
+    let cumWeight = 0;
+    let selectedLP = rule.defaultDestinations[0];
+    
+    for (const dest of rule.defaultDestinations) {
+      cumWeight += dest.weight || 1;
+      if (random <= cumWeight) {
+        selectedLP = dest;
+        break;
+      }
+    }
+    
+    // Set the landing page
+    rule.defaultFolder = selectedLP.value;
+    rule.defaultFolderMode = selectedLP.mode || (selectedLP.value.startsWith('http') ? 'proxy' : 'hosted');
+    
+    // If LP has nested offers, pick one for click-outs
+    if (selectedLP.offers && selectedLP.offers.length > 0) {
+      const offerTotalWeight = selectedLP.offers.reduce((sum, o) => sum + (o.weight || 1), 0);
+      const offerRandom = Math.random() * offerTotalWeight;
+      let offerCumWeight = 0;
+      let selectedOffer = selectedLP.offers[0];
+      
+      for (const offer of selectedLP.offers) {
+        offerCumWeight += offer.weight || 1;
+        if (offerRandom <= offerCumWeight) {
+          selectedOffer = offer;
+          break;
+        }
+      }
+      
+      // Resolve offer ID to URL
+      const offerUrl = await getDestinationUrl(selectedOffer.id, c);
+      if (offerUrl) {
+        rule.destinationId = selectedOffer.id;
+        // Store the resolved offer URL for click-outs (using a temp field won't work, 
+        // so we rely on destinationId being looked up when needed)
+      }
+    }
+    return;
+  }
+  
+  // Direct offers (no LP) - redirect directly to offer
+  if (rule.defaultOffers && rule.defaultOffers.length > 0) {
+    const totalWeight = rule.defaultOffers.reduce((sum, o) => sum + (o.weight || 1), 0);
+    const random = Math.random() * totalWeight;
+    let cumWeight = 0;
+    let selectedOffer = rule.defaultOffers[0];
+    
+    for (const offer of rule.defaultOffers) {
+      cumWeight += offer.weight || 1;
+      if (random <= cumWeight) {
+        selectedOffer = offer;
+        break;
+      }
+    }
+    
+    // Resolve offer ID to URL
+    const offerUrl = await getDestinationUrl(selectedOffer.id, c);
+    if (offerUrl) {
+      rule.defaultFolder = offerUrl;
+      rule.defaultFolderMode = 'redirect';
+      rule.destinationId = selectedOffer.id;
+    }
+    return;
+  }
+  
+  // Legacy format - resolve single destinationId if present
+  if (rule.destinationId && !rule.defaultFolder) {
+    const destinationUrl = await getDestinationUrl(rule.destinationId, c);
+    if (destinationUrl) {
+      rule.defaultFolder = destinationUrl;
+      rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
+    } else {
+      console.error(`Destination ${rule.destinationId} not found`);
+      rule.defaultFolder = '';
+    }
+  }
+  
+  // Ensure defaultFolder is always a string
+  if (!rule.defaultFolder) {
+    rule.defaultFolder = '';
+  }
+}
+
 // Function to get rule from KV storage
 export async function getKVRule(c: any, domain: string, path: string): Promise<{ rule: KVRule, key: string } | null> {
   try {
@@ -2690,21 +2806,7 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
       const ruleJson = await env.KV.get(keyWithPath);
       if (ruleJson) {
         const rule = JSON.parse(ruleJson) as KVRule;
-        // Resolve destinationId to URL if present
-        if (rule.destinationId && !rule.defaultFolder) {
-          const destinationUrl = await getDestinationUrl(rule.destinationId, c);
-          if (destinationUrl) {
-            rule.defaultFolder = destinationUrl;
-            rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
-          } else {
-            console.error(`Destination ${rule.destinationId} not found for rule ${keyWithPath}`);
-            rule.defaultFolder = ''; // Fallback to empty string
-          }
-        }
-        // Ensure defaultFolder is always a string
-        if (!rule.defaultFolder) {
-          rule.defaultFolder = '';
-        }
+        await resolveDefaultDestinations(rule, c);
         return { rule, key: keyWithPath };
       }
 
@@ -2714,22 +2816,19 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
         const ruleJsonWithoutSlash = await env.KV.get(keyWithoutSlash);
         if (ruleJsonWithoutSlash) {
           const rule = JSON.parse(ruleJsonWithoutSlash) as KVRule;
-          // Resolve destinationId to URL if present
-          if (rule.destinationId && !rule.defaultFolder) {
-            const destinationUrl = await getDestinationUrl(rule.destinationId, c);
-            if (destinationUrl) {
-              rule.defaultFolder = destinationUrl;
-              rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
-            } else {
-              console.error(`Destination ${rule.destinationId} not found for rule ${keyWithoutSlash}`);
-              rule.defaultFolder = ''; // Fallback to empty string
-            }
-          }
-          // Ensure defaultFolder is always a string
-          if (!rule.defaultFolder) {
-            rule.defaultFolder = '';
-          }
+          await resolveDefaultDestinations(rule, c);
           return { rule, key: keyWithoutSlash };
+        }
+      }
+
+      // If path doesn't have a trailing slash (and isn't just "/"), try with it
+      if (!currentPath.endsWith('/') && currentPath !== '/') {
+        const keyWithSlash = `${keyWithPath}/`;
+        const ruleJsonWithSlash = await env.KV.get(keyWithSlash);
+        if (ruleJsonWithSlash) {
+          const rule = JSON.parse(ruleJsonWithSlash) as KVRule;
+          await resolveDefaultDestinations(rule, c);
+          return { rule, key: keyWithSlash };
         }
       }
 
@@ -2756,21 +2855,7 @@ export async function getKVRule(c: any, domain: string, path: string): Promise<{
       const ruleJsonDomain = await env.KV.get(keyDomainOnly);
       if (ruleJsonDomain) {
         const rule = JSON.parse(ruleJsonDomain) as KVRule;
-        // Resolve destinationId to URL if present
-        if (rule.destinationId && !rule.defaultFolder) {
-          const destinationUrl = await getDestinationUrl(rule.destinationId, c);
-          if (destinationUrl) {
-            rule.defaultFolder = destinationUrl;
-            rule.defaultFolderMode = rule.defaultFolderMode || 'redirect';
-          } else {
-            console.error(`Destination ${rule.destinationId} not found for rule ${keyDomainOnly}`);
-            rule.defaultFolder = ''; // Fallback to empty string
-          }
-        }
-        // Ensure defaultFolder is always a string
-        if (!rule.defaultFolder) {
-          rule.defaultFolder = '';
-        }
+        await resolveDefaultDestinations(rule, c);
         return { rule, key: keyDomainOnly };
       }
     }
