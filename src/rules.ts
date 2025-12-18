@@ -6,6 +6,8 @@ interface ClickDataResult {
   impression_id: string | null;
   session_id: string;
   campaign_id: string;
+  platform_id: string | null;
+  platform_click_id: string | null;
 }
 
 // Helper to extract landing page info from finalAction
@@ -316,6 +318,8 @@ export async function getClickData(clickId: string): Promise<ClickDataResult | n
           impression_id: row.is_impression ? row.event_id : null,  // Same if redirect, null if separate click
           session_id: row.session_id,
           campaign_id: row.campaign_id,
+          platform_id: row.platform_id || null,
+          platform_click_id: row.platform_click_id || null,
         };
       }
       return null;
