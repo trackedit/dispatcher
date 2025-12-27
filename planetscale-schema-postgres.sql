@@ -54,6 +54,13 @@ CREATE TABLE IF NOT EXISTS events (
     tls_version VARCHAR(20),                    -- TLS version
     tls_cipher VARCHAR(100),                    -- TLS cipher suite
     
+    -- Client-side detected fields (populated via beacon after page load)
+    screen_resolution VARCHAR(20),              -- e.g., "393x852"
+    device_pixel_ratio DECIMAL(3,1),            -- e.g., 3.0
+    gpu_renderer VARCHAR(255),                  -- e.g., "Apple A17 GPU"
+    client_timezone VARCHAR(50),                -- e.g., "America/New_York"
+    device_model_guess VARCHAR(255),            -- e.g., "iPhone 15 Pro"
+    
     -- Click-specific fields (nullable, only populated when is_click=true)
     destination_url TEXT,                        -- Where the user was redirected
     destination_id VARCHAR(255),                -- Which destination was selected (from clickDestinations array)

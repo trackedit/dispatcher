@@ -644,12 +644,24 @@ Macros are replaced in HTML/CSS content using `{{key}}` syntax. Use `{{!key}}` t
 {{user.OS}}               <!-- Windows, macOS, iOS, etc. -->
 {{user.OS_VERSION}}       <!-- OS version -->
 {{user.BRAND}}            <!-- Apple, Samsung, etc. -->
+{{user.MODEL}}            <!-- Device model (iPhone, Pixel 7, etc.) -->
+{{user.ARCH}}             <!-- CPU architecture (arm64, x86_64) -->
+
+<!-- Bot Detection -->
+{{user.BOT_SCORE}}        <!-- Cloudflare Bot Score (1-99, Enterprise only) -->
+{{user.THREAT_SCORE}}     <!-- Cloudflare Threat Score (0-100) -->
+{{user.IS_VERIFIED_BOT}}  <!-- true if verified bot (Googlebot, etc.) -->
 
 <!-- Network -->
 {{user.IP}}               <!-- Visitor IP address -->
 {{user.ORGANIZATION}}     <!-- AS organization name -->
 {{user.COLO}}             <!-- Cloudflare datacenter code -->
 {{user.REFERRER}}         <!-- Referrer URL -->
+
+<!-- Platform Attribution -->
+{{platform.id}}           <!-- Platform ID from database -->
+{{platform.name}}         <!-- Ad platform name (Facebook, etc.) -->
+{{platform.click_id}}     <!-- Native click ID (fbclid, gclid, etc.) -->
 
 <!-- URL Parameters -->
 {{query.param_name}}      <!-- Any URL query parameter -->
@@ -752,6 +764,21 @@ Block rules always serve the `defaultFolder` when matched. They're checked **bef
 - `devices`: Device type names
 - `browsers`: Browser name wildcards
 - `oses`: OS name wildcards
+
+---
+
+## Bot Detection & Cloaking
+
+Bots are automatically detected using a combination of the `isbot` library and Cloudflare's Bot Management signals (Bot Score, Verified Bot status, and Threat Score).
+
+### How Cloaking Works
+
+When a bot is detected on a main page request:
+1. **Rule matching is skipped**: Regular targeting rules are ignored.
+2. **Default folder is served**: The visitor is automatically routed to the `defaultFolder` (safe page).
+3. **Zero configuration**: This happens automatically for all campaigns with a `defaultFolder`.
+
+This ensures that bots (including search engine crawlers and ad platform reviewers) only see your "safe" content, while real humans see your offer or landing page.
 
 ---
 

@@ -124,6 +124,39 @@
         :root {
             --radius: 0.5rem;
             
+            /* Live Demo Pulsing */
+            @keyframes live-pulse {
+                0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+                70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+                100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+            .animate-live {
+                animation: live-pulse 2s infinite;
+            }
+
+            /* Sticky Banner Styles */
+            #sticky-personalization {
+                transform: translateY(-100%);
+                transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s;
+                opacity: 0;
+            }
+            #sticky-personalization.visible {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            
+            /* Custom Scrollbar for interactive area */
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 10px;
+            }
+            
             /* Light Mode - Monochrome & Clean */
             --background: #ffffff;
             --foreground: #09090b;
@@ -388,6 +421,26 @@
         </div>
     </nav>
 
+    <!-- Sticky Personalization Banner -->
+    <div id="sticky-personalization" class="fixed top-16 left-0 w-full z-40 bg-zinc-900 text-white border-b border-white/10 backdrop-blur-md">
+        <div class="container mx-auto px-4 h-10 flex items-center justify-between text-[10px] md:text-xs font-mono-terminal uppercase tracking-wider">
+            <div class="flex items-center gap-4 truncate">
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live"></div>
+                    <span class="text-emerald-400 font-bold">Edge Session:</span>
+                </div>
+                <div class="flex items-center gap-4 text-zinc-400 truncate">
+                    <span class="hidden sm:inline">Node: <span class="text-blue-400">{{user.COLO}}</span></span>
+                    <span class="hidden md:inline border-l border-white/10 pl-4">{{user.CITY}}, {{user.COUNTRY}}</span>
+                    <span class="border-l border-white/10 pl-4 truncate">{{user.DEVICE}} • {{user.BROWSER}}</span>
+                </div>
+            </div>
+            <button id="close-sticky" class="p-1 hover:text-white text-zinc-500 transition-colors ml-4">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+    </div>
+
     <main class="flex-1 pt-16">
         
         <!-- Hero Area -->
@@ -633,6 +686,81 @@
             </div>
         </section>
         
+        <!-- Live Demo Personalization Section -->
+        <section class="py-12 relative overflow-hidden bg-primary text-primary-foreground">
+            <div class="absolute inset-0 bg-grid opacity-[0.05] pointer-events-none"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div class="text-left max-w-md">
+                            <div class="flex items-center gap-2 mb-4">
+                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-live"></div>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">Live Edge Intelligence</span>
+                            </div>
+                            <h2 class="text-2xl md:text-3xl font-bold mb-4 tracking-tight">This is what we know about you — right now.</h2>
+                            <p class="text-primary-foreground/60 text-sm leading-relaxed">
+                                Our edge-native architecture identifies and personalizes your experience in under 50ms. No cookies, no trackers, just pure server-side intelligence at the closest point to your request.
+                            </p>
+                        </div>
+                        
+                        <div class="w-full md:w-96 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-2xl ring-1 ring-white/20">
+                            <div class="space-y-4 font-mono text-xs">
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Location</span>
+                                    <span class="text-emerald-400">{{user.CITY}}, {{user.COUNTRY}}</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Device</span>
+                                    <span class="text-white">{{user.DEVICE}} on {{user.OS}}</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Browser</span>
+                                    <span class="text-white">{{user.BROWSER}}</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Edge Node</span>
+                                    <span class="text-blue-400">{{user.COLO}}</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-primary-foreground/40 uppercase tracking-wider">ISP</span>
+                                    <span class="text-white truncate max-w-[200px] text-right" title="{{user.ORGANIZATION}}">{{user.ORGANIZATION}}</span>
+                                </div>
+                                
+                                <!-- Client-Side Detected (JS) -->
+                                <div class="pt-2 mt-2 border-t border-dashed border-white/10">
+                                    <div class="text-[9px] text-amber-400/80 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg>
+                                        Client-Side Detection
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Screen</span>
+                                        <span id="client-screen" class="text-amber-400">detecting...</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                                        <span class="text-primary-foreground/40 uppercase tracking-wider">GPU</span>
+                                        <span id="client-gpu" class="text-amber-400 truncate max-w-[180px] text-right">detecting...</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Timezone</span>
+                                        <span id="client-timezone" class="text-white">detecting...</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Model Guess</span>
+                                        <span id="client-model" class="text-fuchsia-400">detecting...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                                <span class="text-[9px] text-primary-foreground/30 uppercase tracking-[0.2em]">Edge Latency</span>
+                                <span class="text-[10px] font-bold text-emerald-400">&lt; 42ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <!-- Partners Section -->
         <section class="py-12 border-y border-border bg-secondary/30">
             <div class="container mx-auto px-4">
@@ -702,6 +830,65 @@
                             <h4 class="text-lg font-bold">Profit & Optimize</h4>
                         </div>
                         <p class="text-muted-foreground text-sm">Analyze real-time data, drill down, and scale your winners.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Variables Demo Section -->
+        <section class="py-16 md:py-24 bg-background border-y border-border">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <span class="text-xs font-mono-terminal text-primary mb-2 block uppercase tracking-widest">Personalization Engine</span>
+                    <h2 class="text-2xl md:text-4xl font-bold mb-4">Rule-Based Content Injection</h2>
+                    <p class="text-muted-foreground text-sm max-w-2xl mx-auto">
+                        Define custom variables in your KV rules and inject them dynamically into your HTML. 
+                        Combine system macros with custom business logic for extreme relevance.
+                    </p>
+                </div>
+
+                <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <!-- Left: Rule Config -->
+                    <div class="terminal-card bg-zinc-900 text-white overflow-hidden flex flex-col">
+                        <div class="px-4 py-2 border-b border-white/10 bg-white/5 flex items-center justify-between">
+                            <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500">KV Rule Configuration</span>
+                            <div class="flex gap-1.5">
+                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
+                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
+                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
+                            </div>
+                        </div>
+                        <div class="p-6 font-mono text-sm flex-1 custom-scrollbar overflow-auto">
+                            <pre id="rule-config-display" class="text-emerald-400"></pre>
+                        </div>
+                        <div class="p-4 border-t border-white/10 bg-white/5 grid grid-cols-3 gap-2">
+                            <button onclick="setVariablePreset('default')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Default</button>
+                            <button onclick="setVariablePreset('holiday')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Holiday Sale</button>
+                            <button onclick="setVariablePreset('geo')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Geo-Target</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Preview -->
+                    <div class="terminal-card bg-white dark:bg-zinc-900 overflow-hidden flex flex-col shadow-xl">
+                        <div class="px-4 py-2 border-b border-border dark:border-white/10 bg-muted/30 dark:bg-white/5 flex items-center gap-3">
+                            <div class="flex gap-1">
+                                <div class="w-2 h-2 rounded-full bg-red-400/50"></div>
+                                <div class="w-2 h-2 rounded-full bg-amber-400/50"></div>
+                                <div class="w-2 h-2 rounded-full bg-emerald-400/50"></div>
+                            </div>
+                            <div class="flex-1 bg-background dark:bg-zinc-950 border border-border dark:border-white/10 rounded px-3 py-0.5 text-[10px] font-mono text-muted-foreground truncate">
+                                preview.tracked.app/personalized-offer
+                            </div>
+                        </div>
+                        <div id="variable-preview-render" class="p-8 flex-1 flex flex-col justify-center items-center text-center">
+                            <!-- Injected via JS -->
+                        </div>
+                        <div class="p-3 border-t border-border dark:border-white/10 bg-muted/20 dark:bg-white/5 flex justify-center gap-4">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live"></div>
+                                <span class="text-[9px] font-mono uppercase text-muted-foreground">Live Replacement Active</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1517,6 +1704,109 @@
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             const locale = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
             
+            // ============================================
+            // CLIENT-SIDE DEVICE DETECTION (Enhanced)
+            // ============================================
+            
+            // Get WebGL GPU info
+            function getGPUInfo() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (!gl) return 'WebGL unavailable';
+                    
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (!debugInfo) return 'GPU info blocked';
+                    
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    return renderer || 'Unknown GPU';
+                } catch (e) {
+                    return 'Detection failed';
+                }
+            }
+            
+            // Guess iPhone model from screen + GPU
+            function guessDeviceModel(screenWidth, screenHeight, dpr, gpu) {
+                const key = `${screenWidth}x${screenHeight}@${dpr}`;
+                
+                // iPhone model database (physical resolution / DPR = logical)
+                const iPhoneModels = {
+                    '430x932@3': 'iPhone 15 Pro Max / 14 Pro Max',
+                    '393x852@3': 'iPhone 15 Pro / 14 Pro / 15 / 14',
+                    '390x844@3': 'iPhone 13 / 13 Pro / 12 / 12 Pro',
+                    '428x926@3': 'iPhone 13 Pro Max / 12 Pro Max',
+                    '375x812@3': 'iPhone X / XS / 11 Pro',
+                    '414x896@3': 'iPhone XS Max / 11 Pro Max',
+                    '414x896@2': 'iPhone XR / 11',
+                    '375x667@2': 'iPhone 6/7/8 / SE 2/3',
+                    '414x736@3': 'iPhone 6/7/8 Plus',
+                    '320x568@2': 'iPhone SE 1st Gen / 5s',
+                };
+                
+                // Refine with GPU if available
+                if (gpu.includes('Apple')) {
+                    const gpuMatch = gpu.match(/Apple A(\d+)/i) || gpu.match(/Apple GPU/i);
+                    if (gpuMatch) {
+                        const chipNum = gpuMatch[1] ? parseInt(gpuMatch[1]) : null;
+                        if (chipNum) {
+                            // A17 = iPhone 15 Pro, A16 = iPhone 14 Pro, A15 = iPhone 13/14, etc.
+                            const chipHint = chipNum >= 17 ? ' (A17 chip)' : chipNum >= 16 ? ' (A16 chip)' : chipNum >= 15 ? ' (A15 chip)' : '';
+                            const model = iPhoneModels[key];
+                            if (model) return model + chipHint;
+                        }
+                    }
+                }
+                
+                // Android detection via User-Agent (often includes model)
+                if (navigator.userAgent.includes('Android')) {
+                    const match = navigator.userAgent.match(/;\s*([^;]+)\s+Build\//);
+                    if (match) return match[1].trim();
+                    return 'Android Device';
+                }
+                
+                // Check for iPad
+                if (navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                    return 'iPad';
+                }
+                
+                // Fallback to iPhone lookup
+                if (iPhoneModels[key]) return iPhoneModels[key];
+                
+                // Desktop detection
+                if (dpr === 1 && screenWidth >= 1200) return 'Desktop Monitor';
+                if (dpr === 2 && screenWidth >= 1200) return 'Retina Display';
+                
+                return 'Unknown Device';
+            }
+            
+            // Populate client-side detection elements
+            function populateClientSideDetection() {
+                const screenEl = document.getElementById('client-screen');
+                const gpuEl = document.getElementById('client-gpu');
+                const timezoneEl = document.getElementById('client-timezone');
+                const modelEl = document.getElementById('client-model');
+                
+                if (!screenEl) return; // Elements not on page
+                
+                const w = window.screen.width;
+                const h = window.screen.height;
+                const dpr = window.devicePixelRatio || 1;
+                const gpu = getGPUInfo();
+                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const model = guessDeviceModel(w, h, dpr, gpu);
+                
+                screenEl.textContent = `${w}×${h} @${dpr}x`;
+                gpuEl.textContent = gpu.length > 30 ? gpu.substring(0, 28) + '...' : gpu;
+                gpuEl.title = gpu; // Full GPU name on hover
+                timezoneEl.textContent = tz;
+                modelEl.textContent = model;
+            }
+            
+            // Run detection immediately
+            populateClientSideDetection();
+            
+            // ============================================
+            
             // Demo data matching real macro names from rules.ts populateMacros function
             // Note: Using string concatenation to prevent server-side macro replacement
             // The server replaces {{macro}} in HTML/CSS files, so we must construct these strings dynamically
@@ -1660,6 +1950,119 @@
 
             macroInput.addEventListener('input', updatePreview);
             updatePreview(); // Initial render
+
+            // Sticky Personalization Banner Logic
+            const stickyBanner = document.getElementById('sticky-personalization');
+            const closeStickyBtn = document.getElementById('close-sticky');
+            let bannerDismissed = false;
+
+            window.addEventListener('scroll', () => {
+                if (bannerDismissed || !stickyBanner) return;
+                
+                const showAfter = 700; // Pixels to scroll before showing
+                if (window.scrollY > showAfter) {
+                    stickyBanner.classList.add('visible');
+                } else {
+                    stickyBanner.classList.remove('visible');
+                }
+            });
+
+            if (closeStickyBtn) {
+                closeStickyBtn.addEventListener('click', () => {
+                    stickyBanner.classList.remove('visible');
+                    bannerDismissed = true;
+                });
+            }
+
+            // Variable Demo Presets
+            const presets = {
+                default: {
+                    config: {
+                        variables: {
+                            headline: "Precision Tracking at the Edge",
+                            cta_text: "Start Free Trial",
+                            badge_color: "bg-blue-500"
+                        }
+                    },
+                    template: (vars) => `
+                        <div class="space-y-6 animate-fade-in-up">
+                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">New Feature</span>
+                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline}</h3>
+                            <button class="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
+                                ${vars.cta_text}
+                            </button>
+                        </div>
+                    `
+                },
+                holiday: {
+                    config: {
+                        variables: {
+                            headline: "Holiday Sale: 50% Off Tracking",
+                            cta_text: "Claim Gift",
+                            badge_color: "bg-red-500"
+                        }
+                    },
+                    template: (vars) => `
+                        <div class="space-y-6 animate-fade-in-up">
+                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Season's Deals</span>
+                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline}</h3>
+                            <button class="px-8 py-3 bg-red-600 text-white rounded-lg font-bold shadow-lg hover:scale-105 transition-transform border-b-4 border-red-800">
+                                ${vars.cta_text}
+                            </button>
+                        </div>
+                    `
+                },
+                geo: {
+                    config: {
+                        variables: {
+                            headline: `Exclusive for visitors from ${M('user.CITY')}`,
+                            cta_text: `Ship to ${M('user.COUNTRY')}`,
+                            badge_color: "bg-emerald-500"
+                        }
+                    },
+                    template: (vars) => `
+                        <div class="space-y-6 animate-fade-in-up">
+                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Local Offer</span>
+                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline.replace(M('user.CITY'), '<span class="text-emerald-500">New York</span>')}</h3>
+                            <button class="px-8 py-3 bg-emerald-600 text-white rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
+                                ${vars.cta_text.replace(M('user.COUNTRY'), 'United States')}
+                            </button>
+                        </div>
+                    `
+                }
+            };
+
+            const configDisplay = document.getElementById('rule-config-display');
+            const previewRender = document.getElementById('variable-preview-render');
+
+            window.setVariablePreset = function(name) {
+                const preset = presets[name];
+                if (!preset) return;
+
+                // Update config display
+                configDisplay.textContent = JSON.stringify(preset.config, null, 2);
+                
+                // Update preview with fade effect
+                previewRender.style.opacity = '0';
+                setTimeout(() => {
+                    previewRender.innerHTML = preset.template(preset.config.variables);
+                    previewRender.style.opacity = '1';
+                }, 200);
+
+                // Update button styles
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    if (btn.textContent.toLowerCase().includes(name)) {
+                        btn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                        btn.classList.remove('bg-white/10', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                        btn.classList.add('bg-white/10', 'text-white');
+                    }
+                });
+            };
+
+            // Initial load
+            setVariablePreset('default');
         }
     </script>
 

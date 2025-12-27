@@ -26,6 +26,13 @@
 			"remote": true
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "DRIVE_US",
+			"bucket_name": "tracked-us",
+			"remote": true
+		}
+	],
 	"hyperdrive": [
 		{
 		  "binding": "HYPERDRIVE",

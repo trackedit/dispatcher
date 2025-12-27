@@ -109,12 +109,12 @@ async function storeInPlanetScale(data: Record<string, any>): Promise<void> {
           user_agent_raw, asn, as_organization, colo, client_trust_score,
           http_protocol, tls_version, tls_cipher,
           destination_url, destination_id, matched_flags, platform_id, platform_click_id,
-          click_id, payout, conversion_type, postback_data, is_bot
+          click_id, payout, conversion_type, postback_data, is_bot, bot_score
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
           $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29,
           $30, $31, $32, $33, $34, $35, $36, $37,
-          $38, $39, $40, $41, $42, $43, $44, $45, $46, $47
+          $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48
         )
         ON CONFLICT (event_id) DO NOTHING
       `, [
@@ -133,7 +133,7 @@ async function storeInPlanetScale(data: Record<string, any>): Promise<void> {
         data.destination_url || null, data.destination_id || null, data.matched_flags || null,
         data.platform_id || null, data.platform_click_id || null,
         data.click_id || null, data.payout || null, data.conversion_type || null,
-        data.postback_data || null, data.is_bot || false
+        data.postback_data || null, data.is_bot || false, data.bot_score || null
       ]);
       
       await client.end();
@@ -179,6 +179,7 @@ async function storeEvent(data: {
   ruleKey: string;
   userAgentRaw: string | null;
   isBot?: boolean;  // Bot detection flag (from isbot library)
+  botScore?: number | null; // Cloudflare Bot Management Score
   asn: number | null;
   asOrganization: string | null;
   colo: string | null;
@@ -235,6 +236,7 @@ async function storeEvent(data: {
     query_params: JSON.stringify(data.queryParams),
     rule_key: data.ruleKey,
     user_agent_raw: data.userAgentRaw || null,
+    bot_score: data.botScore || null,
     asn: data.asn || null,
     as_organization: data.asOrganization || null,
     colo: data.colo || null,
@@ -280,6 +282,159 @@ export async function storeConversion(data: {
     query_params: null,
     rule_key: null,
   });
+}
+
+/**
+ * Enrich an existing event with client-side detected data
+ * This is called by the /t/enrich beacon endpoint
+ */
+export async function enrichEvent(impressionId: string, data: {
+  screen?: string;
+  dpr?: number;
+  gpu?: string;
+  tz?: string;
+  model?: string;
+  osVersion?: string;
+  arch?: string;
+}): Promise<void> {
+  const hyperdrive = (env as any).HYPERDRIVE;
+  if (!hyperdrive) {
+    console.error('PlanetScale not configured - HYPERDRIVE binding not found');
+    return;
+  }
+  
+  try {
+    const { Client } = await import('pg');
+    const client = new Client({
+      connectionString: hyperdrive.connectionString,
+      ssl: { rejectUnauthorized: false }
+    });
+    await client.connect();
+    
+    try {
+      console.log(`[PSQL] enriching event`, impressionId, data);
+      
+      await client.query(`
+        UPDATE events 
+        SET 
+          screen_resolution = COALESCE($2, screen_resolution),
+          device_pixel_ratio = COALESCE($3, device_pixel_ratio),
+          gpu_renderer = COALESCE($4, gpu_renderer),
+          client_timezone = COALESCE($5, client_timezone),
+          device_model_guess = COALESCE($6, device_model_guess),
+          os_version_client = COALESCE($7, os_version_client)
+        WHERE event_id = $1
+      `, [
+        impressionId, 
+        data.screen || null, 
+        data.dpr || null, 
+        data.gpu || null, 
+        data.tz || null, 
+        data.model || null,
+        data.osVersion || null
+      ]);
+      
+      await client.end();
+    } catch (queryError: any) {
+      await client.end();
+      throw queryError;
+    }
+  } catch (error: any) {
+    console.error(`Exception enriching event ${impressionId}:`, error.message);
+  }
+}
+
+/**
+ * Generates a fast redirect page with device detection
+ * The beacon fires in parallel with the redirect (non-blocking)
+ */
+export function getRedirectWithDetection(impressionId: string, redirectUrl: string): string {
+  // Minimal HTML that fires beacon and redirects simultaneously
+  // sendBeacon is non-blocking so redirect happens immediately
+  // Includes Chrome's high-entropy API for accurate OS version when available
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>(function(){var d={impressionId:'${impressionId}',screen:screen.width+'x'+screen.height,dpr:window.devicePixelRatio||1,tz:Intl.DateTimeFormat().resolvedOptions().timeZone};try{var c=document.createElement('canvas').getContext('webgl');if(c){var x=c.getExtension('WEBGL_debug_renderer_info');if(x)d.gpu=c.getParameter(x.UNMASKED_RENDERER_WEBGL);}}catch(e){}if(/iPhone/.test(navigator.userAgent)){var s=d.screen;if(s==='393x852')d.model=d.dpr===3?'iPhone 14/15 Pro':'iPhone 14/15';else if(s==='430x932')d.model='iPhone 14/15 Plus/Max';else if(s==='390x844')d.model='iPhone 12/13/14';else if(s==='428x926')d.model='iPhone 12/13 Pro Max';}if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){navigator.userAgentData.getHighEntropyValues(['platformVersion','model','architecture']).then(function(ua){d.osVersion=ua.platformVersion;d.model=d.model||ua.model;d.arch=ua.architecture;navigator.sendBeacon('/t/enrich',JSON.stringify(d));}).catch(function(){navigator.sendBeacon('/t/enrich',JSON.stringify(d));});}else{navigator.sendBeacon('/t/enrich',JSON.stringify(d));}location.href='${redirectUrl}';})()</script></body></html>`;
+}
+
+/**
+ * Generates the minified JS snippet to detect device info and send it to the beacon
+ */
+export function getDeviceDetectionScript(impressionId: string): string {
+  // We use a self-invoking function and navigator.sendBeacon for non-blocking reporting
+  // Includes Chrome's high-entropy API for accurate OS version when available
+  return `
+<script>(function(){
+  try {
+    var d={
+      impressionId:'${impressionId}',
+      screen:screen.width+'x'+screen.height,
+      dpr:window.devicePixelRatio||1,
+      tz:Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    var canvas=document.createElement('canvas');
+    var gl=canvas.getContext('webgl')||canvas.getContext('experimental-webgl');
+    if(gl){
+      var debugInfo=gl.getExtension('WEBGL_debug_renderer_info');
+      if(debugInfo) d.gpu=gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    }
+    if(/iPhone/.test(navigator.userAgent)){
+      var s=d.screen;
+      if(s==='393x852') d.model=d.dpr===3?'iPhone 14/15 Pro':'iPhone 14/15';
+      else if(s==='430x932') d.model='iPhone 14/15 Plus/Max';
+      else if(s==='390x844') d.model='iPhone 12/13/14';
+      else if(s==='428x926') d.model='iPhone 12/13 Pro Max';
+    }
+    function send(){
+      if(navigator.sendBeacon) navigator.sendBeacon('/t/enrich', JSON.stringify(d));
+      else fetch('/t/enrich', {method:'POST',body:JSON.stringify(d),keepalive:true});
+    }
+    if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){
+      navigator.userAgentData.getHighEntropyValues(['platformVersion','model','architecture']).then(function(ua){
+        d.osVersion=ua.platformVersion;
+        d.model=d.model||ua.model;
+        d.arch=ua.architecture;
+        send();
+      }).catch(send);
+    } else { send(); }
+  } catch(e) {}
+})();</script>`.replace(/\n\s*/g, '');
+}
+
+/**
+ * Helper to inject the device detection script into an HTML response
+ * Latency Optimized: Only injects when server-side signals are insufficient
+ */
+export function injectDeviceDetection(response: Response, data: RequestData): Response {
+  if (!data.impressionId) return response;
+  
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('text/html')) return response;
+
+  // 1. Skip if it's a known bot (don't waste latency/resources)
+  if (data.isBot || (data.botScore !== undefined && data.botScore !== null && data.botScore < 30)) {
+    return response;
+  }
+
+  // 2. Skip for desktops with accurate OS version (desktops don't need model detection)
+  const isDesktop = data.userAgent.device === 'desktop' || !data.userAgent.device;
+  const hasAccurateOSVersion = data.userAgent.osVersion && data.userAgent.osVersion !== '10.15.7' && data.userAgent.osVersion !== '10.0';
+  
+  // 3. Always inject for Safari iOS (UA is useless for model detection)
+  const isSafariIOS = (data.userAgent.browser === 'Safari' || data.userAgent.browser === 'Mobile Safari' || !data.userAgent.browser) && data.userAgent.os === 'iOS';
+  
+  // Skip injection for: Desktop with OS version, OR mobile with accurate signals (not Safari iOS)
+  const skipInjection = isDesktop ? hasAccurateOSVersion : (hasAccurateOSVersion && !isSafariIOS);
+
+  if (skipInjection) {
+    return response;
+  }
+  
+  return new HTMLRewriter()
+    .on('body', {
+      element(element) {
+        element.append(getDeviceDetectionScript(data.impressionId!), { html: true });
+      }
+    })
+    .transform(response);
 }
 
 // Query PlanetScale for click data (for postback lookup)
@@ -351,6 +506,40 @@ async function getCampaignIdFromRuleKey(ruleKey: string): Promise<string | null>
     console.error(`Exception looking up campaign for rule key ${ruleKey}:`, error.message);
     return null;
   }
+}
+
+// Get user_id from campaign_id
+async function getUserIdFromCampaignId(campaignId: string): Promise<string | null> {
+  try {
+    const db = (env as any).DB;
+    if (!db || !campaignId) {
+      return null;
+    }
+
+    const result = await db.prepare(
+      'SELECT user_id FROM campaigns WHERE id = ? LIMIT 1'
+    ).bind(campaignId).first() as { user_id: string } | null;
+
+    return result?.user_id || null;
+  } catch (error: any) {
+    console.error(`Exception looking up user_id for campaign ${campaignId}:`, error.message);
+    return null;
+  }
+}
+
+// Convert display path to R2 key
+// Display path: /DriveName/path/to/file.mp4
+// R2 key: {userId}/DRIVE_DriveName/path/to/file.mp4
+function buildR2Path(userId: string, displayPath: string): string {
+  const pathParts = displayPath.split('/').filter(p => p);
+  if (pathParts.length === 0) {
+    return displayPath; // Can't parse, return as-is
+  }
+  const driveName = pathParts[0];
+  const remainingPath = pathParts.slice(1).join('/');
+  return remainingPath 
+    ? `${userId}/DRIVE_${driveName}/${remainingPath}`
+    : `${userId}/DRIVE_${driveName}`;
 }
 
 // In-memory cache for destination URLs (per-isolate, resets on deploy)
@@ -527,15 +716,20 @@ export interface RequestData {
   isEmbedRequest?: boolean;
   sessionId?: string;      // Fingerprint-based stable ID (generated per request)
   impressionId?: string;   // Unique ID for page view (generated per request)
-  userAgent: {
-    browser: string | null;    // "Chrome", "Firefox", "Bot", "Facebook Bot", etc
-    browserVersion: string | null;
-    os: string | null;        // "Windows", "iOS", etc
-    osVersion: string | null;
-    device: string | null;    // "Mobile", "Desktop", "Tablet"
-    brand: string | null;     // "Apple", "Samsung", "Huawei", etc
-    raw: string | null;       // Full user-agent string (can derive model/arch from this)
-  };
+  botScore?: number | null; // Cloudflare Bot Management Score (1-99) - Enterprise only
+  isVerifiedBot?: boolean; // Cloudflare Verified Bot (Googlebot, etc.) - Pro+
+  clientTrustScore?: number | null; // Cloudflare Threat Score (0-100) - Pro+
+   userAgent: {
+     browser: string | null;    // "Chrome", "Firefox", "Bot", "Facebook Bot", etc
+     browserVersion: string | null;
+     os: string | null;        // "Windows", "iOS", etc
+     osVersion: string | null;
+     device: string | null;    // "Mobile", "Desktop", "Tablet"
+     brand: string | null;     // "Apple", "Samsung", "Huawei", etc
+     model: string | null;     // Device model (e.g., "iPhone", "Pixel 5")
+     arch: string | null;      // CPU architecture (e.g., "arm64", "x86_64")
+     raw: string | null;       // Full user-agent string (can derive model/arch from this)
+   };
   isBot?: boolean;            // Bot detection flag (from isbot library) - optional, can also filter by browser containing "Bot"
   geo: {
     country: string | null;
@@ -584,11 +778,13 @@ async function serveRemoteFile(c: any, url: string, data: RequestData, reason: s
 
     const newHeaders = new Headers(response.headers);
     addAcceptCHHeaders(newHeaders);
-    return new Response(content, {
+    const finalResponse = new Response(content, {
       status: response.status,
       statusText: response.statusText,
       headers: newHeaders,
     });
+    
+    return injectDeviceDetection(finalResponse, data);
   } catch (error: any) {
     console.error(`Exception fetching remote URL ${url}: ${error.message}`);
     return new Response("Error: Exception during remote content serving.", { status: 500 });
@@ -657,7 +853,7 @@ async function serveAsJavaScript(c: any, data: ExtendedRequestData, reason: stri
 }
 
 // Helper function to serve a local file from /public
-async function servePublicFile(c: any, baseDir: string, data: RequestData, reason: string, variables?: Record<string, string>): Promise<Response> {
+async function servePublicFile(c: any, baseDir: string, data: RequestData, reason: string, variables?: Record<string, string>, campaignId?: string): Promise<Response> {
   console.log("SERVE_PUBLIC_FILE_CALLED: baseDir=", baseDir, "path=", data.path, "reason=", reason);
   
   // Normalize the base directory: remove leading/trailing slashes for consistency
@@ -684,6 +880,64 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
       const assetRequest = new Request(assetUrl.toString(), { method: 'GET', headers: { 'Accept': '*/*' } });
       const assetResponse = await env.ASSETS.fetch(assetRequest);
       if (!assetResponse.ok) {
+        // Try R2
+        const driveUs = (env as any).DRIVE_US;
+        if (driveUs && campaignId) {
+          try {
+            const userId = await getUserIdFromCampaignId(campaignId);
+            if (userId) {
+              const r2Path = buildR2Path(userId, fullAssetPath);
+              console.log(`R2 lookup: ${r2Path}`);
+              const r2Object = await driveUs.get(r2Path);
+              if (r2Object) {
+                const r2Headers = new Headers();
+                const ext = fullAssetPath.split('.').pop()?.toLowerCase();
+                const contentTypeMap: Record<string, string> = {
+                  'html': 'text/html',
+                  'htm': 'text/html',
+                  'css': 'text/css',
+                  'js': 'application/javascript',
+                  'json': 'application/json',
+                  'png': 'image/png',
+                  'jpg': 'image/jpeg',
+                  'jpeg': 'image/jpeg',
+                  'gif': 'image/gif',
+                  'svg': 'image/svg+xml',
+                  'webp': 'image/webp',
+                  'mp4': 'video/mp4',
+                  'webm': 'video/webm',
+                  'mp3': 'audio/mpeg',
+                  'woff': 'font/woff',
+                  'woff2': 'font/woff2',
+                };
+                if (ext && contentTypeMap[ext]) {
+                  r2Headers.set('Content-Type', contentTypeMap[ext]);
+                }
+                if (r2Object.httpMetadata?.contentType) {
+                  r2Headers.set('Content-Type', r2Object.httpMetadata.contentType);
+                }
+                if (r2Object.httpMetadata?.cacheControl) {
+                  r2Headers.set('Cache-Control', r2Object.httpMetadata.cacheControl);
+                }
+                addAcceptCHHeaders(r2Headers);
+                
+                // Handle macro replacement for HTML/CSS
+                const contentType = r2Headers.get('content-type') || '';
+                if (contentType.includes('text/html') || contentType.includes('text/css')) {
+                  const content = await r2Object.text();
+                  const allReplaceableVariables = populateMacros(data, variables);
+                  const replacedContent = replaceMacros(content, allReplaceableVariables);
+                  const r2Response = new Response(replacedContent, { headers: r2Headers });
+                  return injectDeviceDetection(r2Response, data);
+                }
+                
+                return new Response(r2Object.body, { headers: r2Headers });
+              }
+            }
+          } catch (r2Error: any) {
+            console.error(`R2 error: ${r2Error.message}`);
+          }
+        }
         return serveNotFoundPage(c, data, `Asset not found: ${fullAssetPath}`);
       }
       // Macro replacement for HTML/CSS
@@ -692,7 +946,8 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
         const allReplaceableVariables = populateMacros(data, variables);
         content = replaceMacros(content, allReplaceableVariables);
         const newHeaders = new Headers(assetResponse.headers);
-        return new Response(content, { status: assetResponse.status, statusText: assetResponse.statusText, headers: newHeaders });
+        const htmlResponse = new Response(content, { status: assetResponse.status, statusText: assetResponse.statusText, headers: newHeaders });
+        return injectDeviceDetection(htmlResponse, data);
       }
       return new Response(assetResponse.body, { status: assetResponse.status, statusText: assetResponse.statusText, headers: assetResponse.headers });
     } catch (e) {
@@ -847,6 +1102,65 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
         }
         
         console.error(`Error serving asset ${fullAssetPath} and ${alternateAssetPath} - tried all fallbacks`);
+        
+        // Try R2
+        const driveUs = (env as any).DRIVE_US;
+        if (driveUs && campaignId) {
+          try {
+            const userId = await getUserIdFromCampaignId(campaignId);
+            if (userId) {
+              const r2Path = buildR2Path(userId, fullAssetPath);
+              console.log(`R2 lookup: ${r2Path}`);
+              const r2Object = await driveUs.get(r2Path);
+              if (r2Object) {
+                const r2Headers = new Headers();
+                const ext = fullAssetPath.split('.').pop()?.toLowerCase();
+                const contentTypeMap: Record<string, string> = {
+                  'html': 'text/html',
+                  'htm': 'text/html',
+                  'css': 'text/css',
+                  'js': 'application/javascript',
+                  'json': 'application/json',
+                  'png': 'image/png',
+                  'jpg': 'image/jpeg',
+                  'jpeg': 'image/jpeg',
+                  'gif': 'image/gif',
+                  'svg': 'image/svg+xml',
+                  'webp': 'image/webp',
+                  'mp4': 'video/mp4',
+                  'webm': 'video/webm',
+                  'mp3': 'audio/mpeg',
+                  'woff': 'font/woff',
+                  'woff2': 'font/woff2',
+                };
+                if (ext && contentTypeMap[ext]) {
+                  r2Headers.set('Content-Type', contentTypeMap[ext]);
+                }
+                if (r2Object.httpMetadata?.contentType) {
+                  r2Headers.set('Content-Type', r2Object.httpMetadata.contentType);
+                }
+                if (r2Object.httpMetadata?.cacheControl) {
+                  r2Headers.set('Cache-Control', r2Object.httpMetadata.cacheControl);
+                }
+                addAcceptCHHeaders(r2Headers);
+                
+                const contentType = r2Headers.get('content-type') || '';
+                if (contentType.includes('text/html') || contentType.includes('text/css')) {
+                  const content = await r2Object.text();
+                  const allReplaceableVariables = populateMacros(data, variables);
+                  const replacedContent = replaceMacros(content, allReplaceableVariables);
+                  const r2Response = new Response(replacedContent, { headers: r2Headers });
+                  return injectDeviceDetection(r2Response, data);
+                }
+                
+                return new Response(r2Object.body, { headers: r2Headers });
+              }
+            }
+          } catch (r2Error: any) {
+            console.error(`R2 error: ${r2Error.message}`);
+          }
+        }
+        
         if (data.path === '/error.html') {
           // To prevent an infinite loop if error.html is missing, we stop here.
           return new Response('Not Found, and the error page is also missing.', { status: 500 });
@@ -865,11 +1179,12 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
         content = replaceMacros(content, allReplaceableVariables);
         
         const newHeaders = new Headers(alternateAssetResponse.headers);
-        return new Response(content, {
+        const altResponse = new Response(content, {
           status: alternateAssetResponse.status,
           statusText: alternateAssetResponse.statusText,
           headers: newHeaders,
         });
+        return injectDeviceDetection(altResponse, data);
       }
 
       return new Response(alternateAssetResponse.body, {
@@ -890,11 +1205,12 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
       content = replaceMacros(content, allReplaceableVariables);
       
       const newHeaders = new Headers(assetResponse.headers);
-      return new Response(content, {
+      const finalAssetResponse = new Response(content, {
         status: assetResponse.status,
         statusText: assetResponse.statusText,
         headers: newHeaders,
       });
+      return injectDeviceDetection(finalAssetResponse, data);
     }
 
     return new Response(assetResponse.body, {
@@ -993,6 +1309,15 @@ async function handleInitialProxyRequest(c: any, baseUrl: string, data: RequestD
                             return `url(${rewriteUrl(trimmedUrl, baseUrl)})`;
                         });
                         element.setAttribute('style', newStyle);
+                    }
+                }
+            })
+            .on('body', {
+                element(element) {
+                    // Latency optimization: skip injection for bots or if server signals are sufficient
+                    const injected = injectDeviceDetection(new Response("", { headers: { 'content-type': 'text/html' } }), data);
+                    if (injected.body && data.impressionId) {
+                        element.append(getDeviceDetectionScript(data.impressionId), { html: true });
                     }
                 }
             });
@@ -1141,6 +1466,11 @@ function populateMacros(data: RequestData, variables?: Record<string, string>, c
     addVariable('user.OS', data.userAgent.os);
     addVariable('user.OS_VERSION', data.userAgent.osVersion);
     addVariable('user.BRAND', data.userAgent.brand);
+    addVariable('user.MODEL', data.userAgent.model);
+    addVariable('user.ARCH', data.userAgent.arch);
+    addVariable('user.BOT_SCORE', data.botScore?.toString() || '0');
+    addVariable('user.THREAT_SCORE', data.clientTrustScore?.toString() || '0');
+    addVariable('user.IS_VERIFIED_BOT', data.isVerifiedBot ? 'true' : 'false');
     addVariable('user.ORGANIZATION', data.org);
     addVariable('user.REFERRER', data.referrer);
     addVariable('user.COLO', data.cf.colo);
@@ -1541,6 +1871,51 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
   );
   const isAssetRequest = !isPageLike;
 
+  // 0. Bot Detection - use ALL Cloudflare signals
+  // If bot detected via any signal, skip matching rules and serve defaultFolder
+  const isBotByScore = data.botScore !== undefined && data.botScore !== null && data.botScore < 30;
+  const isBotByThreat = data.clientTrustScore !== undefined && data.clientTrustScore !== null && data.clientTrustScore > 50;
+  const isLikelyBot = data.isBot || isBotByScore || isBotByThreat;
+  
+  // Note: Verified bots (Googlebot, Bingbot) also get the safe page unless specifically allowed
+  if ((isLikelyBot || data.isVerifiedBot) && !isAssetRequest) {
+    console.log(JSON.stringify({
+      action: "BOT_DETECTED",
+      domain: data.domain,
+      ip: data.ip,
+      botScore: data.botScore,
+      clientTrustScore: data.clientTrustScore,
+      isVerifiedBot: data.isVerifiedBot,
+      isBotByUA: data.isBot,
+      reason: data.isVerifiedBot ? "Verified Bot (Googlebot, etc.)" : 
+              isBotByScore ? "Cloudflare Bot Score < 30" : 
+              isBotByThreat ? "High Threat Score > 50" : "UA-based detection"
+    }));
+    
+    // Serve default folder/page (safe page)
+    const mode = rule.defaultFolderMode;
+    const defaultFolder = rule.defaultFolder || '';
+    const isUrl = defaultFolder.startsWith('http://') || defaultFolder.startsWith('https://');
+    
+    const botReason = `Bot detected (score: ${data.botScore})`;
+    
+    if (mode === 'redirect' && isUrl) {
+      const macroContext: MacroContext = {
+        campaignId: rule.id,
+        campaignName: rule.name,
+        siteName: rule.siteName,
+        sessionId: data.sessionId,
+        impressionId: data.impressionId,
+      };
+      const redirectUrl = replaceMacrosInUrl(defaultFolder, data, rule.variables, macroContext);
+      return new Response(null, { status: 302, headers: { 'Location': redirectUrl } });
+    } else if (mode === 'proxy' || (isUrl && mode !== 'hosted')) {
+      return handleInitialProxyRequest(c, defaultFolder, data, botReason, rule.variables);
+    } else {
+      return servePublicFile(c, `${defaultFolder}/`, data, botReason, rule.variables, rule.id);
+    }
+  }
+
   // 1. Check blocks first
   if (rule.blocks) {
     // Helper to serve default folder based on mode
@@ -1570,7 +1945,7 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
       } else if (mode === 'proxy' || (isUrl && mode !== 'hosted')) {
         return handleInitialProxyRequest(c, defaultFolder, data, blockReason, rule.variables);
       } else {
-        return servePublicFile(c, `${defaultFolder}/`, data, blockReason, rule.variables);
+        return servePublicFile(c, `${defaultFolder}/`, data, blockReason, rule.variables, rule.id);
       }
     };
 
@@ -2370,7 +2745,8 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
           })()
         );
         
-        const jsRedirect = `window.location.href = "${jsRedirectUrl}";`;
+        // JS redirect with device detection beacon
+        const jsRedirect = `(function(){var d={impressionId:'${jsRedirectEventId}',screen:screen.width+'x'+screen.height,dpr:window.devicePixelRatio||1,tz:Intl.DateTimeFormat().resolvedOptions().timeZone};try{var c=document.createElement('canvas').getContext('webgl');if(c){var x=c.getExtension('WEBGL_debug_renderer_info');if(x)d.gpu=c.getParameter(x.UNMASKED_RENDERER_WEBGL);}}catch(e){}navigator.sendBeacon('/t/enrich',JSON.stringify(d));window.location.href="${jsRedirectUrl}";})();`;
         return new Response(jsRedirect, { headers: { 'Content-Type': 'application/javascript' } });
       case 'folder':
         // This action is not supported for JS Snippet integration as it implies self-hosting.
@@ -2627,10 +3003,38 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
           })()
         );
         
-        return new Response(null, { 
-          status: 302, 
+        // Latency Optimized Redirect: Only use JS redirect if server-side signals are insufficient
+        // Desktop: Just need OS version (no model needed)
+        // Mobile: Need model detection for Safari iOS only
+        const isDesktop = data.userAgent.device === 'desktop' || !data.userAgent.device;
+        const hasAccurateOSVersion = data.userAgent.osVersion && data.userAgent.osVersion !== '10.15.7' && data.userAgent.osVersion !== '10.0';
+        const isSafariIOS = (data.userAgent.browser === 'Safari' || data.userAgent.browser === 'Mobile Safari' || !data.userAgent.browser) && data.userAgent.os === 'iOS';
+        
+        // Skip JS redirect for: Desktop with OS version, OR mobile with Client Hints (Chrome/Edge)
+        const skipJSRedirect = isDesktop ? hasAccurateOSVersion : (hasAccurateOSVersion && !isSafariIOS);
+
+        if (skipJSRedirect) {
+          // Standard 302 redirect (Zero Latency)
+          console.log('[REDIR] Standard 302 redirect (signals sufficient)', { os: data.userAgent.os, version: data.userAgent.osVersion });
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': redirectUrl,
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          });
+        }
+
+        // Use JS redirect with device detection instead of 302
+        // This adds ~50ms but captures screen/GPU/device model
+        console.log('[REDIR] JS redirect with detection', { isSafariIOS, hasAccurateOSVersion });
+        const redirectHtml = getRedirectWithDetection(redirectEventId, redirectUrl);
+        return new Response(redirectHtml, { 
+          status: 200, 
           headers: { 
-            'Location': redirectUrl,
+            'Content-Type': 'text/html; charset=utf-8',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
             'Expires': '0'
@@ -2638,7 +3042,10 @@ async function applyKVRule(c: any, data: ExtendedRequestData, rule: KVRule, rule
         });
       case 'folder':
         // The logic that sets finalAction.type has already confirmed this is not a URL.
-        const folderResponse = await servePublicFile(c, `${finalAction.payload}/`, data, reason, finalAction.variables);
+        // Check if payload is a file path (has extension) - if so, don't add trailing slash
+        const payloadIsFile = finalAction.payload.includes('.') && /\.(html|htm|css|js|mjs|jsx|ts|tsx|svg|png|jpg|jpeg|gif|webp|ico|json|map|woff|woff2|ttf|otf|eot|mp4|webm|ogg|mp3|wav|pdf|txt|xml|csv|wasm|zip|gz|br|avif|heic|webmanifest)$/i.test(finalAction.payload);
+        const folderPath = payloadIsFile ? finalAction.payload : `${finalAction.payload}/`;
+        const folderResponse = await servePublicFile(c, folderPath, data, reason, finalAction.variables, rule.id);
         
         // Store impression for page views only if we successfully served a page (200 OK)
         // Track paths that are: root (/), end with slash (/test/), or are HTML files

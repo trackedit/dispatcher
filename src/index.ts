@@ -1,9 +1,9 @@
 import { Hono, Context } from "hono";
 import { html } from "hono/html";
-import { parseOS, parseAcceptLanguage, parseBrowser, parseEngine, parseDeviceType, parseDeviceBrand, parseDeviceModel } from "./userAgent";
+import { UAParser } from "ua-parser-js";
 import { isbot } from "isbot";
 import { env } from "cloudflare:workers";
-import { rules, type RequestData, type ExtendedRequestData, fetchAndStreamAsset, getKVRule, getClickData, storeConversion, generateUniqueId, generateSessionId } from "./rules";
+import { rules, type RequestData, type ExtendedRequestData, fetchAndStreamAsset, getKVRule, getClickData, storeConversion, generateUniqueId, generateSessionId, enrichEvent } from "./rules";
 
 
 const app = new Hono();
@@ -129,6 +129,28 @@ app.get('/postback', async (c: Context) => {
   return new Response('OK', { status: 200 });
 });
 
+// Enrichment endpoint for client-side device data
+app.post('/t/enrich', async (c: Context) => {
+  try {
+    const body = await c.req.json();
+    const { impressionId, screen, dpr, gpu, tz, model } = body;
+    
+    if (!impressionId) {
+      return new Response('Missing impressionId', { status: 400 });
+    }
+    
+    // Update the event with client-side data (async)
+    c.executionCtx.waitUntil(
+      enrichEvent(impressionId, { screen, dpr, gpu, tz, model })
+    );
+    
+    return new Response(null, { status: 204 });
+  } catch (e: any) {
+    console.error(`Error in /t/enrich: ${e.message}`);
+    return new Response(null, { status: 204 }); // Silent fail for beacons
+  }
+});
+
 app.get("/*", async (c: Context) => {
   const url = new URL(c.req.raw.url);
   let path = url.pathname;
@@ -176,6 +198,13 @@ app.get("/*", async (c: Context) => {
   const cf = c.req.raw.cf as any;
   const ua = c.req.header("User-Agent") || "";
   
+  // Cloudflare Bot Detection - use ALL available signals
+  // Enterprise: Full 1-99 ML scoring via botManagement.score
+  // Pro: verifiedBot, staticResource, and clientTrustScore (threat score 0-100)
+  const botScore = cf?.botManagement?.score ?? null;           // Enterprise only (1-99)
+  const isVerifiedBot = cf?.botManagement?.verifiedBot ?? false; // Googlebot, Bingbot, etc.
+  const clientTrustScore = cf?.clientTrustScore ?? null;       // Threat score (0-100, higher = more threat)
+
   // Parse user agent info - read high-entropy Client Hints
   const clientHintsUA = headers['sec-ch-ua'] || undefined;
   const clientHintsMobile = headers['sec-ch-ua-mobile'] || undefined;
@@ -185,100 +214,53 @@ app.get("/*", async (c: Context) => {
   const clientHintsModel = headers['sec-ch-ua-model'] || undefined;
   const clientHintsArch = headers['sec-ch-ua-arch'] || undefined;
 
-  // Check if it's a bot
-  const isBot = isbot(ua);
+  // 1. Initial parse using ua-parser-js
+  const parser = new UAParser(ua);
+  const uaResult = parser.getResult();
 
-  const browserInfo = parseBrowser(ua, clientHintsUA, clientHintsFullVersionList);
-  const osInfo = parseOS(ua, clientHintsPlatformVersion);
-  const engineInfo = parseEngine(ua);
-  const deviceTypeInfo = parseDeviceType(ua, clientHintsMobile);
-  const brandInfo = parseDeviceBrand(ua);
-  const modelInfo = parseDeviceModel(ua, clientHintsModel);
-  
-  // Use platform from client hints if available, otherwise parse from UA
-  const platformFromHints = clientHintsPlatform ? clientHintsPlatform.replace(/"/g, '') : null;
-  const osString = platformFromHints || osInfo;
+  // 2. Enhance with Client Hints for more accuracy (Chrome/Edge)
+  let browserName = uaResult.browser.name || null;
+  let browserVersion = uaResult.browser.version || null;
+  let osName = uaResult.os.name || null;
+  let osVersion = uaResult.os.version || null;
+  let deviceType = uaResult.device.type || 'desktop';
+  let deviceBrand = uaResult.device.vendor || null;
+  let deviceModel = uaResult.device.model || null;
 
-  // Extract OS version from OS string
-  const extractOSVersion = (osString: string): { name: string; version: string | null } => {
-    // If we have Client Hints platform version, use it (most accurate)
-    if (clientHintsPlatformVersion && platformFromHints) {
-      const version = clientHintsPlatformVersion.replace(/"/g, '');
-      return { name: platformFromHints, version };
-    }
-    
-    // Always try to extract version from the original User-Agent string first
-    const uaOSInfo = parseOS(ua);
-    
-    // If we got OS from Client Hints, use that as the name but try to get version from UA
-    if (platformFromHints) {
-      // Try to extract version from the full UA OS string
-      const versionPatterns = [
-        // Windows patterns
-        /Windows NT (\d+\.\d+)/i,
-        // macOS patterns  
-        /Mac OS X (\d+[._]\d+(?:[._]\d+)?)/i,
-        
-        // iOS patterns
-        /(?:iPhone|iPad|iPod).*?OS (\d+[._]\d+(?:[._]\d+)?)/i,
-        // Android patterns
-        /Android (\d+(?:\.\d+)?(?:\.\d+)?)/i,
-        // Chrome OS patterns
-        /CrOS [^ ]+ ([\d.]+)/i
-      ];
+  // Client Hints overrides for Browser
+  if (clientHintsUA) {
+    // Basic browser detection from sec-ch-ua
+    if (clientHintsUA.includes('Chrome')) browserName = 'Chrome';
+    else if (clientHintsUA.includes('Edge')) browserName = 'Edge';
+    else if (clientHintsUA.includes('Brave')) browserName = 'Brave';
+  }
 
-      for (const pattern of versionPatterns) {
-        const match = ua.match(pattern);
-        if (match) {
-          let version = match[1].replace(/_/g, '.');
-          
-          // Convert Windows NT versions to friendly names
-          if (platformFromHints === 'Windows' && version) {
-            if (version === '10.0') version = '10/11'; // Could be either
-            else if (version === '6.3') version = '8.1';
-            else if (version === '6.2') version = '8';
-            else if (version === '6.1') version = '7';
-          }
-          
-          return { name: platformFromHints, version };
-        }
-      }
-      
-      // If no version found in UA, return just the platform name
-      return { name: platformFromHints, version: null };
-    }
+  // Client Hints overrides for OS
+  if (clientHintsPlatform) {
+    osName = clientHintsPlatform.replace(/"/g, '');
+  }
+  if (clientHintsPlatformVersion) {
+    osVersion = clientHintsPlatformVersion.replace(/"/g, '');
+  }
 
-    // If no Client Hints, parse the full UA OS string for both name and version
-    const patterns = [
-      // macOS patterns
-      /^(macOS)\s+(?:\w+\s+)?(\d+\.\d+(?:\.\d+)?)/,
-      // Windows patterns  
-      /^(Windows)\s+(\d+(?:\.\d+)?)/,
-      // iOS/iPadOS patterns
-      /^(iOS|iPadOS)\s+(\d+\.\d+(?:\.\d+)?)/,
-      // Android patterns
-      /^(Android)\s+\d+\s+\((\d+(?:\.\d+)?(?:\.\d+)?)\)/,
-      /^(Android)\s+(\d+(?:\.\d+)?(?:\.\d+)?)/,
-      // Chrome OS patterns
-      /^(Chrome OS)\s+(\d+(?:\.\d+)?)/,
-      // Ubuntu patterns
-      /^(Ubuntu)\s+(\d+\.\d+)/,
-      // Generic patterns for version numbers
-      /^([^\d]+?)\s+(\d+(?:\.\d+)?(?:\.\d+)?)/
-    ];
+  // Client Hints overrides for Device
+  if (clientHintsMobile === '?1') {
+    deviceType = 'mobile';
+  }
+  if (clientHintsModel) {
+    deviceModel = clientHintsModel.replace(/"/g, '');
+    deviceBrand = 'Apple'; // Usually models like "iPhone" or "iPad"
+  }
 
-    for (const pattern of patterns) {
-      const match = osString.match(pattern);
-      if (match) {
-        return { name: match[1], version: match[2] };
-      }
-    }
-
-    // If no version found, return the full string as name
-    return { name: osString, version: null };
-  };
-
-  const { name: osName, version: osVersion } = extractOSVersion(osString);
+  // Check if it's a bot - combine ALL signals:
+  // 1. isbot library (UA-based detection)
+  // 2. Cloudflare Bot Score < 30 (Enterprise only)
+  // 3. Cloudflare Verified Bot (Googlebot, Bingbot, etc.) - these are GOOD bots
+  // 4. High threat score (> 50 = suspicious)
+  const isBotByUA = isbot(ua);
+  const isBotByScore = botScore !== null && botScore < 30;
+  const isBotByThreat = clientTrustScore !== null && clientTrustScore > 50;
+  const isBot = isBotByUA || isBotByScore || isBotByThreat || isVerifiedBot;
 
   // Prepare request data for rule matching
   const org = cf?.asOrganization ?? null;
@@ -293,15 +275,18 @@ app.get("/*", async (c: Context) => {
     org: cf?.asOrganization ?? null,
     referrer,
     isEmbedRequest,
+    botScore,
+    isVerifiedBot,
+    clientTrustScore,
     userAgent: {
-      browser: browserInfo.name,
-      browserVersion: browserInfo.version,
+      browser: browserName,
+      browserVersion: browserVersion,
       os: osName,
       osVersion: osVersion,
-      device: deviceTypeInfo,
-      brand: brandInfo,
-      model: modelInfo,
-      arch: clientHintsArch ? clientHintsArch.replace(/"/g, '') : null,
+      device: deviceType,
+      brand: deviceBrand,
+      model: deviceModel,
+      arch: clientHintsArch ? clientHintsArch.replace(/"/g, '') : (uaResult.cpu.architecture || null),
       raw: ua
     },
     isBot: isBot,
@@ -331,49 +316,11 @@ app.get("/*", async (c: Context) => {
   const impressionId = generateUniqueId('imp');  // Always generate, let rule matching decide
   
   const requestDataObject: ExtendedRequestData = {
-    domain,
-    path,
-    query,
-    headers,
-    ip,
-    org: cf?.asOrganization ?? null,
-    referrer,
-    isEmbedRequest,
+    ...tempRequestData,
     sessionId: sessionId,
-    impressionId: impressionId,
-    userAgent: {
-      browser: browserInfo.name,
-      browserVersion: browserInfo.version,
-      os: osName,
-      osVersion: osVersion,
-      device: deviceTypeInfo,
-      brand: brandInfo,
-      model: modelInfo,
-      arch: clientHintsArch ? clientHintsArch.replace(/"/g, '') : null,
-      raw: ua
-    },
-    isBot: isBot,
-    geo: {
-      country: cf?.country ?? null,
-      city: cf?.city ?? null,
-      continent: cf?.continent ?? null,
-      latitude: cf?.latitude ?? null,
-      longitude: cf?.longitude ?? null,
-      region: cf?.region ?? null,
-      regionCode: cf?.regionCode ?? null,
-      timezone: cf?.timezone ?? null,
-      postalCode: cf?.postalCode ?? null
-    },
-    cf: {
-      asn: cf?.asn ?? null,
-      asOrganization: cf?.asOrganization ?? null,
-      colo: cf?.colo ?? null,
-      clientTrustScore: cf?.clientTrustScore ?? null,
-      httpProtocol: cf?.httpProtocol ?? null,
-      tlsVersion: cf?.tlsVersion ?? null,
-      tlsCipher: cf?.tlsCipher ?? null
-    }
+    impressionId: impressionId
   };
+
 
   // Check rules (now using KV-based system)
   for (const rule of rules) {
