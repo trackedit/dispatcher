@@ -655,7 +655,11 @@ Macros are replaced in HTML/CSS content using `{{key}}` syntax. Use `{{!key}}` t
 <!-- Network -->
 {{user.IP}}               <!-- Visitor IP address -->
 {{user.ORGANIZATION}}     <!-- AS organization name -->
-{{user.COLO}}             <!-- Cloudflare datacenter code -->
+{{user.COLO}}             <!-- Cloudflare datacenter code (e.g., "EWR") -->
+{{user.colo.city}}        <!-- Edge server city (e.g., "Newark") -->
+{{user.colo.country}}     <!-- Edge server country (e.g., "United States") -->
+{{user.colo.region}}      <!-- Edge server region (e.g., "North America") -->
+{{user.colo.name}}        <!-- Full edge location (e.g., "Newark, NJ, United States") -->
 {{user.REFERRER}}         <!-- Referrer URL -->
 
 <!-- Platform Attribution -->

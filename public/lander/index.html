@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -126,9 +127,9 @@
             
             /* Live Demo Pulsing */
             @keyframes live-pulse {
-                0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-                70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-                100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(113, 113, 122, 0.7); }
+                70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(113, 113, 122, 0); }
+                100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(113, 113, 122, 0); }
             }
             .animate-live {
                 animation: live-pulse 2s infinite;
@@ -147,14 +148,29 @@
             
             /* Custom Scrollbar for interactive area */
             .custom-scrollbar::-webkit-scrollbar {
-                width: 4px;
+                width: 8px;
+                height: 8px;
             }
             .custom-scrollbar::-webkit-scrollbar-track {
                 background: transparent;
             }
             .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: var(--border);
+                background: rgba(128, 128, 128, 0.5);
                 border-radius: 10px;
+                border: 2px solid transparent;
+                background-clip: content-box;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(128, 128, 128, 0.8);
+                border: 2px solid transparent;
+                background-clip: content-box;
+            }
+            
+            /* Prevent iOS Zoom on inputs */
+            @media screen and (max-width: 768px) {
+                input, textarea, select {
+                    font-size: 16px !important;
+                }
             }
             
             /* Light Mode - Monochrome & Clean */
@@ -257,8 +273,7 @@
         }
         
         .terminal-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
             border-color: var(--primary);
         }
 
@@ -269,11 +284,16 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        .mask-fade-sides {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
         
         /* Animation Utility Classes */
         .reveal-on-scroll {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
             transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .reveal-on-scroll.is-visible {
@@ -299,15 +319,17 @@
         }
 
         .accentStripe {
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--pastel-indigo), var(--pastel-pink), var(--pastel-cyan));
-            border-radius: 2px;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 1px;
             margin: 0 auto;
+            opacity: 0.8;
         }
     </style>
-    <!-- Prism.js for Syntax Highlighting -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <!-- Prism.js for Syntax Highlighting - Load both themes -->
+    <link id="prism-theme-dark" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" media="(prefers-color-scheme: dark)" />
+    <link id="prism-theme-light" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" media="(prefers-color-scheme: light)" />
     <style>
         /* Editor Overlays */
         #editor-container {
@@ -331,16 +353,24 @@
             word-wrap: break-word;
             overflow: auto;
         }
+        @media (max-width: 768px) {
+            #macro-input, #editor-highlight {
+                font-size: 1rem; /* Prevent zoom on iOS */
+            }
+        }
         #macro-input {
             z-index: 1;
             color: transparent;
             background: transparent;
-            caret-color: white;
+            caret-color: currentColor;
             resize: none;
         }
         #editor-highlight {
             z-index: 0;
             pointer-events: none;
+            background: #f8f8f8;
+        }
+        .dark #editor-highlight {
             background: #1e1e1e;
         }
         #editor-highlight code {
@@ -348,18 +378,28 @@
             background: transparent !important;
             padding: 0 !important;
         }
-        /* Custom Prism Colors to match theme */
-        .token.tag, .token.attr-name, .token.namespace, .token.deleted { color: #569cd6; }
-        .token.string, .token.attr-value { color: #ce9178; }
-        .token.punctuation { color: #808080; }
-        .token.operator { color: #d4d4d4; }
-        .token.keyword { color: #569cd6; }
-        .token.comment { color: #6a9955; }
+        /* Custom Prism Colors for Light Mode */
+        .token.tag, .token.attr-name, .token.namespace, .token.deleted { color: #0550ae; }
+        .token.string, .token.attr-value { color: #0a3069; }
+        .token.punctuation { color: #24292f; }
+        .token.operator { color: #24292f; }
+        .token.keyword { color: #cf222e; }
+        .token.comment { color: #6e7781; }
+        /* Custom Prism Colors for Dark Mode */
+        .dark .token.tag, .dark .token.attr-name, .dark .token.namespace, .dark .token.deleted { color: #569cd6; }
+        .dark .token.string, .dark .token.attr-value { color: #ce9178; }
+        .dark .token.punctuation { color: #808080; }
+        .dark .token.operator { color: #d4d4d4; }
+        .dark .token.keyword { color: #569cd6; }
+        .dark .token.comment { color: #6a9955; }
         /* Macro Highlighting */
         .token.macro {
-            color: #4fc1ff;
+            color: #0969da;
             font-weight: bold;
             text-decoration: underline;
+        }
+        .dark .token.macro {
+            color: #4fc1ff;
         }
     </style>
 </head>
@@ -422,20 +462,21 @@
     </nav>
 
     <!-- Sticky Personalization Banner -->
-    <div id="sticky-personalization" class="fixed top-16 left-0 w-full z-40 bg-zinc-900 text-white border-b border-white/10 backdrop-blur-md">
-        <div class="container mx-auto px-4 h-10 flex items-center justify-between text-[10px] md:text-xs font-mono-terminal uppercase tracking-wider">
-            <div class="flex items-center gap-4 truncate">
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live"></div>
-                    <span class="text-emerald-400 font-bold">Edge Session:</span>
+    <div id="sticky-personalization" class="fixed top-16 left-0 w-full z-40 bg-gradient-to-b from-zinc-50/95 to-zinc-100/95 dark:from-zinc-900/95 dark:to-zinc-950/95 text-foreground border-b border-zinc-200/50 dark:border-white/5 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+        <div class="container mx-auto px-4 h-12 md:h-10 flex items-center justify-between text-xs font-mono-terminal uppercase tracking-wider">
+            <div class="flex items-center gap-3 truncate">
+                <div class="flex items-center flex-shrink-0">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                 </div>
-                <div class="flex items-center gap-4 text-zinc-400 truncate">
-                    <span class="hidden sm:inline">Node: <span class="text-blue-400">{{user.COLO}}</span></span>
-                    <span class="hidden md:inline border-l border-white/10 pl-4">{{user.CITY}}, {{user.COUNTRY}}</span>
-                    <span class="border-l border-white/10 pl-4 truncate">{{user.DEVICE}} • {{user.BROWSER}}</span>
+                <div class="flex items-center gap-4 text-muted-foreground truncate">
+                    <span>Served from <span class="text-blue-600 dark:text-blue-400 font-medium">{{user.colo.name}}</span></span>
+                    <span class="w-1 h-1 rounded-full bg-border"></span>
+                    <span>Connecting from <span class="text-foreground font-medium">{{user.CITY}}, {{user.COUNTRY}}</span></span>
+                    <span class="w-1 h-1 rounded-full bg-border hidden sm:block"></span>
+                    <span class="hidden sm:inline truncate">{{user.BROWSER}} on {{user.OS}}</span>
                 </div>
             </div>
-            <button id="close-sticky" class="p-1 hover:text-white text-zinc-500 transition-colors ml-4">
+            <button id="close-sticky" class="p-2 -mr-2 hover:text-foreground text-muted-foreground transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
         </div>
@@ -444,7 +485,7 @@
     <main class="flex-1 pt-16">
         
         <!-- Hero Area -->
-        <section class="relative py-12 md:py-32 overflow-hidden">
+        <section class="relative py-12 md:py-20 overflow-hidden">
             <!-- Grid Background -->
             <div class="absolute inset-0 bg-grid opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
             
@@ -454,26 +495,31 @@
             <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pastel-cyan/30 dark:bg-pastel-cyan/10 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-70 animate-blob" style="animation-delay: 4s;"></div>
             
             <div class="container mx-auto px-4 text-center relative z-10">
-                <h1 class="text-3xl md:text-6xl lg:text-7xl font-medium tracking-tight mb-6 text-foreground animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50 border border-border text-xs font-medium text-muted-foreground mb-8 animate-fade-in-up">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Now available in public beta
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight mb-6 text-foreground animate-fade-in-up" style="animation-delay: 0.1s;">
                     The platform for <strong class="font-bold text-primary">tracking</strong>, <br /><strong class="font-bold text-primary">delivery</strong>, and <strong class="font-bold text-primary">decisions</strong>
                 </h1>
                 
-                <p class="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up leading-relaxed" style="animation-delay: 0.3s;">
+                <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up leading-relaxed" style="animation-delay: 0.2s;">
                     Get a complete view of your users with cookieless tracking, session replays, and event attribution.
                     Deliver targeted content at scale or use our decision engine to power your own apps.
                 </p>
                 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 md:mb-20 animate-fade-in-up" style="animation-delay: 0.4s;">
-                    <a href="/signup" class="h-12 px-8 rounded-md bg-primary text-primary-foreground font-medium flex items-center justify-center hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm hover:scale-105">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 md:mb-24 animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <a href="/signup" class="h-12 px-8 rounded-md bg-primary text-primary-foreground font-medium flex items-center justify-center hover:bg-primary/90 transition-all w-full sm:w-auto shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                         Create a free account
                     </a>
-                    <a href="#features" class="h-12 px-8 rounded-md border border-border bg-background hover:bg-secondary text-foreground font-medium flex items-center justify-center transition-all w-full sm:w-auto">
+                    <a href="#features" class="h-12 px-8 rounded-md border border-border bg-background hover:bg-secondary text-foreground font-medium flex items-center justify-center transition-all w-full sm:w-auto hover:-translate-y-0.5">
                         See how it works
                     </a>
                 </div>
                 
                 <!-- High Fidelity Dashboard Mockup -->
-                <div class="relative max-w-6xl mx-auto rounded-xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden animate-fade-in-up ring-1 ring-white/10" style="animation-delay: 0.5s;">
+                <div class="relative max-w-6xl mx-auto rounded-xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden animate-fade-in-up ring-1 ring-white/10 group" style="animation-delay: 0.4s;">
                     <!-- Window Controls -->
                     <div class="h-10 border-b border-border bg-muted/50 flex items-center px-4 justify-between select-none">
                         <div class="flex gap-2">
@@ -632,7 +678,7 @@
                                     </div>
                                     
                                     <!-- Row 2: Parent Campaign (Expanded) -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/5 hover:bg-accent/10 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-primary">
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/5 hover:bg-accent/10 transition-colors group cursor-pointer items-center h-10">
                                         <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate">
                                             <button class="p-0.5 rounded hover:bg-muted text-foreground transition-transform rotate-90"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
                                             <span class="font-medium text-foreground flex items-center gap-2"><svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg> YouTube_Retargeting</span>
@@ -648,7 +694,7 @@
                                     </div>
 
                                      <!-- Row 3: Child Ad Set (Nested) -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-transparent">
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 ">
                                         <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-12">
                                             <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                                             <span class="text-sm font-medium">Ad Set: VSL_Variant_A</span>
@@ -664,7 +710,7 @@
                                     </div>
                                     
                                     <!-- Row 4: Child Ad Set (Nested) -->
-                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 border-l-4 border-l-transparent">
+                                    <div class="grid grid-cols-12 border-b border-border text-sm bg-accent/10 hover:bg-accent/20 transition-colors group cursor-pointer items-center h-10 ">
                                         <div class="col-span-4 px-4 py-2 flex items-center gap-2 truncate pl-12">
                                             <svg class="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                                             <span class="text-sm font-medium">Ad Set: VSL_Variant_B</span>
@@ -687,73 +733,93 @@
         </section>
         
         <!-- Live Demo Personalization Section -->
-        <section class="py-12 relative overflow-hidden bg-primary text-primary-foreground">
-            <div class="absolute inset-0 bg-grid opacity-[0.05] pointer-events-none"></div>
+        <section class="py-10 md:py-16 relative overflow-hidden bg-background text-foreground border-y border-border">
+            <div class="absolute inset-0 bg-grid opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
+            <!-- Subtle accent glow -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-zinc-500/10 dark:bg-emerald-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
             <div class="container mx-auto px-4 relative z-10">
-                <div class="max-w-4xl mx-auto">
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div class="text-left max-w-md">
-                            <div class="flex items-center gap-2 mb-4">
-                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-live"></div>
-                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">Live Edge Intelligence</span>
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-12">
+                        <div class="text-center md:text-left max-w-lg md:pt-4">
+                            <div class="flex items-center justify-center md:justify-start gap-2 mb-4">
+                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-live shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                                <span class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Live Personalization</span>
                             </div>
-                            <h2 class="text-2xl md:text-3xl font-bold mb-4 tracking-tight">This is what we know about you — right now.</h2>
-                            <p class="text-primary-foreground/60 text-sm leading-relaxed">
-                                Our edge-native architecture identifies and personalizes your experience in under 50ms. No cookies, no trackers, just pure server-side intelligence at the closest point to your request.
+                            <h2 class="text-3xl md:text-5xl font-bold mb-4 tracking-tight leading-tight text-foreground">This is what we know about you <span class="text-emerald-600 dark:text-emerald-400">right now</span>.</h2>
+                            <p class="text-muted-foreground text-lg leading-relaxed mb-6">
+                                Our global infrastructure identifies and personalizes your experience in milliseconds. No cookies, no trackers, just pure server-side intelligence from the closest point to your request.
                             </p>
+                            <div class="flex flex-wrap gap-4">
+                                <div class="px-4 py-2 rounded-full bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 text-sm font-mono-terminal flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    <span id="edge-latency-hero" class="text-emerald-600 dark:text-emerald-400">--ms</span> Latency
+                                </div>
+                                <div class="px-4 py-2 rounded-full bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 text-sm font-mono-terminal flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Global Scale
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="w-full md:w-96 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-2xl ring-1 ring-white/20">
+                        <div class="w-full md:w-96 rounded-xl border border-border bg-card/50 backdrop-blur-xl p-6 shadow-lg transform hover:scale-[1.02] transition-transform duration-500 ring-1 ring-white/10">
                             <div class="space-y-4 font-mono text-xs">
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Location</span>
-                                    <span class="text-emerald-400">{{user.CITY}}, {{user.COUNTRY}}</span>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">Location</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{user.CITY}}, {{user.COUNTRY}}</span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Device</span>
-                                    <span class="text-white">{{user.DEVICE}} on {{user.OS}}</span>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">Device</span>
+                                    <span class="text-foreground text-right">{{user.BRAND}} <br/><span class="text-[10px] text-muted-foreground">{{user.DEVICE}} • {{user.ARCH}}</span></span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Browser</span>
-                                    <span class="text-white">{{user.BROWSER}}</span>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">Software</span>
+                                    <span class="text-foreground">{{user.OS}} {{user.OS_VERSION}} <br/><span class="text-[10px] text-muted-foreground text-right block">{{user.BROWSER}} {{user.BROWSER_VERSION}}</span></span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                    <span class="text-primary-foreground/40 uppercase tracking-wider">Edge Node</span>
-                                    <span class="text-blue-400">{{user.COLO}}</span>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">Bot Detection</span>
+                                    <span class="text-foreground text-right">
+                                        <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{user.IS_VERIFIED_BOT}}</span>
+                                        <br/><span class="text-[10px] text-muted-foreground">Score: {{user.BOT_SCORE}} • Threat: {{user.THREAT_SCORE}}</span>
+                                    </span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                    <span class="text-primary-foreground/40 uppercase tracking-wider">ISP</span>
-                                    <span class="text-white truncate max-w-[200px] text-right" title="{{user.ORGANIZATION}}">{{user.ORGANIZATION}}</span>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">Server</span>
+                                    <span class="text-blue-600 dark:text-blue-400">{{user.COLO}}</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-border pb-2">
+                                    <span class="text-muted-foreground uppercase tracking-wider">ISP</span>
+                                    <span class="text-foreground truncate max-w-[200px] text-right" title="{{user.ORGANIZATION}}">{{user.ORGANIZATION}}</span>
                                 </div>
                                 
                                 <!-- Client-Side Detected (JS) -->
-                                <div class="pt-2 mt-2 border-t border-dashed border-white/10">
-                                    <div class="text-[9px] text-amber-400/80 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                <div class="pt-4">
+                                    <div class="text-[9px] text-amber-600 dark:text-amber-400/80 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg>
                                         Client-Side Detection
                                     </div>
-                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
-                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Screen</span>
-                                        <span id="client-screen" class="text-amber-400">detecting...</span>
+                                    <div class="flex justify-between items-center border-b border-border pb-2 mb-2">
+                                        <span class="text-muted-foreground uppercase tracking-wider">Screen</span>
+                                        <span id="client-screen" class="text-amber-600 dark:text-amber-400">detecting...</span>
                                     </div>
-                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
-                                        <span class="text-primary-foreground/40 uppercase tracking-wider">GPU</span>
-                                        <span id="client-gpu" class="text-amber-400 truncate max-w-[180px] text-right">detecting...</span>
+                                    <div class="flex justify-between items-center border-b border-border pb-2 mb-2">
+                                        <span class="text-muted-foreground uppercase tracking-wider">GPU</span>
+                                        <span id="client-gpu" class="text-amber-600 dark:text-amber-400 truncate max-w-[180px] text-right">detecting...</span>
                                     </div>
-                                    <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
-                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Timezone</span>
-                                        <span id="client-timezone" class="text-white">detecting...</span>
+                                    <div class="flex justify-between items-center border-b border-border pb-2 mb-2">
+                                        <span class="text-muted-foreground uppercase tracking-wider">Timezone</span>
+                                        <span id="client-timezone" class="text-foreground">detecting...</span>
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-primary-foreground/40 uppercase tracking-wider">Model Guess</span>
-                                        <span id="client-model" class="text-fuchsia-400">detecting...</span>
+                                        <span class="text-muted-foreground uppercase tracking-wider">Model Guess</span>
+                                        <span id="client-model" class="text-fuchsia-600 dark:text-fuchsia-400">detecting...</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                                <span class="text-[9px] text-primary-foreground/30 uppercase tracking-[0.2em]">Edge Latency</span>
-                                <span class="text-[10px] font-bold text-emerald-400">&lt; 42ms</span>
+                            <div class="mt-6 pt-4 border-t border-border flex items-center justify-between">
+                                <span class="text-[9px] text-muted-foreground uppercase tracking-[0.2em]">Response Time</span>
+                                <span id="response-time-display" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">&lt; --ms</span>
                             </div>
                         </div>
                     </div>
@@ -768,19 +834,43 @@
                 <div class="relative w-full overflow-hidden mask-fade-sides group">
                     <div class="flex animate-scroll w-max gap-8 md:gap-12 items-center">
                         <!-- Logos -->
-                        <img src="outbrain.png" alt="Outbrain" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="tab.png" alt="Taboola" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="meta.png" alt="Meta" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="google.png" alt="Google" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="micosoft.png" alt="Microsoft" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="tiktok.png" alt="TikTok" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="cloudflare.png" alt="Cloudflare" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="aws.png" alt="AWS" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="vercel.png" alt="Vercel" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="outbrain.png" alt="Outbrain" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="tab.png" alt="Taboola" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="meta.png" alt="Meta" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="google.png" alt="Google" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="micosoft.png" alt="Microsoft" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="tiktok.png" alt="TikTok" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="cloudflare.png" alt="Cloudflare" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="aws.png" alt="AWS" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="vercel.png" alt="Vercel" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
                         <!-- Duplicates -->
-                        <img src="outbrain.png" alt="Outbrain" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="tab.png" alt="Taboola" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
-                        <img src="meta.png" alt="Meta" class="h-6 md:h-8 opacity-40 grayscale hover:opacity-100 transition-all duration-300" />
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="outbrain.png" alt="Outbrain" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="tab.png" alt="Taboola" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
+                        <div class="flex items-center justify-center h-7 md:h-8 w-auto max-w-[80px] md:max-w-[100px]">
+                            <img src="meta.png" alt="Meta" class="h-full w-auto object-contain opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -835,58 +925,134 @@
             </div>
         </section>
 
-        <!-- Interactive Variables Demo Section -->
-        <section class="py-16 md:py-24 bg-background border-y border-border">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-16">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block uppercase tracking-widest">Personalization Engine</span>
-                    <h2 class="text-2xl md:text-4xl font-bold mb-4">Rule-Based Content Injection</h2>
-                    <p class="text-muted-foreground text-sm max-w-2xl mx-auto">
-                        Define custom variables in your KV rules and inject them dynamically into your HTML. 
-                        Combine system macros with custom business logic for extreme relevance.
-                    </p>
-                </div>
+        <!-- Audience Personalization Demo Section -->
+        <section class="py-12 md:py-20 bg-background border-y border-border relative">
+             <div class="absolute inset-0 bg-grid opacity-[0.02] pointer-events-none"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                    <!-- Left Column: Text & Buttons -->
+                    <div class="text-center lg:text-left order-1">
+                        <span class="text-xs font-mono-terminal text-primary mb-2 block uppercase tracking-widest">Same Assets, Infinite Versions</span>
+                        <h2 class="text-2xl md:text-4xl font-bold mb-4">One landing page.<br/>Every audience.</h2>
+                        <p class="text-muted-foreground text-base leading-relaxed mb-8">
+                            Upload <strong>one template</strong>. Define variables in your rules. We swap headlines, images, and CTAs instantly based on who's visiting.
+                        </p>
 
-                <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <!-- Left: Rule Config -->
-                    <div class="terminal-card bg-zinc-900 text-white overflow-hidden flex flex-col">
-                        <div class="px-4 py-2 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                            <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500">KV Rule Configuration</span>
-                            <div class="flex gap-1.5">
-                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
-                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
-                                <div class="w-2 h-2 rounded-full bg-zinc-700"></div>
-                            </div>
-                        </div>
-                        <div class="p-6 font-mono text-sm flex-1 custom-scrollbar overflow-auto">
-                            <pre id="rule-config-display" class="text-emerald-400"></pre>
-                        </div>
-                        <div class="p-4 border-t border-white/10 bg-white/5 grid grid-cols-3 gap-2">
-                            <button onclick="setVariablePreset('default')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Default</button>
-                            <button onclick="setVariablePreset('holiday')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Holiday Sale</button>
-                            <button onclick="setVariablePreset('geo')" class="preset-btn px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-[10px] font-bold uppercase transition-all border border-white/5">Geo-Target</button>
+                        <!-- Audience Selector Buttons - Vertical on Desktop, Horizontal Scroll on Mobile -->
+                        <div class="flex flex-nowrap lg:flex-col overflow-x-auto pb-4 lg:pb-0 justify-start lg:justify-start gap-3 px-0 snap-x lg:w-full lg:max-w-sm scrollbar-hide">
+                            <button onclick="setVariablePreset('default')" data-scenario="default" class="preset-btn snap-center shrink-0 group flex items-center gap-4 px-5 py-3.5 rounded-xl border border-border bg-card/50 hover:border-primary transition-all shadow-sm w-auto lg:w-full text-left backdrop-blur-sm">
+                                <div class="w-2.5 h-2.5 rounded-full bg-zinc-400 group-hover:scale-110 transition-transform shrink-0 shadow-[0_0_8px_rgba(161,161,170,0.4)]"></div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold tracking-tight">Default View</span>
+                                    <span class="text-[10px] text-muted-foreground hidden lg:block uppercase tracking-wider font-medium opacity-70">No rules matched</span>
+                                </div>
+                            </button>
+                            <button onclick="setVariablePreset('ios')" data-scenario="ios" class="preset-btn snap-center shrink-0 group flex items-center gap-4 px-5 py-3.5 rounded-xl border border-border bg-card/50 hover:border-blue-500 transition-all shadow-sm w-auto lg:w-full text-left backdrop-blur-sm">
+                                <svg class="w-5 h-5 text-blue-500 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91 1.34.03 2.19.49 2.84 1.13-2.31 1.98-1.93 5.43.34 6.34-.34 1.25-1.01 2.5-2.39 3.19zM15.47 2.1c.34 1.62-.84 3.24-2.28 3.39-.31-1.8 1.18-3.41 2.28-3.39z"/></svg>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold tracking-tight">iOS Optimized</span>
+                                    <span class="text-[10px] text-muted-foreground hidden lg:block uppercase tracking-wider font-medium opacity-70">if OS = iOS</span>
+                                </div>
+                            </button>
+                            <button onclick="setVariablePreset('germany')" data-scenario="germany" class="preset-btn snap-center shrink-0 group flex items-center gap-4 px-5 py-3.5 rounded-xl border border-border bg-card/50 hover:border-amber-500 transition-all shadow-sm w-auto lg:w-full text-left backdrop-blur-sm">
+                                <svg class="w-5 h-5 text-amber-500 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold tracking-tight">Germany</span>
+                                    <span class="text-[10px] text-muted-foreground hidden lg:block uppercase tracking-wider font-medium opacity-70">if Country = DE</span>
+                                </div>
+                            </button>
+                            <button onclick="setVariablePreset('night')" data-scenario="night" class="preset-btn snap-center shrink-0 group flex items-center gap-4 px-5 py-3.5 rounded-xl border border-border bg-card/50 hover:border-indigo-500 transition-all shadow-sm w-auto lg:w-full text-left backdrop-blur-sm">
+                                <svg class="w-5 h-5 text-indigo-500 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold tracking-tight">Night Owl Mode</span>
+                                    <span class="text-[10px] text-muted-foreground hidden lg:block uppercase tracking-wider font-medium opacity-70">if Time = Night</span>
+                                </div>
+                            </button>
+                            <button onclick="setVariablePreset('returning')" data-scenario="returning" class="preset-btn snap-center shrink-0 group flex items-center gap-4 px-5 py-3.5 rounded-xl border border-border bg-card/50 hover:border-amber-500 transition-all shadow-sm w-auto lg:w-full text-left backdrop-blur-sm">
+                                <svg class="w-5 h-5 text-amber-500 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold tracking-tight">Retargeting</span>
+                                    <span class="text-[10px] text-muted-foreground hidden lg:block uppercase tracking-wider font-medium opacity-70">if visit count > 1</span>
+                                </div>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Right: Live Preview -->
-                    <div class="terminal-card bg-white dark:bg-zinc-900 overflow-hidden flex flex-col shadow-xl">
-                        <div class="px-4 py-2 border-b border-border dark:border-white/10 bg-muted/30 dark:bg-white/5 flex items-center gap-3">
-                            <div class="flex gap-1">
-                                <div class="w-2 h-2 rounded-full bg-red-400/50"></div>
-                                <div class="w-2 h-2 rounded-full bg-amber-400/50"></div>
-                                <div class="w-2 h-2 rounded-full bg-emerald-400/50"></div>
+                    <!-- Right Column: Phone Mockup Preview -->
+                    <div class="relative order-2 flex justify-center lg:justify-end">
+                        <!-- Fixed-height container to prevent layout shift -->
+                        <div class="relative min-h-[550px] md:min-h-[600px] flex items-center justify-center w-full">
+                            <!-- Desktop Frame (Hidden by default) -->
+                            <div id="preview-desktop-frame" class="hidden absolute inset-0 flex items-center justify-center">
+                                <div class="relative bg-zinc-900/5 dark:bg-zinc-950/50 rounded-xl border border-border shadow-2xl backdrop-blur-sm w-full max-w-[500px] mx-auto overflow-hidden">
+                                    <!-- Window Controls -->
+                                    <div class="h-8 border-b border-border bg-muted/50 flex items-center px-3 justify-between select-none">
+                                        <div class="flex gap-1.5">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></div>
+                                        </div>
+                                        <div class="flex-1 text-center text-[10px] text-muted-foreground font-mono opacity-50">
+                                            tracked.app
+                                        </div>
+                                        <div class="w-10"></div>
+                                    </div>
+                                    <!-- Screen -->
+                                    <div class="relative bg-white dark:bg-zinc-950 h-[500px] flex flex-col">
+                                         <!-- Landing Page Content - Injected via JS -->
+                                         <div id="desktop-preview-render" class="p-8 h-full flex flex-col transition-opacity duration-300 overflow-y-auto custom-scrollbar">
+                                             <!-- Injected via JS -->
+                                         </div>
+                                    </div>
+
+                                    <!-- Condition Badge Desktop -->
+                                    <div id="condition-badge-desktop" class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg whitespace-nowrap z-30">
+                                        Condition: Default
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-1 bg-background dark:bg-zinc-950 border border-border dark:border-white/10 rounded px-3 py-0.5 text-[10px] font-mono text-muted-foreground truncate">
-                                preview.tracked.app/personalized-offer
-                            </div>
-                        </div>
-                        <div id="variable-preview-render" class="p-8 flex-1 flex flex-col justify-center items-center text-center">
-                            <!-- Injected via JS -->
-                        </div>
-                        <div class="p-3 border-t border-border dark:border-white/10 bg-muted/20 dark:bg-white/5 flex justify-center gap-4">
-                            <div class="flex items-center gap-1.5">
-                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live"></div>
-                                <span class="text-[9px] font-mono uppercase text-muted-foreground">Live Replacement Active</span>
+
+                            <!-- Phone Frame -->
+                            <div id="preview-phone-frame" class="absolute inset-0 flex items-center justify-center">
+                                <div class="relative">
+                                    <!-- Phone outer shell -->
+                                    <div class="relative bg-zinc-900 rounded-[2.5rem] p-2 shadow-2xl w-full max-w-[300px] md:max-w-[340px] mx-auto">
+                                        <!-- Notch -->
+                                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-zinc-900 rounded-b-2xl z-20"></div>
+                                        
+                                        <!-- Screen -->
+                                        <div class="relative bg-white dark:bg-zinc-950 rounded-[2rem] overflow-hidden" style="aspect-ratio: 9/19.5;">
+                                        <!-- Status bar -->
+                                        <div class="absolute top-0 inset-x-0 h-14 bg-gradient-to-b from-black/10 to-transparent z-20 flex flex-col px-5 pt-1">
+                                            <div class="flex items-center justify-between w-full">
+                                                <span class="text-[10px] font-medium text-foreground/60">9:41</span>
+                                                <div class="flex items-center gap-1">
+                                                    <svg class="w-3 h-3 text-foreground/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12.33 4.67L18 10.33V20H6V10.33l6.33-5.66z"/></svg>
+                                                    <svg class="w-3 h-3 text-foreground/60" fill="currentColor" viewBox="0 0 24 24"><path d="M2 17h2v4h16v-4h2v6H2v-6zm1-7h2v6H3v-6zm4-3h2v9H7V7zm4-3h2v12h-2V4zm4 2h2v10h-2V6zm4 4h2v6h-2v-6z"/></svg>
+                                                    <div class="w-5 h-2.5 border border-foreground/60 rounded-sm relative ml-0.5">
+                                                        <div class="absolute inset-0.5 bg-emerald-500 rounded-sm" style="width: 75%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Mini Address Bar -->
+                                            <div class="mt-1 h-6 bg-zinc-100/80 dark:bg-zinc-800/80 backdrop-blur-sm rounded-lg flex items-center px-2 gap-1.5 border border-black/5 dark:border-white/5">
+                                                <svg class="w-2.5 h-2.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                                <span class="text-[9px] text-muted-foreground truncate">tracked.app/lander</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Landing Page Content - Injected via JS -->
+                                        <div id="variable-preview-render" class="pt-16 px-4 pb-5 h-full flex flex-col transition-opacity duration-300 overflow-y-auto custom-scrollbar">
+                                                <!-- Injected via JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Condition Badge Phone -->
+                                    <div id="condition-badge-phone" class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-lg whitespace-nowrap z-30">
+                                        Condition: Default
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -895,20 +1061,20 @@
         </section>
 
         <!-- Unified Story Demo Section -->
-        <section id="demo" class="py-16 md:py-24 relative overflow-hidden">
+        <section id="demo" class="py-16 md:py-32 relative overflow-hidden">
             <div class="container mx-auto px-4 relative z-10">
-                <div class="text-center mb-20 reveal-on-scroll">
-                    <span class="text-xs font-mono-terminal text-primary mb-2 block">See it in action</span>
-                    <h2 class="text-2xl md:text-5xl font-bold mb-6">One platform, complete control</h2>
+                <div class="text-center mb-24 reveal-on-scroll">
+                    <span class="text-xs font-mono-terminal text-primary mb-2 block uppercase tracking-widest">See it in action</span>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6">One platform, complete control</h2>
                     <div class="accentStripe mb-10"></div>
                     <p class="text-lg text-muted-foreground max-w-2xl mx-auto">From asset hosting to intelligent routing and real-time analytics, everything works together seamlessly.</p>
                 </div>
 
-                <div class="space-y-16 md:space-y-32">
+                <div class="space-y-24 md:space-y-40">
                     <!-- Part A: Asset Drive -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                        <div class="order-2 lg:order-1 reveal-on-scroll">
-                            <div class="terminal-card overflow-hidden shadow-xl border-primary/20 bg-card/50 backdrop-blur-sm">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                        <div class="order-2 lg:order-1 reveal-on-scroll group perspective">
+                            <div class="terminal-card overflow-hidden shadow-2xl border-primary/20 bg-card/50 backdrop-blur-sm transform transition-all duration-500 group-hover:rotate-y-2 group-hover:scale-[1.02]">
                                 <div class="bg-muted/30 border-b border-border p-3 flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <div class="flex gap-1.5">
@@ -959,57 +1125,69 @@
                                 STEP 1
                             </div>
                             <h3 class="text-3xl font-bold mb-4">Upload once, deploy everywhere</h3>
-                            <p class="text-muted-foreground text-lg mb-6">
+                            <p class="text-muted-foreground text-lg mb-8 leading-relaxed">
                                 Forget complex FTP setups. Drag and drop your landing pages, scripts, and assets directly into our global edge network.
                             </p>
-                            <ul class="space-y-3">
+                            <ul class="space-y-4">
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Instant global CDN propagation</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Automatic SSL certificates</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                    <span>Built-in macro injection ({{city}}, {{device}})</span>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
+                                    <span>Built-in macro injection (<code class="text-xs bg-muted border border-border px-1.5 py-0.5 rounded text-foreground font-mono">{{!user.CITY}}</code>, <code class="text-xs bg-muted border border-border px-1.5 py-0.5 rounded text-foreground font-mono">{{!user.DEVICE}}</code>)</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
                     <!-- Part B: Rules Engine -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                         <div class="reveal-on-scroll">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                         <div class="reveal-on-scroll order-1">
                             <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
                                 STEP 2
                             </div>
                             <h3 class="text-3xl font-bold mb-4">Route traffic with surgical precision</h3>
-                            <p class="text-muted-foreground text-lg mb-6">
+                            <p class="text-muted-foreground text-lg mb-8 leading-relaxed">
                                 Create sophisticated flow logic without writing code. Redirect, proxy, or split-test based on 50+ data points.
                             </p>
-                            <ul class="space-y-3">
+                            <ul class="space-y-4">
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Device & GEO targeting</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Weighted split testing</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>ISP & Connection type filtering</span>
                                 </li>
                             </ul>
                         </div>
-                        <div class="reveal-on-scroll relative">
+                        <div class="reveal-on-scroll relative order-2">
                             <!-- RuleFlowCard Mockup -->
                             <div class="space-y-4 font-sans text-sm">
                                 
                                 <!-- Rule 1 Card -->
-                                <div class="terminal-card border-l-4 border-l-primary p-0 overflow-hidden shadow-lg">
+                                <div class="terminal-card p-0 overflow-hidden shadow-lg">
                                     <div class="bg-muted/30 p-3 border-b border-border flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <span class="inline-flex items-center rounded-full border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
@@ -1028,16 +1206,26 @@
                                             <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 uppercase tracking-wider mt-0.5">IF</span>
                                             <div class="flex-1 space-y-2">
                                                 <div class="flex flex-wrap gap-2">
-                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground group/pill">
                                                         <span class="font-medium text-muted-foreground">Device Type</span>
                                                         <span class="font-bold text-primary">=</span>
                                                         <span>Mobile</span>
+                                                        <button class="ml-0.5 p-0.5 rounded hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-colors opacity-0 group-hover/pill:opacity-100">
+                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                     <span class="text-xs font-bold text-muted-foreground self-center">AND</span>
-                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground group/pill">
                                                         <span class="font-medium text-muted-foreground">OS</span>
                                                         <span class="font-bold text-primary">=</span>
                                                         <span>iOS</span>
+                                                        <button class="ml-0.5 p-0.5 rounded hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-colors opacity-0 group-hover/pill:opacity-100">
+                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1065,7 +1253,7 @@
                         </div>
 
                                 <!-- Rule 2 Card -->
-                                <div class="terminal-card border-l-4 border-l-muted p-0 overflow-hidden shadow-lg opacity-90">
+                                <div class="terminal-card p-0 overflow-hidden shadow-lg opacity-90">
                                      <div class="bg-muted/30 p-3 border-b border-border flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <span class="inline-flex items-center rounded-full border border-transparent bg-secondary px-2 py-0.5 text-xs font-semibold text-foreground">
@@ -1081,14 +1269,19 @@
                                             <span class="inline-flex items-center rounded px-2 py-1 text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 uppercase tracking-wider mt-0.5 whitespace-nowrap">ELSE IF</span>
                                             <div class="flex-1 space-y-2">
                                                 <div class="flex flex-wrap gap-2">
-                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground">
+                                                    <div class="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs text-foreground group/pill">
                                                         <span class="font-medium text-muted-foreground">Country</span>
                                                         <span class="font-bold text-primary">IN</span>
                                                         <span>🇺🇸 🇨🇦 🇬🇧</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                                        <button class="ml-0.5 p-0.5 rounded hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-colors opacity-0 group-hover/pill:opacity-100">
+                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <!-- THEN Block (Split) -->
                                         <div class="flex items-start gap-3">
@@ -1118,32 +1311,37 @@
                         </div>
                     </div>
 
-                    <!-- Part C: Macro Playground (Interactive) -->
-                    <div class="reveal-on-scroll group">
-                         <div class="mb-8 text-center md:text-left">
+                    <!-- Part C: Macro Syntax Playground -->
+                    <div class="reveal-on-scroll group grid grid-cols-1 gap-8">
+                         <div class="text-center md:text-left">
                             <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
                                 STEP 3
                             </div>
-                            <h3 class="text-3xl font-bold mb-4">Dynamic Content & Macros</h3>
-                            <p class="text-muted-foreground text-lg mb-6 leading-relaxed">
-                                Personalize landing pages instantly. Type in the editor below to see macros replace in real-time.
+                            <h3 class="text-3xl font-bold mb-4">Dynamic Macros</h3>
+                            <p class="text-muted-foreground text-lg mb-6 leading-relaxed max-w-2xl">
+                                Use <code class="bg-muted border border-border px-1.5 py-0.5 rounded text-sm font-mono text-foreground">{{!user.CITY}}</code> placeholders in your HTML. We replace them with real visitor data on the server, instantly.
                             </p>
                         </div>
 
                         <!-- Interactive Playground -->
-                        <div class="terminal-card bg-card shadow-xl overflow-hidden border-border group-hover:border-primary/50 transition-colors flex flex-col md:flex-row min-h-[400px]">
+                        <div class="terminal-card bg-card shadow-sm overflow-hidden border-border transition-colors flex flex-col md:flex-row min-h-[600px] md:min-h-[400px]">
                             <!-- Input Side -->
-                            <div class="flex-1 border-b md:border-b-0 md:border-r border-border bg-[#1e1e1e] flex flex-col">
-                                <div class="bg-[#252526] border-b border-[#333] px-4 py-2 flex items-center justify-between shrink-0">
-                                    <span class="text-xs font-mono-terminal text-gray-400">template.html</span>
-                                    <span class="text-[10px] text-gray-500 font-mono-terminal">Editable</span>
+                            <div class="flex-1 border-b md:border-b-0 md:border-r border-border bg-muted/30 dark:bg-[#1e1e1e] flex flex-col">
+                                <div class="bg-muted/30 border-b border-border px-4 py-2 flex items-center justify-between shrink-0">
+                                    <span class="text-xs font-mono-terminal text-muted-foreground dark:text-gray-400">your-lander.html</span>
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 text-primary text-[10px] font-medium font-mono-terminal border border-primary/20" title="Click in the editor below and start typing to see macros replaced in real-time">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Edit to see macros replaced
+                                    </span>
                                 </div>
                                 <div class="flex-1 relative" id="editor-container">
                                     <pre id="editor-highlight" aria-hidden="true"><code class="language-markup" id="highlight-content"></code></pre>
                                     <textarea id="macro-input" class="focus:outline-none focus:ring-1 focus:ring-primary/50 border-none" spellcheck="false"></textarea>
                                 </div>
-                                <div class="p-3 border-t border-[#333] bg-[#252526] shrink-0">
-                                    <div class="text-[10px] uppercase text-gray-500 font-bold mb-2 font-mono-terminal">Try typing these:</div>
+                                <div class="p-3 border-t border-border bg-muted/30 shrink-0">
+                                    <div class="text-[10px] uppercase text-muted-foreground/70 dark:text-gray-500 font-bold mb-2 font-mono-terminal">Click to insert:</div>
                                     <div id="macro-buttons" class="flex flex-wrap gap-1.5">
                                         <!-- Buttons generated via JS to avoid server-side macro replacement -->
                                     </div>
@@ -1152,16 +1350,9 @@
 
                             <!-- Output Side -->
                             <div class="flex-1 bg-background flex flex-col relative group/preview">
-                                <div class="absolute top-2 right-2 px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] rounded font-bold uppercase tracking-wide border border-green-500/20 flex items-center gap-1 z-10">
-                                    <span class="relative flex h-1.5 w-1.5">
-                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-                                    </span>
-                                    Live Preview
-                                </div>
                                 <div class="bg-muted/30 border-b border-border px-4 py-2 flex items-center justify-center shrink-0">
                                     <span id="visitor-context" class="max-w-full truncate text-[11px] font-mono-terminal text-muted-foreground bg-background/70 dark:bg-background/40 border border-border/60 rounded-full px-3 py-1">
-                                        tracked.app/lander
+                                        yourdomain.com/offer
                                     </span>
                                 </div>
                                 <div class="p-6 flex flex-col h-full relative overflow-hidden bg-background">
@@ -1172,12 +1363,48 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Macro Quick Reference -->
+                        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div class="p-3 rounded-lg border border-border bg-card">
+                                <div class="font-bold text-foreground mb-1">Geo Data</div>
+                                <div class="text-muted-foreground font-mono text-[10px] space-y-0.5">
+                                    <div>user.CITY</div>
+                                    <div>user.COUNTRY</div>
+                                    <div>user.TIMEZONE</div>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border border-border bg-card">
+                                <div class="font-bold text-foreground mb-1">Device</div>
+                                <div class="text-muted-foreground font-mono text-[10px] space-y-0.5">
+                                    <div>user.DEVICE</div>
+                                    <div>user.OS</div>
+                                    <div>user.BROWSER</div>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border border-border bg-card">
+                                <div class="font-bold text-foreground mb-1">Network</div>
+                                <div class="text-muted-foreground font-mono text-[10px] space-y-0.5">
+                                    <div>user.IP</div>
+                                    <div>user.ORGANIZATION</div>
+                                    <div>user.ASN</div>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border border-border bg-card">
+                                <div class="font-bold text-foreground mb-1">Tracking</div>
+                                <div class="text-muted-foreground font-mono text-[10px] space-y-0.5">
+                                    <div>click.id</div>
+                                    <div>session.id</div>
+                                    <div>campaign.name</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Part D: Analytics -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                        <div class="order-2 lg:order-1 reveal-on-scroll">
-                            <div class="terminal-card overflow-hidden shadow-xl bg-card">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                        <div class="order-2 lg:order-1 reveal-on-scroll group">
+                            <div class="terminal-card overflow-hidden shadow-2xl bg-card border-primary/20 transition-all duration-300 group-hover:-translate-y-2">
                                 <div class="p-0 overflow-x-auto">
                                     <table class="w-full text-sm text-left">
                                         <thead class="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
@@ -1233,20 +1460,26 @@
                                 STEP 4
                             </div>
                             <h3 class="text-3xl font-bold mb-4">Watch your metrics in real-time</h3>
-                            <p class="text-muted-foreground text-lg mb-6">
+                            <p class="text-muted-foreground text-lg mb-8 leading-relaxed">
                                 No more delayed reports. See exactly which creatives, landing pages, and offers are performing the moment a click happens.
                             </p>
-                            <ul class="space-y-3">
+                            <ul class="space-y-4">
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Drill-down reporting</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>EPC & ROI tracking</span>
                                 </li>
                                 <li class="flex items-center gap-3">
-                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
                                     <span>Server-side event attribution</span>
                                 </li>
                             </ul>
@@ -1255,41 +1488,41 @@
 
                     <!-- Step 5: Optimize & Scale -->
                     <div class="mt-32 max-w-6xl mx-auto">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                             <!-- Text Side -->
-                            <div class="reveal-on-scroll">
+                            <div class="reveal-on-scroll order-1">
                                 <div class="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
                                     STEP 5
                                 </div>
                                 <h3 class="text-3xl font-bold mb-4">Optimize and Scale with AI</h3>
-                                <p class="text-muted-foreground text-lg mb-6 leading-relaxed">
+                                <p class="text-muted-foreground text-lg mb-8 leading-relaxed">
                                     Let AI agents work 24/7 to maximize your ROI. With complete access to your campaign data, they identify winning patterns, eliminate waste, and scale profitable campaigns automatically while you sleep.
                                 </p>
-                                <ul class="space-y-4">
-                                    <li class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.364-6.364l-.707-.707M6.364 18.364l-.707.707M18.364 18.364l-.707.707M12 5a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                <ul class="space-y-6">
+                                    <li class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-1">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.364-6.364l-.707-.707M6.364 18.364l-.707.707M18.364 18.364l-.707.707M12 5a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                         </div>
                                         <div>
-                                            <span class="font-semibold block">AI-Powered Performance Analysis</span>
-                                            <span class="text-sm text-muted-foreground">Smart agents continuously analyze performance data to identify your highest-converting traffic sources and creatives.</span>
+                                            <span class="font-bold text-lg block mb-1">AI-Powered Performance Analysis</span>
+                                            <span class="text-sm text-muted-foreground leading-relaxed">Smart agents continuously analyze performance data to identify your highest-converting traffic sources and creatives.</span>
                                         </div>
                                     </li>
-                                    <li class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    <li class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-1">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                         </div>
                                         <div>
-                                            <span class="font-semibold block">Smart Automation & Scaling</span>
-                                            <span class="text-sm text-muted-foreground">Automatically scale winning campaigns, pause underperformers, and rotate landers based on real-time performance metrics.</span>
+                                            <span class="font-bold text-lg block mb-1">Smart Automation & Scaling</span>
+                                            <span class="text-sm text-muted-foreground leading-relaxed">Automatically scale winning campaigns, pause underperformers, and rotate landers based on real-time performance metrics.</span>
                                         </div>
                                     </li>
                                 </ul>
                             </div>
                             
                             <!-- Visual Side -->
-                            <div class="reveal-on-scroll">
-                                <div class="terminal-card overflow-hidden shadow-xl bg-card border-primary/20">
+                            <div class="reveal-on-scroll order-2 group">
+                                <div class="terminal-card overflow-hidden shadow-2xl bg-card border-primary/20 transition-all duration-300 group-hover:shadow-primary/10 group-hover:-translate-y-2">
                                     <div class="bg-muted/50 border-b border-border px-4 py-2 flex items-center justify-between">
                                         <div class="flex gap-1.5">
                                             <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
@@ -1377,8 +1610,9 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-start">
                     <!-- Starter -->
-                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll">
-                        <h3 class="text-lg font-medium text-muted-foreground mb-4">Starter</h3>
+                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-pastel-teal"></div>
+                        <h3 class="text-lg font-medium text-muted-foreground mb-4 mt-1">Starter</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$0</div>
                         <p class="text-sm text-muted-foreground mb-6">For individuals and small projects getting started.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Get Started</a>
@@ -1391,9 +1625,10 @@
                     </div>
 
                     <!-- Business -->
-                    <div class="terminal-card p-8 border-primary bg-secondary/10 relative shadow-sm reveal-on-scroll" style="transition-delay: 100ms;">
+                    <div class="terminal-card p-8 border-primary bg-secondary/10 relative shadow-sm reveal-on-scroll overflow-hidden" style="transition-delay: 100ms;">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-pastel-info"></div>
                         <div class="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-[10px] font-bold uppercase tracking-wide rounded-bl font-mono-terminal">Most popular</div>
-                        <h3 class="text-lg font-medium text-primary mb-4">Business</h3>
+                        <h3 class="text-lg font-medium text-primary mb-4 mt-1">Business</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$49<span class="text-sm text-muted-foreground font-normal">/mo</span></div>
                         <p class="text-sm text-muted-foreground mb-6">For teams running experiments and personalizing content.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded bg-primary text-primary-foreground text-center text-sm font-medium hover:bg-primary/90 transition-colors">Get Started</a>
@@ -1406,8 +1641,9 @@
                     </div>
 
                     <!-- Agency -->
-                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll" style="transition-delay: 200ms;">
-                        <h3 class="text-lg font-medium text-muted-foreground mb-4">Agency</h3>
+                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll relative overflow-hidden" style="transition-delay: 200ms;">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-pastel-accent"></div>
+                        <h3 class="text-lg font-medium text-muted-foreground mb-4 mt-1">Agency</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">$199<span class="text-sm text-muted-foreground font-normal">/mo</span></div>
                         <p class="text-sm text-muted-foreground mb-6">For agencies managing multiple clients and campaigns.</p>
                         <a href="/signup" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Get Started</a>
@@ -1420,8 +1656,9 @@
                     </div>
 
                     <!-- Enterprise -->
-                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll" style="transition-delay: 300ms;">
-                        <h3 class="text-lg font-medium text-muted-foreground mb-4">Enterprise</h3>
+                    <div class="terminal-card p-8 hover:border-primary/50 transition-colors bg-card reveal-on-scroll relative overflow-hidden" style="transition-delay: 300ms;">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-pastel-violet"></div>
+                        <h3 class="text-lg font-medium text-muted-foreground mb-4 mt-1">Enterprise</h3>
                         <div class="text-4xl font-bold mb-6 font-mono-terminal">Custom</div>
                         <p class="text-sm text-muted-foreground mb-6">For large-scale applications with custom needs.</p>
                         <a href="/contact" class="block w-full py-2.5 px-4 rounded border border-border text-center text-sm font-medium hover:bg-secondary transition-colors">Contact Sales</a>
@@ -1440,76 +1677,86 @@
         </section>
 
         <!-- Stats Section -->
-        <section class="py-16 md:py-24 border-t border-border">
+        <section class="py-16 md:py-24 border-t border-border bg-gradient-to-b from-background to-secondary/20">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-16 reveal-on-scroll">
-                    <h2 class="text-2xl md:text-3xl font-bold mb-4">Backed by proven infrastructure</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Backed by proven infrastructure</h2>
                     <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
                         Whether you're using our content delivery platform or decision engine API, 
                         Tracked services are built for massive scale with industry-leading reliability and performance
                     </p>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 reveal-on-scroll">
-                    <div class="text-center">
-                        <h3 class="text-4xl font-bold mb-2">300+</h3>
-                        <p class="text-muted-foreground">Global edge locations</p>
+                    <div class="text-center group p-6 rounded-xl hover:bg-secondary/50 transition-colors">
+                        <h3 class="text-4xl md:text-5xl font-bold mb-2 text-primary group-hover:scale-110 transition-transform duration-300 inline-block">300+</h3>
+                        <p class="text-muted-foreground font-medium">Global edge locations</p>
                     </div>
-                    <div class="text-center">
-                        <h3 class="text-4xl font-bold mb-2">99.99%</h3>
-                        <p class="text-muted-foreground">Uptime SLA guarantee</p>
+                    <div class="text-center group p-6 rounded-xl hover:bg-secondary/50 transition-colors">
+                        <h3 class="text-4xl md:text-5xl font-bold mb-2 text-primary group-hover:scale-110 transition-transform duration-300 inline-block">99.99%</h3>
+                        <p class="text-muted-foreground font-medium">Uptime SLA guarantee</p>
                     </div>
-                    <div class="text-center">
-                        <h3 class="text-4xl font-bold mb-2">&lt;50ms</h3>
-                        <p class="text-muted-foreground">Average response time</p>
+                    <div class="text-center group p-6 rounded-xl hover:bg-secondary/50 transition-colors">
+                        <h3 id="edge-latency-stats" class="text-4xl md:text-5xl font-bold mb-2 text-primary group-hover:scale-110 transition-transform duration-300 inline-block">--ms</h3>
+                        <p class="text-muted-foreground font-medium">Your response time</p>
                     </div>
-                    <div class="text-center">
-                        <h3 class="text-4xl font-bold mb-2">1B+</h3>
-                        <p class="text-muted-foreground">Requests served daily</p>
+                    <div class="text-center group p-6 rounded-xl hover:bg-secondary/50 transition-colors">
+                        <h3 class="text-4xl md:text-5xl font-bold mb-2 text-primary group-hover:scale-110 transition-transform duration-300 inline-block">1B+</h3>
+                        <p class="text-muted-foreground font-medium">Requests served daily</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Testimonials Section -->
-        <section class="py-16 md:py-24 border-t border-border bg-muted/20">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-16 reveal-on-scroll">
-                    <h2 class="text-2xl md:text-3xl font-bold mb-4">Loved by performance marketers worldwide</h2>
+        <section class="py-16 md:py-32 border-t border-border bg-muted/20 relative overflow-hidden">
+             <div class="absolute inset-0 bg-grid opacity-[0.03] pointer-events-none"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="text-center mb-20 reveal-on-scroll">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Loved by performance marketers worldwide</h2>
                     <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
                         See what our users have to say about building with Tracked
                     </p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="terminal-card p-6 bg-card reveal-on-scroll">
-                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-blue-500"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="terminal-card p-8 bg-card reveal-on-scroll hover:border-primary/40 group">
+                        <div class="mb-6 text-primary">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.0171 16H9.01712V13H14.0171V6.90185C14.0171 5.79729 13.1216 4.90185 12.0171 4.90185H9.01712C5.66636 4.90185 3.01712 7.64326 3.01712 11V18C3.01712 19.6569 4.36027 21 6.01712 21H14.017ZM24.0171 21L24.0171 18C24.0171 16.8954 23.1217 16 22.0171 16H19.0171V13H24.0171V6.90185C24.0171 5.79729 23.1217 4.90185 22.0171 4.90185H19.0171C15.6664 4.90185 13.0171 7.64326 13.0171 11V18C13.0171 19.6569 14.3603 21 16.0171 21H24.0171Z"/></svg>
+                        </div>
+                        <p class="text-base text-muted-foreground mb-6 font-mono-terminal leading-relaxed">"Tracked has revolutionized our campaign delivery. We've seen a 40% increase in conversions since switching. The targeting capabilities are incredible."</p>
+                        <div class="flex items-center gap-4 pt-6 border-t border-border">
+                            <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">SC</div>
                             <div>
-                                <div class="font-semibold text-sm">Sarah Chen</div>
-                                <div class="text-xs text-muted-foreground">Performance Marketing Director</div>
+                                <div class="font-bold text-base">Sarah Chen</div>
+                                <div class="text-xs text-muted-foreground uppercase tracking-wider">Performance Marketing Director</div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="terminal-card p-6 bg-card reveal-on-scroll" style="transition-delay: 100ms;">
-                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-600"></div>
+                    <div class="terminal-card p-8 bg-card reveal-on-scroll hover:border-primary/40 group" style="transition-delay: 100ms;">
+                         <div class="mb-6 text-primary">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.0171 16H9.01712V13H14.0171V6.90185C14.0171 5.79729 13.1216 4.90185 12.0171 4.90185H9.01712C5.66636 4.90185 3.01712 7.64326 3.01712 11V18C3.01712 19.6569 4.36027 21 6.01712 21H14.017ZM24.0171 21L24.0171 18C24.0171 16.8954 23.1217 16 22.0171 16H19.0171V13H24.0171V6.90185C24.0171 5.79729 23.1217 4.90185 22.0171 4.90185H19.0171C15.6664 4.90185 13.0171 7.64326 13.0171 11V18C13.0171 19.6569 14.3603 21 16.0171 21H24.0171Z"/></svg>
+                        </div>
+                        <p class="text-base text-muted-foreground mb-6 font-mono-terminal leading-relaxed">"The React SDK integration was seamless. We added feature flags to our entire app in under an hour. The developer experience is fantastic."</p>
+                        <div class="flex items-center gap-4 pt-6 border-t border-border">
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">AK</div>
                             <div>
-                                <div class="font-semibold text-sm">Alex Kumar</div>
-                                <div class="text-xs text-muted-foreground">Frontend Engineer</div>
+                                <div class="font-bold text-base">Alex Kumar</div>
+                                <div class="text-xs text-muted-foreground uppercase tracking-wider">Frontend Engineer</div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="terminal-card p-6 bg-card reveal-on-scroll" style="transition-delay: 200ms;">
-                        <p class="text-sm text-muted-foreground mb-4 font-mono-terminal">"The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-cyan-500"></div>
+                    <div class="terminal-card p-8 bg-card reveal-on-scroll hover:border-primary/40 group" style="transition-delay: 200ms;">
+                         <div class="mb-6 text-primary">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.0171 16H9.01712V13H14.0171V6.90185C14.0171 5.79729 13.1216 4.90185 12.0171 4.90185H9.01712C5.66636 4.90185 3.01712 7.64326 3.01712 11V18C3.01712 19.6569 4.36027 21 6.01712 21H14.017ZM24.0171 21L24.0171 18C24.0171 16.8954 23.1217 16 22.0171 16H19.0171V13H24.0171V6.90185C24.0171 5.79729 23.1217 4.90185 22.0171 4.90185H19.0171C15.6664 4.90185 13.0171 7.64326 13.0171 11V18C13.0171 19.6569 14.3603 21 16.0171 21H24.0171Z"/></svg>
+                        </div>
+                        <p class="text-base text-muted-foreground mb-6 font-mono-terminal leading-relaxed">"The global edge network is a game-changer. Our pages load instantly worldwide, and our international conversion rates have improved dramatically."</p>
+                        <div class="flex items-center gap-4 pt-6 border-t border-border">
+                             <div class="w-12 h-12 rounded-full bg-cyan-500 flex items-center justify-center text-white font-bold text-lg">MR</div>
                             <div>
-                                <div class="font-semibold text-sm">Marcus Rodriguez</div>
-                                <div class="text-xs text-muted-foreground">Growth Marketing Lead</div>
+                                <div class="font-bold text-base">Marcus Rodriguez</div>
+                                <div class="text-xs text-muted-foreground uppercase tracking-wider">Growth Marketing Lead</div>
                             </div>
                         </div>
                     </div>
@@ -1592,23 +1839,144 @@
     <script>
         // Dark Mode Logic
         const themeToggle = document.getElementById('theme-toggle');
+        const prismDark = document.getElementById('prism-theme-dark');
+        const prismLight = document.getElementById('prism-theme-light');
+        
+        function updatePrismTheme(isDark) {
+            if (prismDark && prismLight) {
+                prismDark.media = isDark ? 'all' : 'not all';
+                prismLight.media = isDark ? 'not all' : 'all';
+            }
+        }
         
         // Check local storage or system preference
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+            updatePrismTheme(true);
         } else {
             document.documentElement.classList.remove('dark');
+            updatePrismTheme(false);
         }
 
         themeToggle.addEventListener('click', () => {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.theme = 'light';
+                updatePrismTheme(false);
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.theme = 'dark';
+                updatePrismTheme(true);
             }
         });
+
+        // Performance Measurement - Most accurate methods for latency/speed metrics
+        (function measurePerformance() {
+            const heroEl = document.getElementById('edge-latency-hero');
+            const statsEl = document.getElementById('edge-latency-stats');
+            const responseTimeEl = document.getElementById('response-time-display');
+            
+            function updateLatencyDisplay(ms) {
+                const formatted = ms < 1 ? '<1ms' : Math.round(ms) + 'ms';
+                if (heroEl) heroEl.textContent = formatted;
+                if (statsEl) statsEl.textContent = formatted;
+                if (responseTimeEl) responseTimeEl.textContent = '< ' + formatted;
+            }
+            
+            // Method 1: Navigation Timing API - Most accurate for initial page load
+            // This gives us the ACTUAL server processing + network time
+            if (window.performance && performance.getEntriesByType) {
+                const navEntries = performance.getEntriesByType('navigation');
+                if (navEntries.length > 0) {
+                    const nav = navEntries[0];
+                    
+                    // MOST ACCURATE: Server processing time only (what you control)
+                    // responseStart - requestStart = time from request sent to first byte received
+                    const ttfb = nav.responseStart - nav.requestStart;
+                    
+                    // Alternative metrics you could use:
+                    // 1. DNS + Connection + TTFB:
+                    // const totalLatency = nav.responseStart - nav.fetchStart;
+                    
+                    // 2. Full response download:
+                    // const fullResponse = nav.responseEnd - nav.requestStart;
+                    
+                    // 3. Complete page load:
+                    // const pageLoad = nav.loadEventEnd - nav.fetchStart;
+                    
+                    if (ttfb > 0 && ttfb < 5000) {
+                        updateLatencyDisplay(ttfb);
+                    }
+                }
+            }
+            
+            // Method 2: Resource Timing API with lightweight ping
+            // Most accurate for ongoing real-time measurement
+            async function pingEdge() {
+                try {
+                    const pingUrl = '/?_ping=' + Date.now();
+                    
+                    // Mark the start of our measurement
+                    const markName = 'ping-start-' + Date.now();
+                    performance.mark(markName);
+                    
+                    // HEAD request is fastest (no body transfer)
+                    const res = await fetch(pingUrl, {
+                        method: 'HEAD',
+                        cache: 'no-store',
+                        // Disable keepalive to measure true connection time
+                        keepalive: false
+                    });
+                    
+                    if (!res.ok) return;
+                    
+                    // Wait for Resource Timing entry to be available
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    
+                    // Get the most accurate timing from Resource Timing API
+                    const entries = performance.getEntriesByName(pingUrl, 'resource');
+                    if (entries.length > 0) {
+                        const entry = entries[entries.length - 1]; // Get most recent
+                        
+                        // MOST ACCURATE OPTIONS:
+                        
+                        // Option 1: Server response time (excludes DNS, connection)
+                        // Best for showing your server performance
+                        const serverTime = entry.responseStart - entry.requestStart;
+                        
+                        // Option 2: Total request time (includes everything)
+                        // const totalTime = entry.responseEnd - entry.startTime;
+                        
+                        // Option 3: TTFB from start (includes connection setup)
+                        // const ttfb = entry.responseStart - entry.fetchStart;
+                        
+                        // Clean up old entries to avoid memory issues
+                        performance.clearResourceTimings();
+                        
+                        if (serverTime > 0 && serverTime < 5000) {
+                            updateLatencyDisplay(serverTime);
+                        }
+                    } else {
+                        // Fallback to manual timing if Resource Timing not available
+                        const manualTime = performance.now() - performance.getEntriesByName(markName)[0].startTime;
+                        performance.clearMarks(markName);
+                        
+                        if (manualTime > 0 && manualTime < 5000) {
+                            updateLatencyDisplay(manualTime);
+                        }
+                    }
+                } catch (e) {
+                    // Silently fail - keep showing previous value
+                    console.debug('Ping measurement failed:', e);
+                }
+            }
+            
+            // Initial ping after page settles
+            setTimeout(pingEdge, 500);
+            
+            // Refresh every 30 seconds for real-time monitoring
+            setInterval(pingEdge, 30000);
+        })();
 
         // Mobile Menu Logic
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -1807,6 +2175,74 @@
             
             // ============================================
             
+            // Extract actual visitor data from the banner (already server-replaced)
+            function extractVisitorData() {
+                const stickyBanner = document.getElementById('sticky-personalization');
+                let actualCity = 'New York'; // fallback
+                let actualCountry = 'United States'; // fallback
+                
+                if (stickyBanner) {
+                    const bannerText = stickyBanner.textContent || '';
+                    // Banner format: "Live Session: Node: EWR New Rochelle, US DESKTOP • ELECTRON"
+                    // Cloudflare returns cities in Title Case (e.g., "New Rochelle")
+                    // Colo codes are 3 ALL-CAPS letters (EWR, LAX) so we skip those
+                    // Match Title Case words: capital letter followed by lowercase, then comma and 2-letter country
+                    const cityCountryMatch = bannerText.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),\s*([A-Z]{2})\b/);
+                    if (cityCountryMatch) {
+                        // Already in Title Case from Cloudflare
+                        actualCity = cityCountryMatch[1].trim();
+                        // Convert country code to full name
+                        const countryCode = cityCountryMatch[2];
+                        const countryMap = {
+                            'US': 'United States',
+                            'CA': 'Canada',
+                            'GB': 'United Kingdom',
+                            'AU': 'Australia',
+                            'DE': 'Germany',
+                            'FR': 'France',
+                            'IT': 'Italy',
+                            'ES': 'Spain',
+                            'NL': 'Netherlands',
+                            'BE': 'Belgium',
+                            'CH': 'Switzerland',
+                            'AT': 'Austria',
+                            'SE': 'Sweden',
+                            'NO': 'Norway',
+                            'DK': 'Denmark',
+                            'FI': 'Finland',
+                            'PL': 'Poland',
+                            'CZ': 'Czech Republic',
+                            'IE': 'Ireland',
+                            'PT': 'Portugal',
+                            'GR': 'Greece',
+                            'JP': 'Japan',
+                            'CN': 'China',
+                            'KR': 'South Korea',
+                            'IN': 'India',
+                            'BR': 'Brazil',
+                            'MX': 'Mexico',
+                            'AR': 'Argentina',
+                            'CL': 'Chile',
+                            'CO': 'Colombia',
+                            'PE': 'Peru',
+                            'ZA': 'South Africa',
+                            'NZ': 'New Zealand',
+                            'SG': 'Singapore',
+                            'MY': 'Malaysia',
+                            'TH': 'Thailand',
+                            'PH': 'Philippines',
+                            'ID': 'Indonesia',
+                            'VN': 'Vietnam'
+                        };
+                        actualCountry = countryMap[countryCode] || countryCode;
+                    }
+                }
+                
+                return { city: actualCity, country: actualCountry };
+            }
+            
+            const visitorData = extractVisitorData();
+            
             // Demo data matching real macro names from rules.ts populateMacros function
             // Note: Using string concatenation to prevent server-side macro replacement
             // The server replaces {{macro}} in HTML/CSS files, so we must construct these strings dynamically
@@ -1814,47 +2250,63 @@
             
             // Set textarea content via JS to avoid server-side macro replacement
             if (macroInput) {
-                macroInput.value = `<h1>Hello ${M('user.CITY')}!</h1>
+                macroInput.value = `<h1>Hey there, ${M('user.CITY')}!</h1>
 
 <p>
-  Welcome to our special offer for
-  <span class="text-primary">${M('user.DEVICE')}</span> users.
+  Looks like you're browsing from 
+  ${M('user.COUNTRY')} on ${M('user.DEVICE')}.
 </p>
 
-<div class="offer-box">
-  Exclusive deal for visitors from
-  <strong>${M('user.COUNTRY')}</strong>
-</div>
+<p>
+  Your browser is ${M('user.BROWSER')} 
+  running on ${M('user.OS')}.
+</p>
 
-<a href="/offer?clickid=${M('click.id')}" class="inline-block mt-4 px-8 py-3 rounded-md bg-primary text-primary-foreground font-medium text-center hover:bg-primary/90 transition-all shadow-sm hover:scale-105">
-  Claim Offer
+<a href="/checkout?cid=${M('click.id')}" class="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg transition-all">
+  Get Started
 </a>`;
             }
             
             const demoData = {
-                // User Geo (showing example values like the server would inject)
-                [M('user.CITY')]: `<span class="bg-pastel-warning/80 dark:bg-pastel-warning/20 px-1.5 py-0.5 rounded text-amber-900 dark:text-amber-200 font-bold border border-amber-500/20">New York</span>`,
-                [M('user.COUNTRY')]: `<span class="bg-pastel-info/80 dark:bg-pastel-info/20 px-1.5 py-0.5 rounded text-blue-900 dark:text-blue-200 font-bold border border-blue-500/20">United States</span>`,
+                // User Geo (using actual visitor data from banner)
+                [M('user.CITY')]: `<span class="bg-pastel-warning/80 dark:bg-pastel-warning/20 px-1.5 py-0.5 rounded text-amber-900 dark:text-amber-200 font-bold border border-amber-500/20">${visitorData.city}</span>`,
+                [M('user.COUNTRY')]: `<span class="bg-pastel-info/80 dark:bg-pastel-info/20 px-1.5 py-0.5 rounded text-blue-900 dark:text-blue-200 font-bold border border-blue-500/20">${visitorData.country}</span>`,
                 [M('user.COUNTRY_CODE')]: 'US',
                 [M('user.CONTINENT')]: 'NA',
-                [M('user.REGION_NAME')]: 'New York',
+                [M('user.REGION_NAME')]: visitorData.city,
                 [M('user.REGION_CODE')]: 'NY',
                 [M('user.POSTAL_CODE')]: '10001',
                 [M('user.TIMEZONE')]: timezone,
                 
                 // User Device (using detected values from visitor's browser)
                 [M('user.DEVICE')]: `<span class="bg-pastel-violet/80 dark:bg-pastel-violet/20 px-1.5 py-0.5 rounded text-violet-900 dark:text-violet-200 font-bold border border-violet-500/20">${deviceInfo.device}</span>`,
+                [M('user.BRAND')]: deviceInfo.device === 'iPhone' || deviceInfo.device === 'Macintosh' ? 'Apple' : 'Generic',
+                [M('user.MODEL')]: deviceInfo.device === 'iPhone' ? 'iPhone 15 Pro' : 'Generic Desktop',
+                [M('user.ARCH')]: 'arm64',
                 [M('user.BROWSER')]: `<span class="bg-pastel-teal/80 dark:bg-pastel-teal/20 px-1.5 py-0.5 rounded text-teal-900 dark:text-teal-200 font-bold border border-teal-500/20">${deviceInfo.browser}</span>`,
+                [M('user.BROWSER_VERSION')]: '120.0.6099.129',
                 [M('user.OS')]: `<span class="bg-pastel-pink/80 dark:bg-pastel-pink/20 px-1.5 py-0.5 rounded text-pink-900 dark:text-pink-200 font-bold border border-pink-500/20">${deviceInfo.os}</span>`,
-                [M('user.BROWSER_VERSION')]: '120',
-                [M('user.OS_VERSION')]: '14.0',
+                [M('user.OS_VERSION')]: '14.2.1',
                 
                 // User Network
                 [M('user.IP')]: `<span class="bg-pastel-cyan/80 dark:bg-pastel-cyan/20 px-1.5 py-0.5 rounded text-cyan-900 dark:text-cyan-200 font-bold border border-cyan-500/20">192.168.1.1</span>`,
-                [M('user.ORGANIZATION')]: 'Example ISP',
+                [M('user.ORGANIZATION')]: 'Verizon Fios',
                 [M('user.REFERRER')]: 'https://google.com',
                 [M('user.COLO')]: 'EWR',
                 [M('user.ASN')]: '13335',
+                
+                // Bot Detection
+                [M('user.IS_VERIFIED_BOT')]: 'false',
+                [M('user.BOT_SCORE')]: '99',
+                [M('user.THREAT_SCORE')]: '0',
+
+                // Custom variables defined in rules
+                [M('headline')]: `<span class="text-primary font-bold">Summer Flash Sale!</span>`,
+                [M('hero_image')]: `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60`,
+                [M('discount_percent')]: `<span class="text-red-500 font-bold">25</span>`,
+                [M('cta_text')]: `Claim My Discount`,
+                [M('cta_url')]: `/offer-page`,
+                [M('button_class')]: `bg-primary text-white px-6 py-2 rounded-lg`,
                 
                 // Campaign & Tracking
                 [M('click.id')]: 'clk_8f7a9d2b',
@@ -1899,6 +2351,18 @@
                     btn.onclick = () => window.insertMacro(M(name));
                     macroButtonsContainer.appendChild(btn);
                 });
+                
+                // Add Clear button
+                const clearBtn = document.createElement('button');
+                clearBtn.onclick = () => window.clearMacroInput();
+                clearBtn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-700 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-300 dark:hover:border-red-700 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 transition-all shadow-sm hover:shadow';
+                clearBtn.innerHTML = `
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear
+                `;
+                macroButtonsContainer.appendChild(clearBtn);
             }
 
             const highlightContent = document.getElementById('highlight-content');
@@ -1916,7 +2380,7 @@
 
                 let content = text;
                 
-                // First, protect escaped macros {{!macro}} by replacing with placeholder
+                // First, protect escaped macros {{macro}} by replacing with placeholder
                 const escapedMacros = new Map();
                 let escapedIndex = 0;
                 content = content.replace(/\{\{!([^}]+)\}\}/g, (match, macroName) => {
@@ -1948,6 +2412,12 @@
                 highlight.scrollLeft = macroInput.scrollLeft;
             });
 
+            window.clearMacroInput = function() {
+                macroInput.value = '';
+                updatePreview();
+                macroInput.focus();
+            };
+
             macroInput.addEventListener('input', updatePreview);
             updatePreview(); // Initial render
 
@@ -1974,90 +2444,297 @@
                 });
             }
 
-            // Variable Demo Presets
-            const presets = {
+            // Variable Demo Scenarios - Full landing page templates
+            const scenarios = {
                 default: {
+                    label: "Default",
+                    condition: "No targeting rules matched",
+                    badgeColor: "bg-zinc-600",
                     config: {
+                        path: "/lander",
+                        action: "folder",
+                        folder: "campaign-assets/",
                         variables: {
-                            headline: "Precision Tracking at the Edge",
+                            headline: "Unlock Premium Access",
+                            subheadline: "Get unlimited articles, exclusive features, and ad-free reading.",
                             cta_text: "Start Free Trial",
-                            badge_color: "bg-blue-500"
+                            price: "$9.99/mo"
                         }
                     },
                     template: (vars) => `
-                        <div class="space-y-6 animate-fade-in-up">
-                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">New Feature</span>
-                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline}</h3>
-                            <button class="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
-                                ${vars.cta_text}
-                            </button>
+                        <div class="flex-1 flex flex-col text-left">
+                            <div class="flex-1 space-y-3">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Premium</span>
+                                </div>
+                                <h1 class="text-xl font-bold text-foreground leading-tight">${vars.headline}</h1>
+                                <p class="text-sm text-muted-foreground">${vars.subheadline}</p>
+                                <div class="h-24 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center border border-border">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-black text-foreground">${vars.price}</div>
+                                        <div class="text-xs text-muted-foreground">Cancel anytime</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-border">
+                                <button class="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm shadow-lg">${vars.cta_text}</button>
+                                <p class="text-center text-[10px] text-muted-foreground mt-2">7-day free trial included</p>
+                            </div>
                         </div>
                     `
                 },
-                holiday: {
+                ios: {
+                    label: "iOS Users",
+                    condition: "OS = iOS",
+                    badgeColor: "bg-blue-600",
                     config: {
+                        path: "/lander",
+                        action: "folder",
+                        folder: "campaign-assets/",
+                        rules: [{ if: { os: "iOS" } }],
                         variables: {
-                            headline: "Holiday Sale: 50% Off Tracking",
-                            cta_text: "Claim Gift",
-                            badge_color: "bg-red-500"
+                            headline: "Go Pro on iOS",
+                            subheadline: "Unlock all features with a single in-app purchase.",
+                            cta_text: "Upgrade in App Store",
+                            price: "$4.99"
                         }
                     },
                     template: (vars) => `
-                        <div class="space-y-6 animate-fade-in-up">
-                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Season's Deals</span>
-                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline}</h3>
-                            <button class="px-8 py-3 bg-red-600 text-white rounded-lg font-bold shadow-lg hover:scale-105 transition-transform border-b-4 border-red-800">
-                                ${vars.cta_text}
-                            </button>
+                        <div class="flex-1 flex flex-col text-left">
+                            <div class="flex-1 space-y-3">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91 1.34.03 2.19.49 2.84 1.13-2.31 1.98-1.93 5.43.34 6.34-.34 1.25-1.01 2.5-2.39 3.19zM15.47 2.1c.34 1.62-.84 3.24-2.28 3.39-.31-1.8 1.18-3.41 2.28-3.39z"/>
+                                    </svg>
+                                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">iOS Exclusive</span>
+                                </div>
+                                <h1 class="text-xl font-bold text-foreground leading-tight">${vars.headline}</h1>
+                                <p class="text-sm text-muted-foreground">${vars.subheadline}</p>
+                                <div class="h-24 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-black text-white">${vars.price}</div>
+                                        <div class="text-xs text-blue-100">One-time purchase</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-blue-500/20">
+                                <button class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91 1.34.03 2.19.49 2.84 1.13-2.31 1.98-1.93 5.43.34 6.34-.34 1.25-1.01 2.5-2.39 3.19zM15.47 2.1c.34 1.62-.84 3.24-2.28 3.39-.31-1.8 1.18-3.41 2.28-3.39z"/>
+                                    </svg>
+                                    ${vars.cta_text}
+                                </button>
+                                <p class="text-center text-[10px] text-blue-500 mt-2">Restore purchases available</p>
+                            </div>
                         </div>
                     `
                 },
-                geo: {
+                germany: {
+                    label: "Germany",
+                    condition: "Country = DE",
+                    badgeColor: "bg-amber-600",
                     config: {
+                        path: "/lander",
+                        action: "folder",
+                        folder: "campaign-assets/",
+                        rules: [{ if: { country: "DE" } }],
                         variables: {
-                            headline: `Exclusive for visitors from ${M('user.CITY')}`,
-                            cta_text: `Ship to ${M('user.COUNTRY')}`,
-                            badge_color: "bg-emerald-500"
+                            headline: "Willkommen in Deutschland",
+                            subheadline: "Lokalisierte Inhalte und EUR-Preise für deutsche Kunden.",
+                            cta_text: "Jetzt kaufen",
+                            price: "€29",
+                            hero_bg: "from-amber-500 to-orange-600"
                         }
                     },
                     template: (vars) => `
-                        <div class="space-y-6 animate-fade-in-up">
-                            <span class="${vars.badge_color} text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Local Offer</span>
-                            <h3 class="text-3xl font-bold tracking-tight text-foreground">${vars.headline.replace(M('user.CITY'), '<span class="text-emerald-500">New York</span>')}</h3>
-                            <button class="px-8 py-3 bg-emerald-600 text-white rounded-lg font-bold shadow-lg hover:scale-105 transition-transform">
-                                ${vars.cta_text.replace(M('user.COUNTRY'), 'United States')}
-                            </button>
+                        <div class="flex-1 flex flex-col text-left">
+                            <div class="flex-1 space-y-3">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <span class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Deutschland</span>
+                                </div>
+                                <h1 class="text-xl font-bold text-foreground leading-tight">${vars.headline}</h1>
+                                <p class="text-sm text-muted-foreground">${vars.subheadline}</p>
+                                <div class="h-24 rounded-xl bg-gradient-to-br ${vars.hero_bg} flex items-center justify-center shadow-lg shadow-amber-500/20">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-black text-white">${vars.price}</div>
+                                        <div class="text-xs text-amber-100">EUR Pricing</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-amber-500/20">
+                                <button class="w-full py-3 bg-amber-600 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    ${vars.cta_text}
+                                </button>
+                                <p class="text-center text-[10px] text-amber-600 mt-2">Kostenloser Versand in DE</p>
+                            </div>
+                        </div>
+                    `
+                },
+                night: {
+                    label: "Night Owl",
+                    condition: "Time = 10pm-5am AND Country = US",
+                    badgeColor: "bg-indigo-600",
+                    config: {
+                        path: "/lander",
+                        action: "folder",
+                        folder: "campaign-assets/",
+                        rules: [{ if: { time: "22:00-05:00", country: "US" } }],
+                        variables: {
+                            headline: "Night Owl Special",
+                            subheadline: "40% off annual plan - expires at sunrise.",
+                            cta_text: "Claim Midnight Deal",
+                            price: "$59",
+                            original_price: "$99"
+                        }
+                    },
+                    template: (vars) => `
+                        <div class="flex-1 flex flex-col text-left bg-zinc-950 -mx-4 -mt-12 -mb-5 px-4 pt-14 pb-6">
+                            <div class="flex-1 space-y-3">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                    </svg>
+                                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Limited Time</span>
+                                    <span class="ml-auto px-2 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-bold rounded-full animate-pulse">EXPIRES SOON</span>
+                                </div>
+                                <h1 class="text-xl font-bold text-white leading-tight">${vars.headline}</h1>
+                                <p class="text-sm text-indigo-200/70">${vars.subheadline}</p>
+                                <div class="h-24 rounded-xl bg-gradient-to-br from-indigo-900 to-violet-950 flex items-center justify-center relative overflow-hidden">
+                                    <div class="text-center relative z-10">
+                                        <div class="text-3xl font-black text-white">${vars.price}<span class="text-base font-normal text-indigo-300">/yr</span></div>
+                                        <div class="text-sm text-indigo-400 line-through">${vars.original_price}/yr</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-indigo-500/20">
+                                <button class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/30">${vars.cta_text}</button>
+                                <p class="text-center text-[10px] text-indigo-400 mt-2">Offer ends at sunrise</p>
+                            </div>
+                        </div>
+                    `
+                },
+                returning: {
+                    label: "Returning Visitor",
+                    condition: "Session Count > 1",
+                    badgeColor: "bg-amber-600",
+                    config: {
+                        path: "/lander",
+                        action: "folder",
+                        folder: "campaign-assets/",
+                        rules: [{ if: { returning: true } }],
+                        variables: {
+                            headline: "Welcome Back!",
+                            subheadline: "We saved your spot. Ready to continue?",
+                            cta_text: "Resume Where I Left Off",
+                            price: "20% off",
+                            hero_bg: "from-amber-400 to-orange-500"
+                        }
+                    },
+                    template: (vars) => `
+                        <div class="flex-1 flex flex-col text-left">
+                            <div class="flex-1 space-y-3">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    <span class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Welcome Back</span>
+                                </div>
+                                <h1 class="text-xl font-bold text-foreground leading-tight">${vars.headline}</h1>
+                                <p class="text-sm text-muted-foreground">${vars.subheadline}</p>
+                                <div class="h-24 rounded-xl bg-gradient-to-br ${vars.hero_bg} flex items-center justify-center shadow-lg shadow-amber-500/20">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-black text-white">${vars.price}</div>
+                                        <div class="text-xs text-amber-100">Loyalty Discount</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-amber-500/20">
+                                <button class="w-full py-3 bg-amber-500 text-white rounded-xl font-bold text-sm shadow-lg">${vars.cta_text}</button>
+                                <p class="text-center text-[10px] text-amber-600 mt-2">Your progress is saved</p>
+                            </div>
                         </div>
                     `
                 }
             };
 
             const configDisplay = document.getElementById('rule-config-display');
-            const previewRender = document.getElementById('variable-preview-render');
+            const conditionBadgeDesktop = document.getElementById('condition-badge-desktop');
+            const conditionBadgePhone = document.getElementById('condition-badge-phone');
+            
+            // Frame Elements
+            const phoneRender = document.getElementById('variable-preview-render');
+            const desktopRender = document.getElementById('desktop-preview-render');
+            const phoneFrame = document.getElementById('preview-phone-frame');
+            const desktopFrame = document.getElementById('preview-desktop-frame');
 
             window.setVariablePreset = function(name) {
-                const preset = presets[name];
-                if (!preset) return;
+                const scenario = scenarios[name];
+                if (!scenario) return;
+
+                // Frame Logic
+                let targetRender = phoneRender;
+                let targetBadge = conditionBadgePhone;
+                
+                if (name === 'default') {
+                    if (desktopFrame) desktopFrame.classList.remove('hidden');
+                    if (phoneFrame) phoneFrame.classList.add('hidden');
+                    targetRender = desktopRender;
+                    targetBadge = conditionBadgeDesktop;
+                } else {
+                    if (desktopFrame) desktopFrame.classList.add('hidden');
+                    if (phoneFrame) phoneFrame.classList.remove('hidden');
+                    targetRender = phoneRender;
+                    targetBadge = conditionBadgePhone;
+                }
 
                 // Update config display
-                configDisplay.textContent = JSON.stringify(preset.config, null, 2);
+                if (configDisplay) {
+                    configDisplay.textContent = JSON.stringify(scenario.config, null, 2);
+                }
+                
+                // Update active condition badge
+                if (targetBadge) {
+                    targetBadge.textContent = scenario.condition;
+                    targetBadge.className = `absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-white text-xs font-bold shadow-lg whitespace-nowrap transition-all z-30 ${scenario.badgeColor}`;
+                }
                 
                 // Update preview with fade effect
-                previewRender.style.opacity = '0';
-                setTimeout(() => {
-                    previewRender.innerHTML = preset.template(preset.config.variables);
-                    previewRender.style.opacity = '1';
-                }, 200);
+                if (targetRender) {
+                    targetRender.style.opacity = '0';
+                    setTimeout(() => {
+                        targetRender.innerHTML = scenario.template(scenario.config.variables);
+                        targetRender.style.opacity = '1';
+                    }, 200);
+                }
 
                 // Update button styles
                 document.querySelectorAll('.preset-btn').forEach(btn => {
-                    if (btn.textContent.toLowerCase().includes(name)) {
-                        btn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
-                        btn.classList.remove('bg-white/10', 'text-white');
+                    const isActive = btn.getAttribute('data-scenario') === name;
+                    if (isActive) {
+                        btn.classList.add('border-primary', 'bg-primary/5', 'shadow-md', 'ring-1', 'ring-primary/20');
+                        btn.classList.remove('border-border', 'bg-card/50');
+                        btn.querySelector('div.rounded-full')?.classList.add('scale-125');
                     } else {
-                        btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
-                        btn.classList.add('bg-white/10', 'text-white');
+                        btn.classList.remove('border-primary', 'bg-primary/5', 'shadow-md', 'ring-1', 'ring-primary/20');
+                        btn.classList.add('border-border', 'bg-card/50');
+                        btn.querySelector('div.rounded-full')?.classList.remove('scale-125');
                     }
+                });
+            };
+
+            window.clearVariablePreset = function() {
+                // Hide both frames or show empty state
+                if (phoneFrame) phoneFrame.classList.add('hidden');
+                if (desktopFrame) desktopFrame.classList.add('hidden');
+                
+                // Clear all button active states
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('border-primary', 'bg-primary/5', 'shadow-md', 'ring-1', 'ring-primary/20');
+                    btn.classList.add('border-border', 'bg-card/50');
+                    btn.querySelector('div.rounded-full')?.classList.remove('scale-125');
                 });
             };
 
@@ -2079,5 +2756,7 @@
             });
         }
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"160e12d2515d48f184bbd404a3a901f4","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
+

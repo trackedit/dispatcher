@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracked | Investment Memorandum</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>Tracked | Investment Overview</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,790 +17,1468 @@
             --accent: #2563eb;
             --bg: #ffffff;
             --border: #e5e5e5;
+            --ios-blue: #007AFF;
+            --ios-gray: #8E8E93;
+            --ios-bg: #F2F2F7;
+            --ios-card-bg: #FFFFFF;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: 'Instrument Sans', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Instrument Sans', sans-serif;
             color: var(--primary);
-            background: var(--bg);
+            background: var(--ios-bg);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
         }
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.02em;
+            font-weight: 500;
         }
 
         .sans { font-family: 'Inter', sans-serif; }
         
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 500;
-            letter-spacing: -0.03em;
-        }
         .page {
-            max-width: 8.5in;
+            max-width: 12in;
             margin: 0 auto;
             background: white;
-            padding: 4rem;
+            padding: 5rem 6rem;
             position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
+            box-shadow: 0 0 60px rgba(0,0,0,0.05);
+            margin-bottom: 4rem;
+            min-height: 8.5in;
         }
 
         @media screen {
-            body { background: #f5f5f5; padding: 2rem 0; }
+            body { background: var(--ios-bg); padding: 3rem 0; }
+        }
+
+        /* iOS App Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                background: var(--ios-bg);
+                padding: 0;
+                overflow-x: hidden;
+            }
+
+            .page {
+                max-width: 100%;
+                margin: 0;
+                padding: 1.5rem 1.25rem 2rem;
+                box-shadow: none;
+                margin-bottom: 1rem;
+                min-height: auto;
+                border-radius: 0;
+                background: var(--ios-bg);
+            }
+
+            .page:first-child {
+                padding-top: 1.5rem;
+            }
+
+            /* iOS-style card containers */
+            .ios-card {
+                background: var(--ios-card-bg);
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+
+            /* iOS-style section headers */
+            h1 {
+                font-size: 2.5rem !important;
+                line-height: 1.2 !important; /* Increased line height */
+                margin-bottom: 1rem;
+            }
+
+            h2 {
+                font-size: 1.25rem !important;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                line-height: 1.4 !important;
+            }
+
+            h3 {
+                font-size: 1.75rem !important;
+                line-height: 1.3 !important;
+                margin-bottom: 1rem;
+            }
+
+            h4 {
+                font-size: 0.875rem !important;
+                line-height: 1.4 !important;
+            }
+
+            /* Stack grids on mobile */
+            .grid {
+                display: flex !important;
+                flex-direction: column;
+                gap: 1.5rem !important; /* Increased gap */
+            }
+
+            .grid.grid-cols-2,
+            .grid.grid-cols-3,
+            .grid.grid-cols-12 {
+                display: flex !important;
+                flex-direction: column;
+            }
+
+            /* iOS-style tables - convert to cards */
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody {
+                display: block;
+                width: 100%;
+            }
+
+            tr {
+                display: block;
+                background: var(--ios-card-bg);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem 0;
+                text-align: left !important;
+                border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--ios-gray);
+                margin-right: 1rem;
+                flex-shrink: 0;
+            }
+
+            td:not([data-label]):before {
+                display: none;
+            }
+
+            /* Special handling for tables without data-labels */
+            table:not([data-mobile-cards]) td {
+                display: table-cell;
+                border-bottom: 1px solid var(--border);
+            }
+
+            table:not([data-mobile-cards]) thead {
+                display: table-header-group;
+            }
+
+            table:not([data-mobile-cards]) tbody {
+                display: table-row-group;
+            }
+
+            table:not([data-mobile-cards]) tr {
+                display: table-row;
+                background: transparent;
+                border-radius: 0;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            /* iOS-style buttons and inputs */
+            input[type="range"] {
+                height: 6px;
+                -webkit-appearance: none;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                width: 24px;
+                height: 24px;
+                background: var(--ios-blue);
+                border: 3px solid white;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            }
+
+            button {
+                -webkit-tap-highlight-color: rgba(0,122,255,0.1);
+            }
+
+            /* Spacing adjustments */
+            .mb-huge { margin-bottom: 2rem !important; }
+            .mb-large { margin-bottom: 1.5rem !important; }
+            .mb-24 { margin-bottom: 1.5rem !important; }
+            .mb-12 { margin-bottom: 1rem !important; }
+            .gap-24 { gap: 1.5rem !important; }
+            .gap-16 { gap: 1rem !important; }
+            .gap-12 { gap: 1rem !important; }
+            .gap-10 { gap: 0.75rem !important; }
+
+            /* Architecture diagram mobile */
+            .arch-diagram {
+                flex-direction: column;
+                gap: 1rem !important;
+            }
+
+            .arch-box {
+                width: 100%;
+                padding: 1.25rem 1rem !important;
+            }
+
+            /* Hide absolute positioned footers on mobile */
+            .page > .absolute {
+                display: none;
+            }
+
+            /* Metric boxes */
+            .metric-box {
+                padding: 1.5rem;
+                border-radius: 16px;
+                margin-bottom: 1rem;
+            }
+
+            /* Chart container */
+            #projectionChart {
+                max-height: 300px;
+            }
+
+            .h-96 {
+                height: 300px !important;
+            }
+
+            /* Text size adjustments */
+            .text-7xl { font-size: 3rem !important; }
+            .text-6xl { font-size: 2.5rem !important; }
+            .text-5xl { font-size: 2rem !important; }
+            .text-4xl { font-size: 1.75rem !important; }
+            .text-3xl { font-size: 1.5rem !important; }
+            .text-2xl { font-size: 1.25rem !important; }
+            .text-xl { font-size: 1.125rem !important; }
+
+            /* Prose adjustments */
+            .prose {
+                font-size: 1rem;
+            }
+
+            /* iOS-style smooth scrolling */
+            html {
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Better touch targets */
+            input[type="range"],
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            /* iOS-style section spacing */
+            .space-y-10 > * + * {
+                margin-top: 1.5rem;
+            }
+
+            .space-y-8 > * + * {
+                margin-top: 1.25rem;
+            }
+
+            .space-y-6 > * + * {
+                margin-top: 1rem;
+            }
+
+            /* Control panel mobile */
+            .bg-gray-50 {
+                background: var(--ios-card-bg);
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Better chart visibility */
+            canvas {
+                max-width: 100%;
+                height: auto !important;
+            }
+
+            /* iOS-style dividers */
+            .divider {
+                margin: 2.5rem 0 !important;
+            }
+
+            /* Remove large padding from cover page on mobile */
+            .page:first-child .flex.justify-between {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            /* Stack cover page content */
+            .page:first-child .grid {
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* iOS-style metric displays */
+            .text-5xl {
+                font-size: 2rem !important;
+            }
+
+            /* Better button styling */
+            button {
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                font-weight: 500;
+            }
+        }
+
+        /* Prevent text selection on iOS for better app feel */
+        @media (max-width: 768px) {
+            body {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+
+            p, h1, h2, h3, h4, h5, h6, span, div {
+                -webkit-user-select: text;
+                user-select: text;
+            }
         }
 
         .divider {
             height: 1px;
             background: var(--primary);
-            margin: 2rem 0;
-            opacity: 0.1;
+            margin: 4rem 0; /* Increased margin */
+            opacity: 0.1; /* Increased opacity for visibility */
         }
 
         .metric-box {
             border: 1px solid var(--border);
-            padding: 1.5rem;
+            padding: 3rem;
+            border-radius: 24px;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem; /* Increased font size */
             font-family: 'Inter', sans-serif;
         }
         
         th {
             text-align: left;
             border-bottom: 2px solid var(--primary);
-            padding: 0.75rem 0;
+            padding: 1.25rem 1rem; /* Increased padding */
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             letter-spacing: 0.05em;
         }
         
         td {
             border-bottom: 1px solid var(--border);
-            padding: 0.75rem 0;
+            padding: 1.5rem 1rem; /* Increased padding significantly */
+            vertical-align: middle;
+            line-height: 1.4;
         }
 
+        /* Input Slider Styling */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 2px;
+            height: 4px; /* Thicker track */
             background: #e5e5e5;
             outline: none;
+            border-radius: 2px;
         }
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
+            width: 16px; /* Larger thumb */
+            height: 16px;
             background: var(--primary);
             border-radius: 50%;
             cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .arch-diagram {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            font-size: 0.75rem;
+            gap: 2rem; /* Increased gap */
+            font-size: 0.9rem;
             font-family: 'Inter', monospace;
         }
 
         .arch-box {
-            padding: 0.75rem 1rem;
+            padding: 1.5rem; /* Increased padding */
             border: 1px solid var(--border);
             background: var(--bg);
-            border-radius: 2px;
+            border-radius: 6px;
         }
 
         .arch-arrow {
             color: var(--secondary);
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
 
         .arch-edge {
-            background: #e0f2fe;
-            border-color: #2563eb;
+            background: #f0f9ff; /* Lighter blue */
+            border-color: #bae6fd;
+            color: #0c4a6e;
         }
 
         .arch-legacy {
-            background: #fee2e2;
-            border-color: #dc2626;
+            background: #fef2f2; /* Lighter red */
+            border-color: #fecaca;
+            color: #7f1d1d;
+        }
+        
+        /* Utility classes for spacing */
+        .mb-huge { margin-bottom: 4rem; }
+        .mb-large { margin-bottom: 3rem; }
+        .gap-large { gap: 3rem; }
+        
+        /* iOS Navigation Bar */
+        .ios-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            padding: 1rem 1rem 0.75rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .ios-nav {
+                display: block;
+            }
+
+            body {
+                padding-top: 4.5rem;
+            }
+        }
+
+        .ios-nav-title {
+            font-size: 1.0625rem;
+            font-weight: 600;
+            text-align: center;
+            color: #000;
+        }
+
+        /* Page indicators */
+        .page-indicator {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .page-indicator {
+                display: block;
+                text-align: center;
+                font-size: 0.75rem;
+                color: var(--ios-gray);
+                margin-top: 0.5rem;
+                font-weight: 500;
+            }
+        }
+        
+        /* New utility to prevent overlap */
+        .content-block {
+            padding: 1rem 0;
         }
     </style>
 </head>
 <body>
+    <!-- iOS Navigation Bar -->
+    <nav class="ios-nav">
+        <div class="ios-nav-title">Tracked</div>
+        <div class="page-indicator">Investment Overview</div>
+    </nav>
 
     <!-- Cover Page -->
     <div class="page">
-        <div class="flex justify-between items-start mb-32">
-            <div class="uppercase tracking-widest text-[10px] sans font-semibold">Strictly Private & Confidential</div>
-            <div class="uppercase tracking-widest text-[10px] sans font-semibold">Series A Materials</div>
+        <div class="flex justify-between items-start mb-huge">
+            <div class="uppercase tracking-widest text-xs sans font-semibold text-gray-500">Confidential Overview</div>
+            <div class="uppercase tracking-widest text-xs sans font-semibold text-gray-500">Series A</div>
         </div>
 
-        <div class="mb-8">
-            <h1 class="text-6xl font-semibold mb-4 tracking-tighter text-black">Tracked<span class="text-gray-400">.</span></h1>
+        <div class="mb-12">
+            <h1 class="text-7xl font-semibold mb-6 tracking-tight text-black">Tracked<span class="text-gray-300">.</span></h1>
+            <p class="text-2xl text-gray-500 font-light sans">The "Highway" for Online Ads</p>
         </div>
 
         <div class="divider"></div>
 
-        <div class="grid grid-cols-2 gap-12 mt-12 mb-32">
-            <div>
-                <h3 class="text-sm font-bold uppercase tracking-widest mb-4">Investment Thesis</h3>
-                <p class="text-lg leading-relaxed text-gray-700">
-                    Tracked is a vertically integrated infrastructure platform engineered for high-volume performance marketing. Our edge-native architecture eliminates idle servers and egress costs, delivering structural 80% gross margins while undercutting legacy competitors by 50%+.
+        <div class="grid grid-cols-12 gap-16 mt-16 mb-huge">
+            <div class="col-span-8">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-8 text-gray-900">The 30-Second Pitch</h3>
+                <p class="text-2xl leading-relaxed text-gray-700 font-light">
+                    Right now, ad tech is slow and expensive because it runs on old-school servers. <strong>Tracked</strong> moves everything to the "Edge" (thousands of tiny servers right next to users). This makes landing pages load instantly, tracking and conversion data flow accurately, and attribution actually works. Plus, it cuts our costs to near-zero. We pass savings to customers but still keep <strong>80% margins</strong>.
                 </p>
             </div>
-            <div>
-                <div class="grid grid-cols-2 gap-8">
+            <div class="col-span-4">
+                <div class="space-y-10">
                     <div>
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 sans">Target Margin</div>
-                        <div class="text-4xl font-light sans">80%</div>
-                        <div class="w-full bg-gray-100 h-1 mt-2"><div class="bg-green-600 h-1" style="width: 80%"></div></div>
+                        <div class="flex justify-between items-end mb-3">
+                            <div class="text-xs uppercase tracking-widest text-gray-500 sans">Our Margin</div>
+                            <div class="text-4xl font-light sans">80%</div>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-green-600 h-2 rounded-full" style="width: 80%"></div></div>
                     </div>
                     <div>
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 sans">Egress Cost</div>
-                        <div class="text-4xl font-light sans">$0</div>
-                        <div class="w-full bg-gray-100 h-1 mt-2"></div>
+                         <div class="flex justify-between items-end mb-3">
+                            <div class="text-xs uppercase tracking-widest text-gray-500 sans">Bandwidth Cost</div>
+                            <div class="text-4xl font-light sans">$0</div>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"></div>
                     </div>
                     <div>
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 sans">Market Size</div>
-                        <div class="text-4xl font-light sans">$30B</div>
-                        <div class="w-full bg-gray-100 h-1 mt-2"><div class="bg-black h-1" style="width: 100%"></div></div>
-                    </div>
-                    <div>
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 sans">Exit Multiple</div>
-                        <div class="text-4xl font-light sans">10-12x</div>
-                        <div class="w-full bg-gray-100 h-1 mt-2"><div class="bg-blue-600 h-1" style="width: 70%"></div></div>
+                        <div class="flex justify-between items-end mb-3">
+                            <div class="text-xs uppercase tracking-widest text-gray-500 sans">Market Opportunity</div>
+                            <div class="text-4xl font-light sans">$30B</div>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-black h-2 rounded-full" style="width: 100%"></div></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="absolute bottom-16 left-16 right-16 border-t border-gray-200 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-400 sans">
-            <div>Fy2026 Strategy Paper</div>
-            <div>Page 01</div>
-        </div>
     </div>
 
     <!-- Chapter 1: The Architecture Advantage -->
     <div class="page">
-        <div class="flex justify-between items-center mb-12">
-            <h2 class="text-sm font-bold uppercase tracking-widest">01 / The Architecture Advantage</h2>
-            <div class="text-[10px] uppercase tracking-widest text-gray-400 sans">Technology Moat</div>
+        <div class="flex justify-between items-center mb-24">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-gray-900">01 / The Tech</h2>
+            <div class="text-xs uppercase tracking-widest text-gray-400 sans">Lesson 1: How It Works</div>
         </div>
 
-        <h3 class="text-3xl font-light mb-8 leading-tight">Edge-native architecture eliminates infrastructure overhead.</h3>
+        <h3 class="text-5xl font-light mb-12 leading-tight max-w-4xl text-black">We built the "highway",<br/>not just the car.</h3>
         
-        <div class="prose prose-sm text-gray-600 max-w-none mb-12">
+        <div class="prose prose-xl text-gray-500 max-w-4xl mb-24 leading-relaxed font-light">
             <p>
-                Tracked runs entirely on Cloudflare's edge network—200+ data centers globally. Every request is processed within 50ms of the user, with zero egress costs and infinite horizontal scalability.
+                Most software lives on one big computer in Virginia. If you're in London, your landing page loads slow and tracking breaks. Tracked lives on <strong>Cloudflare's network</strong> of 200+ data centers. We serve landing pages, track clicks, and fire conversion postbacks everywhere at once. It's instant, accurate, and basically free for us to run.
             </p>
         </div>
 
-        <div class="grid grid-cols-2 gap-12 mb-12">
+        <div class="grid grid-cols-2 gap-24 mb-24">
             <!-- Tracked Stack -->
-            <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-6 pl-2 border-l-2 border-green-600">Tracked Edge Architecture</h4>
-                <div class="arch-diagram flex-col mb-8">
-                    <div class="arch-box arch-edge w-full text-center mb-2">Visitor</div>
-                    <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-edge w-full text-center mb-2">Edge Worker (Dispatcher)<br/><span class="text-[10px] text-gray-500">&lt;50ms latency</span></div>
-                    <div class="arch-arrow">↓</div>
-                    <div class="grid grid-cols-2 gap-2 w-full">
-                        <div class="arch-box arch-edge text-center text-xs">KV Rules</div>
-                        <div class="arch-box arch-edge text-center text-xs">D1 Config</div>
+            <div class="relative pl-8">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500 opacity-20 rounded-full"></div>
+                <h4 class="text-sm font-bold uppercase tracking-widest mb-8 text-green-700">The New Way (Tracked)</h4>
+                
+                <div class="arch-diagram flex-col mb-10">
+                    <div class="arch-box arch-edge w-full text-center shadow-sm">
+                        <div class="font-semibold mb-1">User Clicks Ad</div>
                     </div>
                     <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-edge w-full text-center mb-2">Response<br/><span class="text-[10px] text-gray-500">$0 egress cost</span></div>
+                    <div class="arch-box arch-edge w-full text-center shadow-sm">
+                        <div class="font-semibold mb-1">Edge Compute + Local Cache</div>
+                        <span class="text-[10px] opacity-75 font-mono">KV/D1 Local Read (<2ms)</span>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box arch-edge w-full text-center shadow-sm">
+                        <div class="font-semibold mb-1">Instant Landing Page</div>
+                        <span class="text-[10px] opacity-75">Served from closest POP</span>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box arch-edge w-full text-center shadow-sm">
+                        <div class="font-semibold mb-1">Async Tracking Write</div>
+                        <span class="text-[10px] opacity-75 font-mono">Non-blocking PlanetScale write</span>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box arch-edge w-full text-center shadow-sm">
+                        <div class="font-semibold mb-1">Conversion Postback</div>
+                        <span class="text-[10px] opacity-75 font-bold">100% Attribution Accuracy</span>
+                    </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Zero-Egress Routing</p>
-                        <p class="text-xs text-gray-600">Traffic flows edge-to-edge. No data transfer fees.</p>
+                <div class="mt-8 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <p class="text-xs text-gray-600 font-medium">Distributed Intelligence: 200+ data centers</p>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">KV-Based Rules Engine</p>
-                        <p class="text-xs text-gray-600">Sub-millisecond rule evaluation. No SQL bottlenecks.</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Serverless Economics</p>
-                        <p class="text-xs text-gray-600">No idle servers. Structural 80% margins.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <p class="text-xs text-gray-600 font-medium">No Central Bottleneck: Zero round-trips to origin</p>
                     </div>
                 </div>
             </div>
 
             <!-- Legacy Stack -->
-            <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-6 pl-2 border-l-2 border-red-600">Legacy Cloud Architecture</h4>
-                <div class="arch-diagram flex-col mb-8">
-                    <div class="arch-box arch-legacy w-full text-center mb-2">Visitor</div>
+            <div class="relative pl-8 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-20 rounded-full"></div>
+                <h4 class="text-sm font-bold uppercase tracking-widest mb-8 text-red-700">The Old Way (Competitors)</h4>
+                
+                <div class="arch-diagram flex-col mb-10">
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">User Clicks Ad</div>
+                    </div>
                     <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-legacy w-full text-center mb-2">Load Balancer<br/><span class="text-[10px] text-gray-500">AWS/EC2</span></div>
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">Travels to us-east-1</div>
+                        <span class="text-[10px] opacity-75 font-mono">3,000+ miles (100-300ms latency)</span>
+                    </div>
                     <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-legacy w-full text-center mb-2">Web Server<br/><span class="text-[10px] text-gray-500">Idle capacity costs</span></div>
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">DB Query: Campaign Rules</div>
+                        <span class="text-[10px] opacity-75 font-mono">Origin DB Round-trip (20-50ms)</span>
+                    </div>
                     <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-legacy w-full text-center mb-2">Database Query<br/><span class="text-[10px] text-gray-500">SQL latency</span></div>
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">Fetch Landing Page</div>
+                        <span class="text-[10px] opacity-75 font-mono">Remote storage fetch (Slow)</span>
+                    </div>
                     <div class="arch-arrow">↓</div>
-                    <div class="arch-box arch-legacy w-full text-center mb-2">Response<br/><span class="text-[10px] text-gray-500">Egress fees</span></div>
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">DB Write: Tracking Event</div>
+                        <span class="text-[10px] opacity-75 font-mono font-bold">Blocking Bottleneck</span>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box arch-legacy w-full text-center border-dashed">
+                        <div class="font-semibold mb-1">Conversion (Maybe)</div>
+                        <span class="text-[10px] opacity-75">Session timeouts, broken attribution</span>
+                    </div>
                 </div>
 
-                <div class="space-y-4 opacity-60">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Bandwidth Tax</p>
-                        <p class="text-xs text-gray-600">Metered billing for every GB of data transferred.</p>
+                <div class="mt-8 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <p class="text-xs text-gray-600 font-medium">Single Point of Failure: One origin handles all global traffic</p>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Database Latency</p>
-                        <p class="text-xs text-gray-600">SQL queries slow down high-volume redirects.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <p class="text-xs text-gray-600 font-medium">Database Bottleneck: Synchronous writes cause lag</p>
                     </div>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Idle Capacity</p>
-                        <p class="text-xs text-gray-600">Paying for servers even during low traffic periods.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <p class="text-xs text-gray-600 font-medium">Timeout Risk: Mobile users bounce before load</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-8 pt-8 border-t border-gray-100">
-            <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Global Latency</h4>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-4xl font-light sans">&lt;50ms</span>
+        <div class="bg-gray-50 rounded-2xl p-8 mb-24 border border-gray-100">
+            <div class="grid grid-cols-2 divide-x divide-gray-200">
+                <div class="pr-12">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-green-700 mb-4">Tracked Performance</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-light sans text-black">&lt;50ms</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Avg. Response Time</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3 leading-relaxed">Local edge compute eliminates 95% of network latency by processing requests at the POP nearest to the visitor.</p>
                 </div>
-                <div class="w-full bg-gray-100 h-1.5 overflow-hidden">
-                    <div class="bg-green-600 h-full" style="width: 100%"></div>
+                <div class="pl-12">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-red-700 mb-4">Competitor Performance</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-light sans text-gray-400">200-500ms</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Avg. Response Time</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3 leading-relaxed">Centralized origin servers in the USA force global visitors into multiple cross-oceanic round-trips.</p>
                 </div>
-                <p class="text-[10px] text-gray-500 mt-1">Edge-to-edge routing</p>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Egress Cost</h4>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-4xl font-light sans">$0</span>
-                </div>
-                <div class="w-full bg-gray-100 h-1.5 overflow-hidden"></div>
-                <p class="text-[10px] text-gray-500 mt-1">No bandwidth charges</p>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Scalability</h4>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-4xl font-light sans">∞</span>
-                </div>
-                <div class="w-full bg-gray-100 h-1.5 overflow-hidden">
-                    <div class="bg-black h-full w-full"></div>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-1">Infinite horizontal scale</p>
             </div>
         </div>
 
-        <div class="absolute bottom-16 left-16 right-16 border-t border-gray-200 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-400 sans">
-            <div>Tracked</div>
-            <div>Page 02</div>
+        <div class="grid grid-cols-3 gap-12 pt-10 border-t border-gray-100">
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-4 text-gray-500">Speed</h4>
+                <div class="flex items-end gap-3 mb-3">
+                    <span class="text-5xl font-light sans">&lt;50ms</span>
+                </div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-green-600 h-full rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Blink and you miss it.</p>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-4 text-gray-500">Our Cost Per Click</h4>
+                <div class="flex items-end gap-3 mb-3">
+                    <span class="text-5xl font-light sans">$0</span>
+                </div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"></div>
+                <p class="text-xs text-gray-400 mt-2">Zero variable cost.</p>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-4 text-gray-500">Scalability</h4>
+                <div class="flex items-end gap-3 mb-3">
+                    <span class="text-5xl font-light sans">∞</span>
+                </div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-black h-full w-full rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Can handle Super Bowl traffic.</p>
+            </div>
         </div>
+
     </div>
 
     <!-- Chapter 2: The Efficiency Gap -->
     <div class="page">
-        <div class="flex justify-between items-center mb-12">
-            <h2 class="text-sm font-bold uppercase tracking-widest">02 / The Efficiency Gap</h2>
-            <div class="text-[10px] uppercase tracking-widest text-gray-400 sans">Problem Statement</div>
+        <div class="flex justify-between items-center mb-24">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-gray-900">02 / The Problem</h2>
+            <div class="text-xs uppercase tracking-widest text-gray-400 sans">Lesson 2: Why Customers Hate the Status Quo</div>
         </div>
 
-        <h3 class="text-3xl font-light mb-8 leading-tight">Legacy stacks impose a structural fragmentation tax.</h3>
+        <h3 class="text-5xl font-light mb-12 leading-tight text-black">They're paying 5 different bills<br/>to do 1 job.</h3>
         
-        <div class="grid grid-cols-2 gap-12 mb-12">
-            <div class="prose prose-sm text-gray-600">
-                <p>
-                    The current market forces performance marketers to stitch together disparate tools: a tracker, a landing page host, and a CDN. Each layer introduces margin stacking, latency, and operational friction.
+        <div class="grid grid-cols-2 gap-24 mb-24">
+            <div class="flex flex-col justify-between">
+                <p class="text-xl text-gray-500 font-light leading-relaxed mb-12">
+                    Imagine if to drive a car, you had to rent the engine, the wheels, and the steering wheel from three different companies. That's ad tech today. Customers stitch together broken tools and overpay for all of them.
                 </p>
-                <div class="mt-8 space-y-6">
-                    <div class="flex gap-4">
-                        <div class="w-1 bg-black/10"></div>
+                
+                <div class="space-y-10">
+                    <div class="flex gap-6 items-start">
+                        <div class="w-1.5 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
                         <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Voluum Monopoly</p>
-                            <p class="text-sm text-gray-500">Charges prohibitive rates ($1,999/mo) for basic API access.</p>
+                            <p class="text-sm font-bold uppercase tracking-widest text-gray-900 mb-2">The Tracker</p>
+                            <p class="text-base text-gray-600">They pay ~$2,000/mo just to count clicks.</p>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-1 bg-black/10"></div>
+                    <div class="flex gap-6 items-start">
+                        <div class="w-1.5 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
                         <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">LanderLab Overhead</p>
-                            <p class="text-sm text-gray-500">Adds redundant hosting costs ($239/mo) for static pages.</p>
+                            <p class="text-sm font-bold uppercase tracking-widest text-gray-900 mb-2">The Hosting</p>
+                            <p class="text-base text-gray-600">They pay ~$239/mo to host simple web pages.</p>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-1 bg-black/10"></div>
+                    <div class="flex gap-6 items-start">
+                        <div class="w-1.5 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
                         <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">Fragmentation Tax</p>
-                            <p class="text-sm text-gray-500">Results in 15-20% wasted spend on overhead.</p>
+                            <p class="text-sm font-bold uppercase tracking-widest text-gray-900 mb-2">The Result</p>
+                            <p class="text-base text-gray-600">A mess that breaks constantly.</p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-50 p-8 border border-gray-200">
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-6 border-b border-gray-200 pb-2">Competitor Cost Structure</h4>
-                <table class="w-full mb-6">
-                    <tr>
-                        <td class="text-gray-600">Voluum Scale</td>
-                        <td class="text-right font-mono">$599</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">LanderLab Grow</td>
-                        <td class="text-right font-mono">$239</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">CAPI Premium</td>
-                        <td class="text-right font-mono">$1,999</td>
-                    </tr>
-                    <tr class="font-bold border-t border-black">
-                        <td class="pt-4">Total Monthly Burn</td>
-                        <td class="text-right pt-4 font-mono">$2,837</td>
-                    </tr>
+            <div class="bg-gray-50 p-10 border border-gray-100 rounded-xl shadow-sm">
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-8 border-b border-gray-200 pb-4 text-gray-500">What a Typical Customer Pays Now</h4>
+                <table class="w-full mb-8">
+                    <tbody>
+                        <tr>
+                            <td class="text-gray-600 py-4 text-base" data-label="Service">Voluum Enterprise (CAPI)</td>
+                            <td class="text-right font-mono text-base font-medium" data-label="Price">$1,999</td>
+                        </tr>
+                        <tr>
+                            <td class="text-gray-600 py-4 text-base" data-label="Service">LanderLab (Hosting)</td>
+                            <td class="text-right font-mono text-base font-medium" data-label="Price">$239</td>
+                        </tr>
+                        <tr class="border-t-2 border-black">
+                            <td class="pt-6 font-bold text-lg" data-label="Total">Monthly Burn</td>
+                            <td class="text-right pt-6 font-mono text-lg font-bold" data-label="Amount">$2,238</td>
+                        </tr>
+                    </tbody>
                 </table>
                 
-                <div class="mt-8 pt-8 border-t border-gray-200">
-                    <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Tracked Economics</h4>
+                <div class="mt-10 pt-8 border-t border-gray-200">
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6 text-green-700">What they pay Tracked</h4>
                     <div class="flex justify-between items-end">
                         <div>
-                            <div class="text-3xl font-light sans text-black">$299</div>
-                            <div class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">All-Inclusive</div>
+                            <div class="text-5xl font-light sans text-black tracking-tight">$299</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-widest mt-2 font-semibold">For Everything</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-3xl font-light sans text-green-700">89%</div>
-                            <div class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Cost Reduction</div>
+                            <div class="text-5xl font-light sans text-green-600 tracking-tight">87%</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-widest mt-2 font-semibold">Savings</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-8 mb-8 pt-8 border-t border-gray-100">
+        <div class="grid grid-cols-2 gap-16 pt-10 border-t border-gray-100">
             <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Total Addressable Market</h4>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-4xl font-light sans">$30B+</span>
-                    <span class="text-xs text-gray-500 mb-1">Performance Ad Tech</span>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-4 text-gray-500">Market Size (Ad Tech)</h4>
+                <div class="flex items-end gap-3 mb-3">
+                    <span class="text-5xl font-light sans">$30B+</span>
                 </div>
-                <div class="w-full bg-gray-100 h-1.5 overflow-hidden">
-                    <div class="bg-black h-full w-full"></div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-black h-full w-full rounded-full"></div>
                 </div>
             </div>
             <div>
-                <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Affiliate Software TAM</h4>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-4xl font-light sans">$17B</span>
-                    <span class="text-xs text-gray-500 mb-1">Global Market</span>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-4 text-gray-500">Affiliate Software Market</h4>
+                <div class="flex items-end gap-3 mb-3">
+                    <span class="text-5xl font-light sans">$17B</span>
                 </div>
-                <div class="w-full bg-gray-100 h-1.5 overflow-hidden">
-                    <div class="bg-gray-400 h-full w-[56%]"></div>
+                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-gray-400 h-full rounded-full w-[56%]"></div>
                 </div>
             </div>
         </div>
 
-        <div class="absolute bottom-16 left-16 right-16 border-t border-gray-200 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-400 sans">
-            <div>Tracked</div>
-            <div>Page 03</div>
-        </div>
     </div>
 
     <!-- Chapter 3: The Model -->
     <div class="page">
-        <div class="flex justify-between items-center mb-12">
-            <h2 class="text-sm font-bold uppercase tracking-widest">03 / Financial Model</h2>
-            <div class="text-[10px] uppercase tracking-widest text-gray-400 sans">Interactive Projections</div>
+        <div class="flex justify-between items-center mb-24">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-gray-900">03 / The Money</h2>
+            <div class="text-xs uppercase tracking-widest text-gray-400 sans">Lesson 3: High Margins, Low Churn</div>
         </div>
 
-        <div class="grid grid-cols-12 gap-12">
+        <div class="grid grid-cols-12 gap-20">
             <!-- Controls -->
-            <div class="col-span-4 space-y-8 border-r border-gray-200 pr-8">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-gray-500">Solo Price</label>
-                    <div class="flex items-center gap-4">
+            <div class="col-span-4 space-y-10 bg-gray-50 p-10 rounded-2xl h-fit">
+                <div class="space-y-8">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Solo Price</label>
+                             <span id="solo-price-val" class="text-xs font-mono font-medium">$99</span>
+                        </div>
                         <input type="range" id="solo-price-input" min="49" max="199" value="99" step="10">
-                        <span id="solo-price-val" class="text-xs font-mono w-12 text-right">$99</span>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-gray-500">Team Price</label>
-                    <div class="flex items-center gap-4">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Team Price</label>
+                             <span id="team-price-val" class="text-xs font-mono font-medium">$299</span>
+                        </div>
                         <input type="range" id="team-price-input" min="199" max="499" value="299" step="10">
-                        <span id="team-price-val" class="text-xs font-mono w-12 text-right">$299</span>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-gray-500">Agency Price</label>
-                    <div class="flex items-center gap-4">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Agency Price</label>
+                             <span id="agency-price-val" class="text-xs font-mono font-medium">$699</span>
+                        </div>
                         <input type="range" id="agency-price-input" min="499" max="999" value="699" step="50">
-                        <span id="agency-price-val" class="text-xs font-mono w-12 text-right">$699</span>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-gray-500">Enterprise Price</label>
-                    <div class="flex items-center gap-4">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Enterprise Price</label>
+                             <span id="ent-price-val" class="text-xs font-mono font-medium">$1,199</span>
+                        </div>
                         <input type="range" id="ent-price-input" min="999" max="2499" value="1199" step="100">
-                        <span id="ent-price-val" class="text-xs font-mono w-12 text-right">$1,199</span>
                     </div>
                 </div>
                 
-                <div class="pt-8 border-t border-gray-100">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-gray-500">Customer Count</label>
-                    <div class="flex items-center gap-4">
+                <div class="pt-8 border-t border-gray-100 space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Customer Count</label>
+                             <span id="cust-count-val" class="text-xs font-mono font-medium">1,000</span>
+                        </div>
                         <input type="range" id="cust-count-input" min="100" max="10000" value="1000" step="100">
-                        <span id="cust-count-val" class="text-xs font-mono w-12 text-right">1,000</span>
                     </div>
-                </div>
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500">Exit Multiple</label>
-                        <button id="reset-btn" class="text-[9px] uppercase tracking-widest text-blue-600 hover:text-blue-800 font-bold border-b border-blue-600 hover:border-blue-800">Reset Model</button>
-                    </div>
-                    <div class="flex items-center gap-4">
+                    <div>
+                        <div class="flex justify-between mb-3">
+                             <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Exit Multiple</label>
+                             <span id="multiple-val" class="text-xs font-mono font-medium">10x</span>
+                        </div>
                         <input type="range" id="multiple-input" min="5" max="20" value="10" step="1">
-                        <span id="multiple-val" class="text-xs font-mono w-12 text-right">10x</span>
+                        <div class="mt-4 text-right">
+                             <button id="reset-btn" class="text-[10px] uppercase tracking-widest text-blue-600 hover:text-blue-800 font-bold border-b border-blue-600 hover:border-blue-800 pb-0.5">Reset</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Output -->
             <div class="col-span-8">
-                <div class="grid grid-cols-2 gap-8 mb-12">
-                    <div class="metric-box bg-gray-50 border-gray-200">
-                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-2 sans">Annual Recurring Revenue</p>
-                        <p id="arr-display" class="text-4xl font-light sans text-black">$3.6M</p>
+                <div class="grid grid-cols-2 gap-10 mb-12">
+                    <div class="metric-box bg-white border-gray-100 rounded-2xl shadow-sm p-10">
+                        <p class="text-xs uppercase tracking-widest text-gray-400 mb-4 sans font-bold">Annual Revenue</p>
+                        <p id="arr-display" class="text-6xl font-light sans text-black tracking-tight">$3.6M</p>
                     </div>
-                    <div class="metric-box bg-black text-white border-black">
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 sans">Enterprise Valuation</p>
-                        <p id="valuation-display" class="text-4xl font-light sans">$35.8M</p>
+                    <div class="metric-box bg-black text-white border-black rounded-2xl shadow-xl p-10">
+                        <p class="text-xs uppercase tracking-widest text-gray-400 mb-4 sans font-bold">Valuation</p>
+                        <p id="valuation-display" class="text-6xl font-light sans tracking-tight">$35.8M</p>
                     </div>
                 </div>
                 
-                <div class="h-64 border border-gray-100 p-4">
+                <div class="h-96 border border-gray-100 p-10 rounded-2xl bg-white mb-12">
                     <canvas id="projectionChart"></canvas>
                 </div>
 
-                <div class="grid grid-cols-3 gap-8 mt-8 pt-8 border-t border-gray-100">
+                <div class="grid grid-cols-3 gap-10 pt-10 border-t border-gray-100">
                     <div>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-1 sans">ARPU</p>
-                        <p id="arpu-val" class="text-xl sans">$298</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-400 mb-3 sans font-bold">Avg Revenue Per User</p>
+                        <p id="arpu-val" class="text-3xl sans font-light">$298</p>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-1 sans">Gross Margin</p>
-                        <p class="text-xl sans">80%</p>
-                        <p class="text-[9px] text-gray-400 mt-1">Structural advantage</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-400 mb-3 sans font-bold">Gross Margin</p>
+                        <p class="text-3xl sans font-light">80%</p>
+                        <p class="text-xs text-gray-400 mt-2 font-medium">Infrastructure advantage</p>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-1 sans">Savings Delta</p>
-                        <p id="savings-delta" class="text-xl sans">$1.2M+</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-400 mb-3 sans font-bold">Customer Savings</p>
+                        <p id="savings-delta" class="text-3xl sans font-light">$1.2M+</p>
+                        <p class="text-xs text-gray-400 mt-2 font-medium">Money we save them</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="absolute bottom-16 left-16 right-16 border-t border-gray-200 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-400 sans">
-            <div>Tracked</div>
-            <div>Page 04</div>
-        </div>
     </div>
 
     <!-- Chapter 4: Competitive Landscape -->
     <div class="page">
-        <div class="flex justify-between items-center mb-12">
-            <h2 class="text-sm font-bold uppercase tracking-widest">04 / Competitive Landscape</h2>
-            <div class="text-[10px] uppercase tracking-widest text-gray-400 sans">Market Positioning</div>
+        <div class="flex justify-between items-center mb-24">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-gray-900">04 / The Competition</h2>
+            <div class="text-xs uppercase tracking-widest text-gray-400 sans">Lesson 4: Why We Win</div>
         </div>
 
-        <div class="mb-12">
-            <h4 class="text-xs font-bold uppercase tracking-widest mb-6 pl-2 border-l-2 border-black">Detailed Infrastructure Comparison</h4>
+        <div class="mb-24">
+            <h4 class="text-xs font-bold uppercase tracking-widest mb-10 pl-6 border-l-4 border-black text-gray-900">Head-to-Head Comparison</h4>
             
-            <div class="grid grid-cols-2 gap-12">
-                <div class="bg-gray-50 p-6 border border-gray-200">
-                    <h5 class="font-bold text-sm mb-4">LanderBolt vs Tracked Hosting</h5>
-                    <table class="w-full text-xs">
-                        <tr>
-                            <td>LanderBolt Unlimited</td>
-                            <td class="text-right font-mono text-red-600">$97/mo</td>
-                        </tr>
-                        <tr>
-                            <td>LanderLab Scale</td>
-                            <td class="text-right font-mono text-red-600">$239/mo</td>
-                        </tr>
-                        <tr class="font-bold border-t border-gray-300">
-                            <td class="pt-2">Tracked Hosting</td>
-                            <td class="text-right pt-2 font-mono text-green-700">$0 (Included)</td>
-                        </tr>
+            <div class="grid grid-cols-2 gap-16">
+                <div class="bg-gray-50 p-8 border border-gray-200 rounded-lg">
+                    <h5 class="font-bold text-sm mb-6 uppercase tracking-wider text-gray-700">Competitor Pricing (E.g. LanderBolt)</h5>
+                    <table class="w-full text-sm mb-4">
+                        <tbody>
+                            <tr>
+                                <td class="py-3 text-gray-600" data-label="Service">Standard Plan</td>
+                                <td class="text-right font-mono text-red-600 font-medium" data-label="Price">$97/mo</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 text-gray-600" data-label="Service">Scale Plan</td>
+                                <td class="text-right font-mono text-red-600 font-medium" data-label="Price">$239/mo</td>
+                            </tr>
+                            <tr class="border-t border-gray-300">
+                                <td class="pt-4 font-bold text-gray-900" data-label="Service">Tracked Hosting</td>
+                                <td class="text-right pt-4 font-mono text-green-700 font-bold" data-label="Price">$0 (Included)</td>
+                            </tr>
+                        </tbody>
                     </table>
-                    <p class="text-[10px] text-gray-500 mt-2 leading-relaxed">
-                        Competitors treat hosting as a separate profit center. We treat it as a zero-cost utility to lock in customers.
+                    <p class="text-xs text-gray-500 mt-4 leading-relaxed">
+                        They charge for hosting because it costs them money. We include it for free because it costs us nothing.
                     </p>
                 </div>
 
-                <div class="bg-gray-50 p-6 border border-gray-200">
-                    <h5 class="font-bold text-sm mb-4">Total Addressable Market (TAM)</h5>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-gray-600">Affiliate Marketing Software</span>
-                            <span class="font-mono text-sm font-bold">$17B</span>
-                        </div>
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-black h-full w-[60%]"></div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-gray-600">Performance Ad Tech</span>
-                            <span class="font-mono text-sm font-bold">$30B+</span>
-                        </div>
-                        <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-black h-full w-full"></div>
-                        </div>
+                <div class="bg-gray-50 p-8 border border-gray-200 rounded-lg flex flex-col justify-center">
+                    <h5 class="font-bold text-sm mb-6 uppercase tracking-wider text-gray-700">The "Hidden Fees" Trap</h5>
+                    <div class="space-y-6">
+                         <div>
+                             <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">
+                                 <span>Voluum Enterprise Lock</span>
+                                 <span class="text-red-600">$1,999/mo</span>
+                             </div>
+                             <p class="text-sm text-gray-600">You must upgrade to get basic API access.</p>
+                         </div>
+                         <div>
+                             <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-gray-900 mb-1">
+                                 <span>ThriveTracker Add-Ons</span>
+                                 <span class="text-red-600">+$187/mo</span>
+                             </div>
+                             <p class="text-sm text-gray-600">They charge extra for users and bot filtering.</p>
+                         </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-green-700">
+                             <span>Tracked All-In</span>
+                             <span>Included</span>
+                         </div>
+                         <p class="text-sm text-gray-600 mt-1">We don't do hidden fees. Everything is included.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mb-12 bg-red-50 border-2 border-red-200 p-6">
-            <h4 class="text-xs font-bold uppercase tracking-widest mb-4 pl-2 border-l-2 border-red-600">The Hidden Tax: What Competitors Don't Tell You</h4>
-            <div class="grid grid-cols-3 gap-6">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">Voluum CAPI Lock</p>
-                    <p class="text-sm text-gray-700 mb-1">Conversion API requires $1,999/mo Enterprise plan</p>
-                    <p class="text-xs text-gray-500">Tracked: Included in all plans</p>
+        <div class="mb-24">
+            <h4 class="text-xs font-bold uppercase tracking-widest mb-10 pl-6 border-l-4 border-black text-gray-900">Feature Breakdown</h4>
+            <div class="overflow-hidden border border-gray-100 rounded-2xl shadow-sm">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="pl-10 w-1/5 py-6">Platform</th>
+                            <th class="text-right py-6">Price</th>
+                            <th class="text-right py-6">Events</th>
+                            <th class="text-right py-6">Domains</th>
+                            <th class="text-right py-6">CAPI</th>
+                            <th class="text-right pr-10 py-6">Hosting</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr class="bg-green-50/30">
+                            <td class="pl-10 py-6 font-bold text-gray-900 text-base" data-label="Platform">Tracked Solo</td>
+                            <td class="text-right py-6 font-bold text-gray-900 text-base" data-label="Price">$99</td>
+                            <td class="text-right py-6 font-medium text-gray-700 text-base" data-label="Events">2M</td>
+                            <td class="text-right py-6 font-bold text-green-700 text-base" data-label="Domains">5 <span class="text-[10px] text-green-600/60 ml-1 uppercase">(Unltd @ Team)</span></td>
+                            <td class="text-right py-6 font-bold text-green-700 text-base" data-label="CAPI">Included</td>
+                            <td class="text-right py-6 font-bold text-green-700 pr-10 text-base" data-label="Hosting">Included</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-10 py-6 text-gray-500 text-base" data-label="Platform">Voluum Profit</td>
+                            <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$149</td>
+                            <td class="text-right py-6 font-mono text-gray-400" data-label="Events">1M</td>
+                            <td class="text-right py-6 font-mono text-gray-400 text-sm" data-label="Domains">3</td>
+                            <td class="text-right py-6 text-red-400 text-sm font-medium" data-label="CAPI">No</td>
+                            <td class="text-right py-6 text-gray-300 text-sm pr-10" data-label="Hosting">No</td>
+                        </tr>
+                        <tr>
+                            <td class="pl-10 py-6 text-gray-500 text-base" data-label="Platform">ClickFlare Starter</td>
+                            <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$89</td>
+                            <td class="text-right py-6 font-mono text-gray-400" data-label="Events">1M</td>
+                            <td class="text-right py-6 font-mono text-gray-400 text-sm" data-label="Domains">3</td>
+                            <td class="text-right py-6 text-green-600/70 text-sm font-medium" data-label="CAPI">Yes</td>
+                            <td class="text-right py-6 text-gray-300 text-sm pr-10" data-label="Hosting">No</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chapter 5: Package Tier Comparison -->
+    <div class="page">
+        <div class="flex justify-between items-center mb-24">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-gray-900">05 / Our Plans</h2>
+            <div class="text-xs uppercase tracking-widest text-gray-400 sans">Lesson 5: Pick Your Tier</div>
+        </div>
+
+        <h3 class="text-5xl font-light mb-12 leading-tight text-black">All the power.<br/>None of the bloat.</h3>
+
+        <!-- Pricing Cards Grid -->
+        <div class="grid grid-cols-4 gap-6 mb-24">
+            <!-- Solo Plan -->
+            <div class="border border-gray-200 rounded-2xl p-8 bg-white hover:shadow-lg transition-shadow">
+                <div class="mb-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Solo</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-5xl font-light sans">$99</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">ThriveTracker Add-Ons</p>
-                    <p class="text-sm text-gray-700 mb-1">API ($49), Users ($79), Bot Filter ($59) = $187/mo extra</p>
-                    <p class="text-xs text-gray-500">Tracked: All included</p>
+                
+                <div class="space-y-4 mb-8 text-sm">
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Events</span>
+                        <span class="font-semibold">2M</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Seats</span>
+                        <span class="font-semibold">1</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Domains</span>
+                        <span class="font-semibold">5</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">CAPI</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Hosting</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">Hosting Requirement</p>
-                    <p class="text-sm text-gray-700 mb-1">LanderLab ($239/mo) or LanderBolt ($97/mo) required</p>
-                    <p class="text-xs text-gray-500">Tracked: Included at $0</p>
+
+                <div class="text-xs text-gray-500 leading-relaxed">
+                    Perfect for solo affiliates testing offers.
+                </div>
+            </div>
+
+            <!-- Team Plan (Featured) -->
+            <div class="border-2 border-black rounded-2xl p-8 bg-white shadow-xl relative">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
+                    Popular
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Team</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-5xl font-light sans">$299</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8 text-sm">
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Events</span>
+                        <span class="font-semibold">10M</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Seats</span>
+                        <span class="font-semibold">5</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Domains</span>
+                        <span class="font-semibold text-green-600">Unlimited</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">CAPI</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Hosting</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 leading-relaxed">
+                    Growing teams with multiple verticals.
+                </div>
+            </div>
+
+            <!-- Agency Plan -->
+            <div class="border border-gray-200 rounded-2xl p-8 bg-white hover:shadow-lg transition-shadow">
+                <div class="mb-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Agency</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-5xl font-light sans">$699</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8 text-sm">
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Events</span>
+                        <span class="font-semibold">40M</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Seats</span>
+                        <span class="font-semibold">15</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Domains</span>
+                        <span class="font-semibold text-green-600">Unlimited</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">CAPI</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Hosting</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 leading-relaxed">
+                    Agencies managing multiple clients.
+                </div>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="border border-gray-200 rounded-2xl p-8 bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-shadow">
+                <div class="mb-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Enterprise</h4>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-5xl font-light sans">$1,199</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8 text-sm">
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Events</span>
+                        <span class="font-semibold">100M</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Seats</span>
+                        <span class="font-semibold text-green-600">Unlimited</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Domains</span>
+                        <span class="font-semibold text-green-600">Unlimited</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">CAPI</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-gray-600">Hosting</span>
+                        <span class="font-semibold text-green-600">✓</span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 leading-relaxed">
+                    Scale without limits.
                 </div>
             </div>
         </div>
 
-        <div class="mb-12">
-            <h4 class="text-xs font-bold uppercase tracking-widest mb-4 pl-2 border-l-2 border-black">Entry Tier (~1-3M Events)</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th class="w-1/6">Platform</th>
-                        <th class="text-right">Price</th>
-                        <th class="text-right">Events</th>
-                        <th class="text-right">Domains</th>
-                        <th class="text-right">CAPI</th>
-                        <th class="text-right">Hosting</th>
-                        <th class="text-right">VSL</th>
-                        <th class="text-right">Edge Proxy</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-gray-50 font-semibold">
-                        <td>Tracked Solo</td>
-                        <td class="text-right">$99</td>
-                        <td class="text-right">2M</td>
-                        <td class="text-right text-green-700">Unlimited</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">&lt;50ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">Voluum Profit</td>
-                        <td class="text-right font-mono">$149</td>
-                        <td class="text-right font-mono">1M</td>
-                        <td class="text-right font-mono text-xs">3 (+1 ded)</td>
-                        <td class="text-right text-red-700">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ClickFlare Starter</td>
-                        <td class="text-right font-mono">$89</td>
-                        <td class="text-right font-mono">1M</td>
-                        <td class="text-right font-mono">3</td>
-                        <td class="text-right text-green-700">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">69ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">RedTrack Solo</td>
-                        <td class="text-right font-mono">$149</td>
-                        <td class="text-right font-mono">3M</td>
-                        <td class="text-right font-mono text-xs">3 (+$2/extra)</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ThriveTracker</td>
-                        <td class="text-right font-mono">$79</td>
-                        <td class="text-right font-mono">0.5M</td>
-                        <td class="text-right font-mono text-xs">1 (+$10/extra)</td>
-                        <td class="text-right text-red-700">Add-on</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Comparison vs Competitors by Tier -->
+        <div class="space-y-16">
+            <!-- Entry Tier Comparison -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-8 pl-6 border-l-4 border-green-600 text-gray-900">Entry Tier (~$100/mo)</h4>
+                <div class="overflow-hidden border border-gray-100 rounded-2xl shadow-sm">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="pl-10 w-1/6 py-6">Platform</th>
+                                <th class="text-right py-6">Price</th>
+                                <th class="text-right py-6">Events</th>
+                                <th class="text-right py-6">Domains</th>
+                                <th class="text-right py-6">CAPI</th>
+                                <th class="text-right pr-10 py-6">Hosting</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr class="bg-green-50/30">
+                                <td class="pl-10 py-6 font-bold text-gray-900" data-label="Platform">Tracked Solo</td>
+                                <td class="text-right py-6 font-bold text-gray-900" data-label="Price">$99</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="Events">2M</td>
+                                <td class="text-right py-6 font-semibold text-gray-700" data-label="Domains">5</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 font-bold text-green-700 pr-10" data-label="Hosting">✓</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">Voluum Profit</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$149</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">1M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">3</td>
+                                <td class="text-right py-6 text-red-400 font-medium" data-label="CAPI">✗</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">RedTrack Solo</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$149</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">3M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">3</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">ClickFlare Starter</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$89</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">1M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">3</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Team Tier Comparison -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-8 pl-6 border-l-4 border-green-600 text-gray-900">Team Tier (~$300/mo)</h4>
+                <div class="overflow-hidden border border-gray-100 rounded-2xl shadow-sm">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="pl-10 w-1/6 py-6">Platform</th>
+                                <th class="text-right py-6">Price</th>
+                                <th class="text-right py-6">Events</th>
+                                <th class="text-right py-6">Seats</th>
+                                <th class="text-right py-6">Domains</th>
+                                <th class="text-right py-6">CAPI</th>
+                                <th class="text-right pr-10 py-6">Hosting</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr class="bg-green-50/30">
+                                <td class="pl-10 py-6 font-bold text-gray-900" data-label="Platform">Tracked Team</td>
+                                <td class="text-right py-6 font-bold text-gray-900" data-label="Price">$299</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="Events">10M</td>
+                                <td class="text-right py-6 font-semibold text-gray-700" data-label="Seats">5</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="Domains">Unlimited</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 font-bold text-green-700 pr-10" data-label="Hosting">✓</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">Voluum Start-up</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$599</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">10M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">1-2</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">9</td>
+                                <td class="text-right py-6 text-red-400 font-medium" data-label="CAPI">✗</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">RedTrack Team</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$399</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">10M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">5</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">50</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">ClickFlare Pro</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$219</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">2M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">Multi</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">6</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Agency/Enterprise Tier Comparison -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-widest mb-8 pl-6 border-l-4 border-green-600 text-gray-900">Agency/Enterprise Tier ($700-$2,000/mo)</h4>
+                <div class="overflow-hidden border border-gray-100 rounded-2xl shadow-sm">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="pl-10 w-1/6 py-6">Platform</th>
+                                <th class="text-right py-6">Price</th>
+                                <th class="text-right py-6">Events</th>
+                                <th class="text-right py-6">Seats</th>
+                                <th class="text-right py-6">Domains</th>
+                                <th class="text-right py-6">CAPI</th>
+                                <th class="text-right pr-10 py-6">Hosting</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr class="bg-green-50/30">
+                                <td class="pl-10 py-6 font-bold text-gray-900" data-label="Platform">Tracked Agency</td>
+                                <td class="text-right py-6 font-bold text-gray-900" data-label="Price">$699</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="Events">40M</td>
+                                <td class="text-right py-6 font-semibold text-gray-700" data-label="Seats">15</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="Domains">Unlimited</td>
+                                <td class="text-right py-6 font-bold text-green-700" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 font-bold text-green-700 pr-10" data-label="Hosting">✓</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">Voluum Enterprise</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$1,999</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">60M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">10+20RO</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">20</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">RedTrack Enterprise</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$999</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">20M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">15</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">100</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                            <tr>
+                                <td class="pl-10 py-6 text-gray-500" data-label="Platform">ThriveTracker Enterprise</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Price">$1,190</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Events">30M</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Seats">Multi</td>
+                                <td class="text-right py-6 font-mono text-gray-400" data-label="Domains">100</td>
+                                <td class="text-right py-6 text-green-600/60 font-medium" data-label="CAPI">✓</td>
+                                <td class="text-right py-6 text-gray-300 pr-10" data-label="Hosting">✗</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="mb-12">
-            <h4 class="text-xs font-bold uppercase tracking-widest mb-4 pl-2 border-l-2 border-black">Mid-Tier (~10M Events)</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th class="w-1/6">Platform</th>
-                        <th class="text-right">Price</th>
-                        <th class="text-right">Events</th>
-                        <th class="text-right">Domains</th>
-                        <th class="text-right">Seats</th>
-                        <th class="text-right">CAPI</th>
-                        <th class="text-right">VSL</th>
-                        <th class="text-right">Edge Proxy</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-gray-50 font-semibold">
-                        <td>Tracked Team</td>
-                        <td class="text-right">$299</td>
-                        <td class="text-right">10M</td>
-                        <td class="text-right text-green-700">Unlimited</td>
-                        <td class="text-right">5</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">&lt;50ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">Voluum Start-up</td>
-                        <td class="text-right font-mono">$599</td>
-                        <td class="text-right font-mono">10M</td>
-                        <td class="text-right font-mono text-xs">9 (+1 ded)</td>
-                        <td class="text-right font-mono">2</td>
-                        <td class="text-right text-red-700">No</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ClickFlare Pro</td>
-                        <td class="text-right font-mono">$219</td>
-                        <td class="text-right font-mono">2M</td>
-                        <td class="text-right font-mono">6</td>
-                        <td class="text-right font-mono">Multi</td>
-                        <td class="text-right text-green-700">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">69ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">RedTrack Team</td>
-                        <td class="text-right font-mono">$399</td>
-                        <td class="text-right font-mono">10M</td>
-                        <td class="text-right font-mono text-xs">50 (+$2/extra)</td>
-                        <td class="text-right font-mono">5</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ThriveTracker Pro</td>
-                        <td class="text-right font-mono">$364</td>
-                        <td class="text-right font-mono">5M</td>
-                        <td class="text-right font-mono text-xs">5 (+$10/extra)</td>
-                        <td class="text-right font-mono">Multi</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Key Takeaway -->
+        <div class="mt-24 bg-gradient-to-br from-green-50 to-white border-2 border-green-200 rounded-2xl p-12">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-green-700 mb-6">The Bottom Line</h4>
+            <p class="text-3xl font-light leading-relaxed text-gray-800 mb-8">
+                At every tier, you get <strong>more events</strong>, <strong>CAPI included</strong>, <strong>hosting included</strong>, and pay <strong>25-65% less</strong> than the competition.
+            </p>
+            <div class="grid grid-cols-3 gap-8 text-center">
+                <div>
+                    <div class="text-5xl font-light sans text-green-600 mb-2">50%</div>
+                    <div class="text-xs uppercase tracking-widest text-gray-500">Cheaper than Voluum</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-light sans text-green-600 mb-2">$0</div>
+                    <div class="text-xs uppercase tracking-widest text-gray-500">Hosting Cost</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-light sans text-green-600 mb-2">✓</div>
+                    <div class="text-xs uppercase tracking-widest text-gray-500">CAPI on All Plans</div>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <h4 class="text-xs font-bold uppercase tracking-widest mb-4 pl-2 border-l-2 border-black">Enterprise (100M+ Events)</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th class="w-1/6">Platform</th>
-                        <th class="text-right">Price</th>
-                        <th class="text-right">Included Events</th>
-                        <th class="text-right">Domains</th>
-                        <th class="text-right">Users</th>
-                        <th class="text-right">CAPI</th>
-                        <th class="text-right">VSL</th>
-                        <th class="text-right">Edge Proxy</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-gray-50 font-semibold">
-                        <td>Tracked Enterprise</td>
-                        <td class="text-right">$1,199</td>
-                        <td class="text-right">100M</td>
-                        <td class="text-right text-green-700">Unlimited</td>
-                        <td class="text-right">Unlimited</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">Included</td>
-                        <td class="text-right text-green-700">&lt;50ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">Voluum Enterprise</td>
-                        <td class="text-right font-mono">$1,999</td>
-                        <td class="text-right font-mono">60M</td>
-                        <td class="text-right font-mono text-xs">20 (+1 ded)</td>
-                        <td class="text-right font-mono">$30/user</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ClickFlare Master</td>
-                        <td class="text-right font-mono">$429</td>
-                        <td class="text-right font-mono">20M</td>
-                        <td class="text-right font-mono">10</td>
-                        <td class="text-right font-mono">Multi</td>
-                        <td class="text-right text-green-700">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">69ms</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">RedTrack Ent.</td>
-                        <td class="text-right font-mono">$999</td>
-                        <td class="text-right font-mono">20M</td>
-                        <td class="text-right font-mono text-xs">100 (+$2/extra)</td>
-                        <td class="text-right font-mono">$30/user</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                    <tr>
-                        <td class="text-gray-600">ThriveTracker Ent.</td>
-                        <td class="text-right font-mono">$1,189</td>
-                        <td class="text-right font-mono">30M</td>
-                        <td class="text-right font-mono text-xs">100 free (+$10/extra)</td>
-                        <td class="text-right font-mono">Multi</td>
-                        <td class="text-right">Yes</td>
-                        <td class="text-right text-gray-400">No</td>
-                        <td class="text-right text-gray-400">Slow</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="absolute bottom-16 left-16 right-16 border-t border-gray-200 pt-4 flex justify-between text-[10px] uppercase tracking-widest text-gray-400 sans">
-            <div>Tracked</div>
-            <div>Page 04</div>
-        </div>
     </div>
 
     <script>
+        // iOS App Enhancements
+        if (window.innerWidth <= 768) {
+            // Update navigation title on scroll
+            const pages = document.querySelectorAll('.page');
+            const navTitle = document.querySelector('.ios-nav-title');
+            const pageIndicator = document.querySelector('.page-indicator');
+            
+            const pageTitles = [
+                'Tracked',
+                'The Tech',
+                'The Problem',
+                'The Money',
+                'The Competition',
+                'Our Plans'
+            ];
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pageIndex = Array.from(pages).indexOf(entry.target);
+                        if (pageIndex >= 0 && pageIndex < pageTitles.length) {
+                            navTitle.textContent = pageTitles[pageIndex];
+                            pageIndicator.textContent = `Page ${pageIndex + 1} of ${pages.length}`;
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            pages.forEach(page => observer.observe(page));
+
+            // Smooth scroll behavior
+            document.documentElement.style.scrollBehavior = 'smooth';
+
+            // Prevent zoom on double tap (iOS)
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // Add haptic-like feedback for interactions
+            const addHapticFeedback = (element) => {
+                element.addEventListener('touchstart', () => {
+                    element.style.opacity = '0.7';
+                });
+                element.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                    }, 100);
+                });
+            };
+
+            // Apply to buttons and interactive elements
+            document.querySelectorAll('button, input[type="range"]').forEach(addHapticFeedback);
+        }
+
         // Simulation Logic
         const state = {
             soloPrice: 99,
@@ -823,12 +1502,12 @@
                     label: 'ARR',
                     data: [0, 0, 0, 0, 0],
                     borderColor: '#000000',
-                    borderWidth: 1.5,
-                    pointRadius: 2,
+                    borderWidth: 2,
+                    pointRadius: 4,
                     pointBackgroundColor: '#000',
                     fill: true,
-                    backgroundColor: 'rgba(0,0,0,0.02)',
-                    tension: 0
+                    backgroundColor: 'rgba(0,0,0,0.03)',
+                    tension: 0.1
                 }]
             },
             options: {
@@ -837,7 +1516,7 @@
                 plugins: { legend: { display: false } },
                 scales: { 
                     x: { grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } }
+                    y: { beginAtZero: true, grid: { color: '#f5f5f5' } }
                 }
             }
         });
@@ -862,7 +1541,7 @@
 
             document.getElementById('arpu-val').innerText = `$${Math.round(avgRev)}`;
             
-            const totalLegacyCost = 2837 * state.custCount;
+            const totalLegacyCost = 2238 * state.custCount;
             const totalOurCost = avgRev * state.custCount;
             const totalSavings = totalLegacyCost - totalOurCost;
             document.getElementById('savings-delta').innerText = `$${new Intl.NumberFormat('en-US', { notation: 'compact' }).format(totalSavings)}+`;

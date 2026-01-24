@@ -1,4 +1,19 @@
 import { env } from "cloudflare:workers";
+import coloLocations from "./colo-locations.json";
+
+// Type for Cloudflare colo location data
+interface ColoLocation {
+  cca2?: string;
+  city?: string;
+  country?: string;
+  lat?: number;
+  lon?: number;
+  name?: string;
+  region?: string;
+}
+
+// Type for the colo locations map
+const COLO_LOCATIONS: Record<string, ColoLocation> = coloLocations;
 
 // Type for click data returned from database lookup
 interface ClickDataResult {
@@ -974,8 +989,10 @@ async function servePublicFile(c: any, baseDir: string, data: RequestData, reaso
     const ext = getPathExtension(requestedPath);
     const endsWithSlash = requestedPath.endsWith('/');
     const isHtml = requestedPath.endsWith('.html') || requestedPath.endsWith('.htm');
-    const isLikelyPage = isHtml || ext === '' || (ext && !ASSET_EXTENSIONS.has(ext));
-    if (isLikelyPage) {
+    // If path already ends with .html/.htm, serve it directly - don't append /index.html
+    // Only append /index.html for directory-like paths (no extension or non-asset extension)
+    const isLikelyDirectory = ext === '' || (ext && !ASSET_EXTENSIONS.has(ext) && !isHtml);
+    if (isLikelyDirectory) {
       requestedPath = endsWithSlash ? `${requestedPath}index.html` : `${requestedPath}/index.html`;
     }
   }
@@ -1427,8 +1444,12 @@ interface MacroContext {
 function populateMacros(data: RequestData, variables?: Record<string, string>, context?: MacroContext): Record<string, string> {
     const allReplaceableVariables: Record<string, string> = { ...(variables || {}) };
 
+    // Add variable with multiple case variants for maximum compatibility
     const addVariable = (key: string, value: string | number | null | undefined) => {
-        allReplaceableVariables[key] = (value === null || value === undefined) ? '' : String(value);
+        const strValue = (value === null || value === undefined) ? '' : String(value);
+        allReplaceableVariables[key] = strValue;
+        // Also add lowercase version for case-insensitive matching
+        allReplaceableVariables[key.toLowerCase()] = strValue;
     };
 
     // Campaign & Tracking IDs
@@ -1439,51 +1460,101 @@ function populateMacros(data: RequestData, variables?: Record<string, string>, c
     addVariable('site.name', context?.siteName);
     addVariable('site.NAME', context?.siteName);  // Alias
     addVariable('click.id', context?.clickId);
+    addVariable('click.ID', context?.clickId);  // Alias
     addVariable('impression.id', context?.impressionId);
+    addVariable('impression.ID', context?.impressionId);  // Alias
     addVariable('session.id', context?.sessionId);
+    addVariable('session.ID', context?.sessionId);  // Alias
     
     // Platform info
     addVariable('platform.id', context?.platformId);
     addVariable('platform.name', context?.platformName);
     addVariable('platform.click_id', context?.platformClickId);
 
-    // User/Visitor Data
+    // User/Visitor Data - add both UPPER and lower case variants
     addVariable('user.IP', data.ip);
+    addVariable('user.ip', data.ip);  // lowercase alias
     addVariable('user.CITY', data.geo.city);
+    addVariable('user.city', data.geo.city);  // lowercase alias
+    addVariable('user.City', data.geo.city);  // Title case alias
     addVariable('user.COUNTRY', data.geo.country);
+    addVariable('user.country', data.geo.country);  // lowercase alias
+    addVariable('user.Country', data.geo.country);  // Title case alias
     addVariable('user.GEO', data.geo.country);
     addVariable('user.COUNTRY_CODE', data.geo.country);
+    addVariable('user.country_code', data.geo.country);  // lowercase alias
     addVariable('user.CONTINENT', data.geo.continent);
+    addVariable('user.continent', data.geo.continent);  // lowercase alias
     addVariable('user.REGION_NAME', data.geo.region);
+    addVariable('user.region_name', data.geo.region);  // lowercase alias
     addVariable('user.REGION_CODE', data.geo.regionCode);
+    addVariable('user.region_code', data.geo.regionCode);  // lowercase alias
     addVariable('user.POSTAL_CODE', data.geo.postalCode);
+    addVariable('user.postal_code', data.geo.postalCode);  // lowercase alias
     addVariable('user.LATITUDE', data.geo.latitude);
+    addVariable('user.latitude', data.geo.latitude);  // lowercase alias
     addVariable('user.LONGITUDE', data.geo.longitude);
+    addVariable('user.longitude', data.geo.longitude);  // lowercase alias
     addVariable('user.TIMEZONE', data.geo.timezone);
+    addVariable('user.timezone', data.geo.timezone);  // lowercase alias
     addVariable('user.DEVICE', data.userAgent.device);
+    addVariable('user.device', data.userAgent.device);  // lowercase alias
+    addVariable('user.Device', data.userAgent.device);  // Title case alias
     addVariable('user.BROWSER', data.userAgent.browser);
+    addVariable('user.browser', data.userAgent.browser);  // lowercase alias
+    addVariable('user.Browser', data.userAgent.browser);  // Title case alias
     addVariable('user.BROWSER_VERSION', data.userAgent.browserVersion);
+    addVariable('user.browser_version', data.userAgent.browserVersion);  // lowercase alias
     addVariable('user.OS', data.userAgent.os);
+    addVariable('user.os', data.userAgent.os);  // lowercase alias
+    addVariable('user.Os', data.userAgent.os);  // Title case alias
     addVariable('user.OS_VERSION', data.userAgent.osVersion);
+    addVariable('user.os_version', data.userAgent.osVersion);  // lowercase alias
     addVariable('user.BRAND', data.userAgent.brand);
+    addVariable('user.brand', data.userAgent.brand);  // lowercase alias
     addVariable('user.MODEL', data.userAgent.model);
+    addVariable('user.model', data.userAgent.model);  // lowercase alias
     addVariable('user.ARCH', data.userAgent.arch);
+    addVariable('user.arch', data.userAgent.arch);  // lowercase alias
     addVariable('user.BOT_SCORE', data.botScore?.toString() || '0');
+    addVariable('user.bot_score', data.botScore?.toString() || '0');  // lowercase alias
     addVariable('user.THREAT_SCORE', data.clientTrustScore?.toString() || '0');
+    addVariable('user.threat_score', data.clientTrustScore?.toString() || '0');  // lowercase alias
     addVariable('user.IS_VERIFIED_BOT', data.isVerifiedBot ? 'true' : 'false');
+    addVariable('user.is_verified_bot', data.isVerifiedBot ? 'true' : 'false');  // lowercase alias
     addVariable('user.ORGANIZATION', data.org);
+    addVariable('user.organization', data.org);  // lowercase alias
     addVariable('user.REFERRER', data.referrer);
+    addVariable('user.referrer', data.referrer);  // lowercase alias
     addVariable('user.COLO', data.cf.colo);
+    addVariable('user.colo', data.cf.colo);  // lowercase alias
+    
+    // Colo location data from mapping
+    const coloData = data.cf.colo ? COLO_LOCATIONS[data.cf.colo] : null;
+    addVariable('user.colo.city', coloData?.city);
+    addVariable('user.COLO.CITY', coloData?.city);
+    addVariable('user.colo.country', coloData?.country);
+    addVariable('user.COLO.COUNTRY', coloData?.country);
+    addVariable('user.colo.region', coloData?.region);
+    addVariable('user.COLO.REGION', coloData?.region);
+    addVariable('user.colo.name', coloData?.name);
+    addVariable('user.COLO.NAME', coloData?.name);
+    
     addVariable('user.ASN', data.cf.asn);
+    addVariable('user.asn', data.cf.asn);  // lowercase alias
 
     // Request context
     addVariable('request.DOMAIN', data.domain);
+    addVariable('request.domain', data.domain);  // lowercase alias
     addVariable('request.PATH', data.path);
+    addVariable('request.path', data.path);  // lowercase alias
 
-    // Query parameters (dynamic)
+    // Query parameters (dynamic) - add both original and lowercase
     if (data.query) {
         for (const [queryKey, queryValue] of Object.entries(data.query)) {
-            addVariable(`query.${queryKey.replace(/[^a-zA-Z0-9_]/g, '_')}`, queryValue);
+            const sanitizedKey = queryKey.replace(/[^a-zA-Z0-9_]/g, '_');
+            addVariable(`query.${sanitizedKey}`, queryValue);
+            addVariable(`query.${sanitizedKey.toLowerCase()}`, queryValue);
         }
     }
     return allReplaceableVariables;
@@ -3296,7 +3367,20 @@ async function serveNotFoundPage(c: any, data: RequestData, reason: string): Pro
   }));
 
   const notFoundData = { ...data, path: '/error.html', query: {} };
-  const errorPageResponse = await servePublicFile(c, '', notFoundData, "Serving custom 404 page");
+  
+  // Add error-specific variables for macro replacement
+  const errorVariables: Record<string, string> = {
+    'error.STATUS': '404',
+    'error.TITLE': 'Deployment Incomplete',
+    'error.CODE': 'NO_RULE',
+    'error.MESSAGE': 'The domain is correctly pointed to Tracked, but no campaign or site has been assigned to this path yet.',
+    'ray_id': data.impressionId || generateUniqueId('err'),
+  };
+
+  // Generate all user variables and merge with error variables
+  const allVariables = populateMacros(data, errorVariables);
+
+  const errorPageResponse = await servePublicFile(c, '', notFoundData, "Serving custom 404 page", allVariables);
 
   if (errorPageResponse.ok) {
     return new Response(errorPageResponse.body, {
@@ -3390,41 +3474,59 @@ function replaceMacros(html: string, variables: Record<string, string>): string 
 
   let content = html;
 
-  // Step 1: Temporarily protect escaped macros written as {{!key}}
-  for (const key of Object.keys(variables)) {
-    const escPlaceholder = `__ESC_${key.replace(/[^a-zA-Z0-9_]/g, '_')}__`;
-    content = content.replaceAll(`{{!${key}}}`, escPlaceholder);
+  // Build a case-insensitive lookup map
+  const lowerCaseMap: Record<string, string> = {};
+  for (const [key, value] of Object.entries(variables)) {
+    lowerCaseMap[key.toLowerCase()] = value;
   }
 
-  // Step 2: Replace normal macros
-  for (const [key, value] of Object.entries(variables)) {
-    content = content.replaceAll(`{{${key}}}`, value);
-  }
+  // Step 1: Temporarily protect escaped macros written as {{!key}} (case-insensitive)
+  const escapedPlaceholders: Map<string, string> = new Map();
+  content = content.replace(/\{\{!([^}]+)\}\}/gi, (match, macroName) => {
+    const placeholder = `__ESC_${macroName.replace(/[^a-zA-Z0-9_]/g, '_')}_${escapedPlaceholders.size}__`;
+    escapedPlaceholders.set(placeholder, `{{${macroName}}}`);
+    return placeholder;
+  });
+
+  // Step 2: Replace normal macros (case-insensitive)
+  content = content.replace(/\{\{([^}]+)\}\}/g, (match, macroName) => {
+    const lowerKey = macroName.toLowerCase();
+    if (lowerKey in lowerCaseMap) {
+      return lowerCaseMap[lowerKey];
+    }
+    // Return original if no match found
+    return match;
+  });
 
   // Step 3: Restore escaped macros back to their original form (without the !)
-  for (const key of Object.keys(variables)) {
-    const escPlaceholder = `__ESC_${key.replace(/[^a-zA-Z0-9_]/g, '_')}__`;
-    content = content.replaceAll(escPlaceholder, `{{${key}}}`);
-  }
+  escapedPlaceholders.forEach((literal, placeholder) => {
+    content = content.replaceAll(placeholder, literal);
+  });
 
   return content;
 }
 
 /**
- * Replace macros in a redirect URL
+ * Replace macros in a redirect URL (case-insensitive)
  * Supports both {{key}} format for direct replacement and URL encoding
  * Example: https://site.com?sub1={{query.fbclid}}&city={{user.CITY}}&cid={{campaign.id}}
  */
 function replaceMacrosInUrl(url: string, data: RequestData, variables?: Record<string, string>, context?: MacroContext): string {
   const allVariables = populateMacros(data, variables, context);
   
-  // Replace macros with URL-encoded values for query string safety
-  let result = url;
+  // Build a case-insensitive lookup map
+  const lowerCaseMap: Record<string, string> = {};
   for (const [key, value] of Object.entries(allVariables)) {
-    // URL-encode the value for safe inclusion in URLs
-    const encodedValue = encodeURIComponent(value);
-    result = result.replaceAll(`{{${key}}}`, encodedValue);
+    lowerCaseMap[key.toLowerCase()] = value;
   }
   
-  return result;
+  // Replace macros with URL-encoded values for query string safety (case-insensitive)
+  return url.replace(/\{\{([^}]+)\}\}/g, (match, macroName) => {
+    const lowerKey = macroName.toLowerCase();
+    if (lowerKey in lowerCaseMap) {
+      return encodeURIComponent(lowerCaseMap[lowerKey]);
+    }
+    // Return original if no match found
+    return match;
+  });
 } 

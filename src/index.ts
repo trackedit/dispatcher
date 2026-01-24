@@ -181,8 +181,55 @@ app.get("/*", async (c: Context) => {
         return new Response("/* Invalid Client URL */", { status: 400, headers: { 'Content-Type': 'application/javascript' } });
       }
     } else {
-      console.error("Missing URL parameter for embed request");
-      return new Response("/* URL Parameter Required */", { status: 400, headers: { 'Content-Type': 'application/javascript' } });
+      // No URL parameter - return a JavaScript file that reads data-site and window.location
+      // This script will then make a request with the URL parameter
+      const trackJsScript = `
+(function() {
+  try {
+    // Find the script tag that loaded this file
+    var scripts = document.getElementsByTagName('script');
+    var currentScript = null;
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.includes('/track.js')) {
+        currentScript = scripts[i];
+        break;
+      }
+    }
+    
+    // Get data-site attribute or use window.location
+    var dataSite = currentScript ? currentScript.getAttribute('data-site') : null;
+    var currentUrl = window.location.href;
+    
+    // If data-site is provided, use it to construct the URL; otherwise use current page URL
+    var trackUrl = currentUrl;
+    if (dataSite) {
+      try {
+        // Construct URL from data-site (domain) + current path
+        var urlObj = new URL(currentUrl);
+        var siteDomain = dataSite.replace(/^https?:\\/\\//, '').split('/')[0];
+        trackUrl = urlObj.protocol + '//' + siteDomain + urlObj.pathname + urlObj.search + urlObj.hash;
+      } catch (e) {
+        // Fallback to current URL if parsing fails
+        trackUrl = currentUrl;
+      }
+    }
+    
+    // Make tracking request with URL parameter - use absolute URL to tracking domain
+    var trackingOrigin = currentScript ? new URL(currentScript.src).origin : '';
+    var trackScript = document.createElement('script');
+    trackScript.src = trackingOrigin + '/track.js?url=' + encodeURIComponent(trackUrl);
+    trackScript.async = true;
+    document.head.appendChild(trackScript);
+  } catch (e) {
+    console.error('Tracked script error:', e);
+  }
+})();
+`.trim();
+      
+      const jsHeaders = new Headers({ 'Content-Type': 'application/javascript; charset=utf-8' });
+      const acceptCHHeader = 'sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-ch-ua-platform-version, sec-ch-ua-full-version-list, sec-ch-ua-model, sec-ch-ua-arch';
+      jsHeaders.set('Accept-CH', acceptCHHeader);
+      return new Response(trackJsScript, { headers: jsHeaders });
     }
   }
   

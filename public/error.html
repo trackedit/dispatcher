@@ -1,187 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Not Found</title>
-  <link rel="stylesheet" href="./FaultyTerminal.css">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #terminal-container {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-    }
-    .error-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-      text-align: center;
-      z-index: 10;
-      pointer-events: none;
-      padding: 3rem 4rem;
-      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 80%);
-      border-radius: 20px;
-    }
-    .error-overlay h1 {
-      font-size: 6rem;
-      margin: 0 0 0.5rem 0;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      background: linear-gradient(135deg, #ff6b9d 0%, #d933ad 50%, #9933ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: none;
-      filter: drop-shadow(0 0 30px rgba(217, 51, 173, 0.5));
-    }
-    .error-overlay p {
-      font-size: 1.4rem;
-      margin: 0 0 2rem 0;
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-    }
-    .powered-by {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-      pointer-events: auto;
-    }
-    .error-overlay a {
-      color: #d933ad;
-      text-decoration: none;
-      pointer-events: auto;
-      opacity: 0.9;
-      transition: all 0.2s;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-    }
-    .error-overlay a:hover {
-      opacity: 1;
-      color: #ff6b9d;
-      text-decoration: underline;
-    }
-  </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{error.STATUS}} {{error.TITLE}} | Tracked</title>
+    <meta name="description" content="{{error.MESSAGE}}" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        border: "var(--border)",
+                        background: "var(--background)",
+                        foreground: "var(--foreground)", 
+                        primary: {
+                            DEFAULT: "var(--primary)",
+                            foreground: "var(--primary-foreground)",
+                        },
+                        muted: {
+                            DEFAULT: "var(--muted)",
+                            foreground: "var(--muted-foreground)",
+                        },
+                        card: {
+                            DEFAULT: "var(--card)",
+                            foreground: "var(--card-foreground)",
+                        }
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #09090b;
+            --primary: #18181b;
+            --primary-foreground: #fafafa;
+            --muted: #f4f4f5;
+            --muted-foreground: #71717a;
+            --border: #e4e4e7;
+            --card: #ffffff;
+            --card-foreground: #09090b;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #09090b;
+                --foreground: #fafafa;
+                --primary: #fafafa;
+                --primary-foreground: #18181b;
+                --muted: #27272a;
+                --muted-foreground: #a1a1aa;
+                --border: #27272a;
+                --card: #09090b;
+                --card-foreground: #fafafa;
+            }
+        }
+        
+        body {
+            font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+                              linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+        }
+
+        /* Tooltip */
+        .tooltip { position: relative; cursor: help; }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 0.75rem;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-radius: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            line-height: 1.2;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 0.15s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 4px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
 </head>
-<body>
-  <div id="terminal-container" class="faulty-terminal-container">
-    <div class="error-overlay">
-      <h1>404</h1>
-      <p>Page not found</p>
-      <div class="powered-by">
-        powered by <a href="https://tracked.it">tracked</a>
-      </div>
-    </div>
-  </div>
-  <script type="module">
-    import { createFaultyTerminal } from './FaultyTerminal.js';
-    
-    const container = document.getElementById('terminal-container');
-    let terminalInstance = null;
-    
-    // Random words to display in ASCII background
-    const words = ['ERROR', '404', 'NOTFOUND', 'FAIL', 'LOST', 'MISSING', 'VOID', 'NULL'];
-    const randomWord = words[Math.floor(Math.random() * words.length)];
-    
-    createFaultyTerminal(container, {
-      word: randomWord,
-      scale: 1.8,
-      gridMul: [2.5, 1.2],
-      digitSize: 1.1,
-      timeScale: 0.4,
-      pause: false,
-      scanlineIntensity: 0.8,
-      glitchAmount: 0.6,
-      flickerAmount: 0.4,
-      noiseAmp: 1.2,
-      chromaticAberration: 2,
-      dither: 0.3,
-      curvature: 0.15,
-      tint: '#d933ad',
-      mouseReact: true,
-      mouseStrength: 0.7,
-      pageLoadAnimation: true,
-      brightness: 0.35
-    }).then((instance) => {
-      terminalInstance = instance;
-      startAnimation();
-    }).catch(console.error);
-    
-    function hslToHex(h, s, l) {
-      l /= 100;
-      const a = s * Math.min(l, 1 - l) / 100;
-      const f = n => {
-        const k = (n + h / 30) % 12;
-        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        return Math.round(255 * color).toString(16).padStart(2, '0');
-      };
-      return `#${f(0)}${f(8)}${f(4)}`;
-    }
-    
-    function startAnimation() {
-      let time = 0;
-      const h1 = document.querySelector('.error-overlay h1');
-      const link = document.querySelector('.error-overlay a');
-      
-      setInterval(() => {
-        if (!terminalInstance) return;
+<body class="bg-background text-foreground min-h-full flex flex-col font-sans opacity-0 transition-opacity duration-150">
+<script>
+    const show = () => document.body.classList.remove('opacity-0');
+    document.fonts.ready.then(show);
+    setTimeout(show, 400);
+</script>
+
+    <main class="flex-1 relative flex flex-col items-center justify-center py-8 sm:py-12 px-4 w-full max-w-full">
+        <!-- Huge Background Status Code -->
+        <div class="fixed inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden px-4 sm:px-12" style="z-index: -1;">
+            <div class="text-[35vw] sm:text-[50vw] font-black text-black/[0.02] dark:text-white/[0.02] leading-none uppercase transform transition-all duration-300">
+                {{error.STATUS}}
+            </div>
+        </div>
+
+        <!-- Background Decor -->
+        <div class="absolute inset-0 bg-grid opacity-20 pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl w-full flex flex-col items-center">
+            <!-- Error Hero -->
+            <div class="text-center mb-8 sm:mb-12 w-full">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-6">
+                    <div class="inline-flex items-center justify-center p-3 sm:p-4 rounded-full bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 ring-1 ring-red-500/20 shadow-sm">
+                        <svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-foreground text-center">{{error.TITLE}}</h1>
+                </div>
+                <p class="text-base sm:text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed px-2">
+                    The domain is correctly pointed to <a href="https://tracked.it" class="text-primary font-medium hover:underline underline-offset-4 transition-colors">Tracked</a>, but no campaign or site has been assigned to this path yet.
+                </p>
+            </div>
+
+            <!-- Connection Trace (Responsive) -->
+            <div class="flex flex-wrap items-center justify-center gap-y-2 gap-x-3 text-xs sm:text-sm text-muted-foreground mb-8 sm:mb-12 font-mono border border-border bg-card/50 backdrop-blur-sm px-4 sm:px-6 py-2.5 rounded-full shadow-sm max-w-full">
+                <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 tooltip" data-tooltip="Domain hosted with Tracked">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    DNS
+                </span>
+                <span class="text-border hidden sm:inline">/</span>
+                <span class="text-border sm:hidden">&bull;</span>
+                <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 tooltip" data-tooltip="Tracked services online">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    Tracked
+                </span>
+                <span class="text-border hidden sm:inline">/</span>
+                <span class="text-border sm:hidden">&bull;</span>
+                <span class="text-red-500 flex items-center gap-1.5 tooltip" data-tooltip="Configuration not complete">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Target
+                </span>
+            </div>
+
+            <!-- Action Card -->
+            <div class="w-full mb-8 sm:mb-12 px-2 sm:px-0">
+                <div class="rounded-xl border border-border bg-card p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row gap-4 sm:gap-5 items-start relative overflow-hidden transition-all hover:shadow-md">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
+                    <div class="p-2.5 rounded-lg bg-primary/5 text-primary shrink-0 self-start">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-base sm:text-lg mb-1.5 text-foreground">Action Required</h4>
+                        <p class="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                            Please configure a <a href="https://app.tracked.it/campaigns" class="text-primary font-medium hover:underline underline-offset-4 transition-colors">Campaign</a> or <a href="https://app.tracked.it/sites" class="text-primary font-medium hover:underline underline-offset-4 transition-colors">Site</a> in the dashboard to start serving content for this path.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagnostics List -->
+            <div class="w-full px-2 sm:px-0">
+                <div class="flex items-center gap-4 mb-4 sm:mb-6">
+                   <h3 class="text-xs font-mono font-medium uppercase tracking-wider text-muted-foreground">Request Details</h3>
+                   <div class="h-px flex-1 bg-border"></div>
+                </div>
+
+                <div class="rounded-xl border border-border bg-card shadow-sm text-sm">
+                    <div class="grid grid-cols-1 divide-y divide-border">
+                        <!-- Row 1 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+                            <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors rounded-t-xl sm:rounded-tr-none">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Unique identifier for this request">Ray ID</span>
+                                <span class="font-mono text-xs sm:text-sm text-foreground select-all break-all">{{ray_id}}</span>
+                            </div>
+                            <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors sm:rounded-tr-xl">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Your public IP address">Client IP</span>
+                                <span class="font-mono text-xs sm:text-sm text-foreground select-all break-all">{{user.IP}}</span>
+                            </div>
+                        </div>
+                        <!-- Row 2 -->
+                         <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+                            <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Geographic location of the request">Location</span>
+                                <span class="font-mono text-xs sm:text-sm text-foreground">{{user.city}}, {{user.REGION_CODE}}, {{user.COUNTRY}}</span>
+                            </div>
+                            <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Edge server processing this request">Data Center</span>
+                                <div class="font-mono text-xs sm:text-sm text-foreground flex items-center gap-2">
+                                    {{user.COLO.CITY}}, {{user.COLO.COUNTRY}}
+                                    <span class="flex h-1.5 w-1.5 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Row 3 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+                            <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors sm:rounded-bl-xl">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Target hostname for this request">Domain</span>
+                                <span class="font-mono text-xs sm:text-sm text-foreground break-all">{{request.DOMAIN}}</span>
+                            </div>
+                             <div class="p-3 sm:p-4 flex flex-col gap-1 hover:bg-muted/30 transition-colors rounded-b-xl sm:rounded-bl-none">
+                                <span class="text-xs font-medium text-muted-foreground tooltip" data-tooltip="Current server time (ISO 8601)">Timestamp</span>
+                                <span class="font-mono text-xs sm:text-sm text-foreground break-all" id="timestamp">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-12 sm:mt-16 w-full pt-6 sm:pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4 px-2 sm:px-0">
+                <div class="flex items-center gap-4 text-xs text-muted-foreground">
+                    <a href="mailto:support@tracked.it" class="hover:text-foreground transition-colors p-1">Support</a>
+                    <span class="opacity-30">&bull;</span>
+                    <a href="https://tracked.it/status" class="hover:text-foreground transition-colors p-1">Status</a>
+                </div>
+                <p class="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
+                    &copy; <span id="year"></span> Tracked
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const updateTime = () => {
+            const el = document.getElementById('timestamp');
+            if (el) el.textContent = new Date().toISOString();
+        };
+        updateTime();
+        setInterval(updateTime, 1000);
         
-        time += 0.02;
+        const yearEl = document.getElementById('year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        const fallbacks = {
+            '{{error.STATUS}}': '404',
+            '{{error.TITLE}}': 'Deployment Incomplete',
+            '{{error.MESSAGE}}': 'The domain is correctly pointed to Tracked, but no campaign or site has been assigned to this path yet.',
+            '{{request.DOMAIN}}': window.location.hostname
+        };
+
+        // Improved macro replacement
+        const replaceMacros = () => {
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
+            while(walker.nextNode()) nodes.push(walker.currentNode);
+            
+            nodes.forEach(node => {
+                let text = node.nodeValue;
+                Object.keys(fallbacks).forEach(key => {
+                    if (text.includes(key)) {
+                        const val = typeof fallbacks[key] === 'function' ? fallbacks[key]() : fallbacks[key];
+                        text = text.replace(new RegExp(key, 'g'), val);
+                    }
+                });
+                node.nodeValue = text;
+            });
+        };
         
-        // Rotating HSL color wheel
-        const hue = (time * 20) % 360;
-        const tintColor = hslToHex(hue, 80, 60);
-        
-        // Complementary color for text
-        const compHue = (hue + 180) % 360;
-        const compColor = hslToHex(compHue, 90, 60);
-        const compColor2 = hslToHex((compHue + 30) % 360, 90, 60);
-        
-        // Update DOM elements
-        if (h1) {
-          h1.style.background = `linear-gradient(135deg, ${compColor} 0%, ${compColor2} 100%)`;
-          h1.style.webkitBackgroundClip = 'text';
-          h1.style.webkitTextFillColor = 'transparent';
-          h1.style.filter = `drop-shadow(0 0 30px ${compColor}80)`;
-        }
-        
-        if (link) {
-          link.style.color = compColor;
-        }
-        
-        // Oscillate sizes smoothly
-        const scale = 1.8 + Math.sin(time) * 0.2;
-        const digitSize = 1.1 + Math.cos(time * 0.7) * 0.1;
-        const gridX = 2.5 + Math.sin(time * 0.5) * 0.3;
-        const gridY = 1.2 + Math.cos(time * 0.3) * 0.2;
-        
-        terminalInstance.setOptions({
-          tint: tintColor,
-          scale: scale,
-          digitSize: digitSize,
-          gridMul: [gridX, gridY]
-        });
-        
-      }, 50);
-    }
-    
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      if (terminalInstance) terminalInstance.cleanup();
-    });
-  </script>
+        replaceMacros();
+    </script>
 </body>
 </html>
